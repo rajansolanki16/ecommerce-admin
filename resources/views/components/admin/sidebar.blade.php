@@ -55,6 +55,29 @@
                         </div>
                     </li>
 
+
+                    <!-- PRODUCT -->
+                    <li class="nav-item">
+                            <a href="#sidebarproduct" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct">
+                                <i class="ri-profile-line"></i><span>Product</span>
+                            </a>
+                            <div class="menu-dropdown" id="sidebarproduct">
+                            <div class="collapse menu-dropdown" id="sidebarproduct">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('product.create') }}"  class="nav-link">Add Product</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href=""  class="nav-link">All Product</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="" class="nav-link">Categories</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <!-- END PRODUCT -->
+
                     <!-- ROOMS -->
                     <li class="nav-item">
                         @if(Route::is('rooms.*') || Route::is('amenities.*') || Route::is('services.*'))
