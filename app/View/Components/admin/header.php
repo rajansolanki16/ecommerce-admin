@@ -12,7 +12,7 @@ class header extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct($title = 'Knight Oasis')
+    public function __construct($title = 'E-Commerce-Admin')
     {
         $this->title = $title;
     }

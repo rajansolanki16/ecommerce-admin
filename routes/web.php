@@ -16,10 +16,10 @@ use App\Http\Controllers\Admin\BlogCategoriesController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\MediaController;
-use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Models\Faq;
 
 //Auth
@@ -47,12 +47,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
-
         Route::resource('/blogs', BlogController::class)->names('blogs');
         Route::resource('/blog-categories', BlogCategoriesController::class)->names('blog_categories');
         Route::resource('/room-services', ServiceController::class)->names('services');
         Route::resource('/room-amenities', AmenityController::class)->names('amenities');
         Route::resource('/rooms', RoomController::class)->names('rooms');
+        Route::resource('/products', ProductController::class)->names('products');
 
         //product routes
         Route::resource('/product',ProductController::class )->names('product');

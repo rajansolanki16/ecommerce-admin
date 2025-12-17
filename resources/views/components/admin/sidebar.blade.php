@@ -29,7 +29,7 @@
                     </li>
 
                     <!-- BLOGS -->
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         @if(Route::is('blogs.*') || Route::is('blog_categories.*'))
                             <a href="#sidebarBlogs" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBlogs">
                                 <i class="ri-profile-line"></i><span>Blogs</span>
@@ -53,7 +53,7 @@
                                 </li>
                             </ul>
                         </div>
-                    </li>
+                    </li> --}}
 
 
                     <!-- PRODUCT -->
@@ -79,7 +79,7 @@
                     <!-- END PRODUCT -->
 
                     <!-- ROOMS -->
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         @if(Route::is('rooms.*') || Route::is('amenities.*') || Route::is('services.*'))
                             <a href="#sidebarRooms" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarRooms">
                                 <i class=" ri-home-8-line"></i><span>Rooms</span>
@@ -106,10 +106,10 @@
                                 </li>
                             </ul>
                         </div>
-                    </li>
+                    </li> --}}
 
                     <!-- BOOKINGS -->
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         @if(Route::is('view.offline_booking') || Route::is('view.bookings') || Route::is('view.transactions') || Route::is('view.booking') || Route::is('view.edit_booking') )
                             <a href="#sidebarBookings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBookings">
                                 <i class=" ri-calendar-check-fill"></i><span>Bookings</span>
@@ -133,10 +133,36 @@
                                     </li>
                                 </ul>
                             </div>
+                    </li> --}}
+
+                    <!-- Products -->
+                    <li class="nav-item">
+                        @if(Route::is('products.index') || Route::is('products.create') || Route::is('products.edit') || Route::is('products.show'))
+                            <a href="#sidebarBookings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBookings">
+                                <i class=" ri-calendar-check-fill"></i><span>Products</span>
+                            </a>
+                            <div class="menu-dropdown" id="sidebarBookings">
+                        @else
+                            <a href="#sidebarBookings" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBookings">
+                                <i class=" ri-calendar-check-fill"></i><span>Products</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="sidebarBookings">
+                        @endif
+                                <ul class="nav nav-sm flex-column">
+                                     <li class="nav-item">
+                                        <a href="{{ route('products.index') }}" class="nav-link">Show</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('products.create') }}" class="nav-link">Create</a>
+                                    </li>
+
+                                   
+                                </ul>
+                            </div>
                     </li>
 
                     <!-- SETTINGS -->
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         @if(Route::is('view.settings.*') || Route::is('faqs.*') )
                             <a href="#sidebarSettings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarSettings">
                                 <i class="ri-home-gear-line"></i><span>Settings</span>
@@ -169,7 +195,7 @@
                                     </li>
                                 </ul>
                             </div>
-                    </li>
+                    </li> --}}
 
                     <!-- Users -->
                     <li class="nav-item">
