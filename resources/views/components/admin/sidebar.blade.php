@@ -29,7 +29,7 @@
                     </li>
 
                     <!-- BLOGS -->
-                    {{-- <li class="nav-item">
+                     <!-- <li class="nav-item">
                         @if(Route::is('blogs.*') || Route::is('blog_categories.*'))
                             <a href="#sidebarBlogs" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBlogs">
                                 <i class="ri-profile-line"></i><span>Blogs</span>
@@ -53,7 +53,7 @@
                                 </li>
                             </ul>
                         </div>
-                    </li> --}}
+                    </li>  -->
 
 
                     <!-- PRODUCT -->
@@ -72,6 +72,25 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="" class="nav-link">Categories</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <!-- END PRODUCT -->
+
+                      <!-- Category -->
+                    <li class="nav-item">
+                            <a href="#sidebarproduct_category" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct_category">
+                                <i class="ri-profile-line"></i><span>Product_category</span>
+                            </a>
+                            <div class="menu-dropdown" id="sidebarproduct_category">
+                            <div class="collapse menu-dropdown" id="sidebarproduct_category">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('categories.create') }}"  class="nav-link">Create</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('categories.index') }}"  class="nav-link">Show</a>
                                 </li>
                             </ul>
                         </div>
@@ -136,7 +155,7 @@
                     </li> --}}
 
                     <!-- Products -->
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         @if(Route::is('products.index') || Route::is('products.create') || Route::is('products.edit') || Route::is('products.show'))
                             <a href="#sidebarBookings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBookings">
                                 <i class=" ri-calendar-check-fill"></i><span>Products</span>
@@ -159,7 +178,7 @@
                                    
                                 </ul>
                             </div>
-                    </li>
+                    </li> -->
 
                     <!-- SETTINGS -->
                     {{-- <li class="nav-item">

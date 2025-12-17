@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogCategoriesController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\RoomController;
@@ -53,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/room-amenities', AmenityController::class)->names('amenities');
         Route::resource('/rooms', RoomController::class)->names('rooms');
         Route::resource('/products', ProductController::class)->names('products');
+        Route::resource('/categories', CategoryController::class)->names('categories');
 
         //product routes
         Route::resource('/product',ProductController::class )->names('product');
