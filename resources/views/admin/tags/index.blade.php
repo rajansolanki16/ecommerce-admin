@@ -2,18 +2,27 @@
 <!--datatable css-->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h5 class="mb-4 card-title">{{ __('tags.Product_Tag_Listing') }}</h5>
+                </div>
+                <div class="mb-4 search-box">
+                    <a href="{{ route('tags.create') }}" class="btn btn-primary add-btn">
+                        <i class="align-baseline bi bi-plus-circle me-1"></i> {{ __('tags.Add_Tags_Button') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="col-xl-12">
     <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0 card-title">Tags list</h4>
-        </div>
-        <div class="mb-4 search-box">
-            <a href="{{ route('tags.create') }}" class="btn btn-primary add-btn">
-                <i class="align-baseline bi bi-plus-circle me-1"></i> Add Tags
-            </a>
-        </div>
         <div class="card-body">
-            <p class="text-muted"> this is the list of all product tags </p>
+            <p class="text-muted">{{ __('tags.tag_list_Description') }} </p>
             <div class="table-responsive">
                 <table id="fixed-header" class="table align-middle table-bordered dt-responsive nowrap table-striped" style="width:100%">
                     <thead>
@@ -28,9 +37,9 @@
 
                         @foreach ($tags as $tag)
                         <tr>
-                            <td class="fw-medium">{{ $tag->id }}</td>
+                            <td>{{ $tag->id }}</td>
                             <td> {{ $tag->name }}</td>
-                            <td class="fw-medium">{{ $tag->slug }}</td>
+                            <td>{{ $tag->slug }}</td>
                             <td>
                                 <div class="dropdown position-static">
                                     <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button"

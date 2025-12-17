@@ -3,18 +3,28 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
 
-<div class="col-xl-12">
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0 card-title">Category list</h4>
-        </div>
-        <div class="mb-12 search-box">
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h5 class="mb-4 card-title">{{ __('category.Product_Listing') }}</h5>
+                </div>
+                <div class="mb-4 search-box">
             <a href="{{ route('categories.create') }}" class="btn btn-primary add-btn">
-                <i class="align-baseline bi bi-plus-circle me-1"></i> Add Category
+                <i class="align-baseline bi bi-plus-circle me-1"></i> {{ __('category.Add_Category_Button') }}
             </a>
         </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xl-12">
+    <div class="card">
         <div class="card-body">
-            <p class="text-muted"> this is the list of all product categories </p>
+            <p class="text-muted"> {{ __('category.category_list_Description') }}</p>
             <div class="table-responsive">
                 <table id="fixed-header" class="table align-middle table-bordered dt-responsive nowrap table-striped" style="width:100%">
                     <thead>
