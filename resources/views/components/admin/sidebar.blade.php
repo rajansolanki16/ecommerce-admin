@@ -78,7 +78,7 @@
                     </li>
                     <!-- END PRODUCT -->
 
-                      <!-- Category -->
+                    <!-- Category -->
                     <li class="nav-item">
                             <a href="#sidebarproduct_category" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct_category">
                                 <i class="ri-profile-line"></i><span>Product_category</span>
@@ -95,8 +95,26 @@
                             </ul>
                         </div>
                     </li>
-                    <!-- END PRODUCT -->
 
+
+                    <!-- tags -->
+                    <li class="nav-item">
+                            <a href="#sidebarproduct_tags" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct_tags">
+                                <i class="ri-profile-line"></i><span>Product_tags</span>
+                            </a>
+                            <div class="menu-dropdown" id="sidebarproduct_tags">
+                            <div class="collapse menu-dropdown" id="sidebarproduct_tags">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.create') }}"  class="nav-link">Create</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.index') }}"  class="nav-link">Show</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                   
                     <!-- ROOMS -->
                     {{-- <li class="nav-item">
                         @if(Route::is('rooms.*') || Route::is('amenities.*') || Route::is('services.*'))

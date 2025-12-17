@@ -24,7 +24,7 @@
             </div>
 
             <div class="card-body">
-                <p class="text-muted">Create the new category for products categories or edit the existing one here.</p>
+                <p class="text-muted">Create the new category for products categories.</p>
                 <form action="{{ route('categories.store') }}" method="post">
                     @csrf
                     <div class="mb-3">
@@ -42,7 +42,7 @@
                         <select name="parent_id" id="subcategory" class="form-control">
                             <option value="">Select parent Category</option>
                             @foreach($parentCategories as $parent)
-                            <option value="{{ $parent->id }}" >
+                            <option value="{{ $parent->id }}">
                                 {{ $parent->name }}
                             </option>
                             @endforeach

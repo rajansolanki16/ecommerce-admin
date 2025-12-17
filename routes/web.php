@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\TagsController;
 use App\Models\Faq;
 
 //Auth
@@ -55,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/rooms', RoomController::class)->names('rooms');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
+        Route::resource('/tags', TagsController::class)->names('tags');
 
         //product routes
         Route::resource('/product',ProductController::class )->names('product');

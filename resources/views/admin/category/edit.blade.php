@@ -24,7 +24,7 @@
             </div>
 
             <div class="card-body">
-                <p class="text-muted">Create the new category for products categories or edit the existing one here.</p>
+                <p class="text-muted">Update the category for products.</p>
                 <form action="{{ route('categories.update', $category->id) }}" method="post">
                     @csrf
                     @method('PUT')
