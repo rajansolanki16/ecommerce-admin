@@ -90,47 +90,103 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="list form-check-all"><tr>
-                                                <td>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="chk_child">
-                                                        <label class="form-check-label"></label>
-                                                    </div>
-                                                </td>
-                                                <td class="id" style="display:none;"><a href="javascript:void(0);" class="fw-medium link-primary">#TB01</a></td>
-                                                <td class="products">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-xs bg-light rounded p-1 me-2">
-                                                            <img src="assets/images/products/32/img-1.png" alt="" class="img-fluid d-block">
+                                        <tbody class="list form-check-all">
+                                            @forelse ($products as $product)
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="{{ $product->id }}">
                                                         </div>
-                                                        <div>
-                                                            <h6 class="mb-0"><a href="apps-ecommerce-product-details.html" class="text-reset products">Branded T-Shirts</a></h6>
+                                                    </td>
+
+                                                    <td class="products">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-xs bg-light rounded p-1 me-2">
+                                                                <img
+                                                                    src="{{ $product->product_image
+                                                                        ? asset('storage/'.$product->product_image)
+                                                                        : asset('admin/images/no-image.png') }}"
+                                                                    class="img-fluid d-block"
+                                                                    alt="Product Image">
+                                                            </div>
+
+                                                            <div>
+                                                                <h6 class="mb-0">
+                                                                    <a href="#" class="text-reset">
+                                                                        {{ $product->product_title }}
+                                                                    </a>
+                                                                </h6>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td class="discount d-none">Fashion</td>
-                                                <td class="category">Fashion</td>
-                                                <td class="stock">12</td>
-                                                <td class="price">$215.00</td>
-                                                <td class="orders">48</td>
-                                                <td class="rating">
-                                                    <span class="badge bg-warning-subtle text-warning"><i class="bi bi-star-fill align-baseline me-1"></i> 4.9</span>
-                                                </td>
-                                                <td class="published">12 Oct, 2022</td>
-                                                <td>
-                                                    <div class="dropdown position-static">
-                                                        <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="bi bi-three-dots-vertical"></i>
-                                                        </button>
-                                                    
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="apps-ecommerce-product-details.html"><i class="ph-eye align-middle me-1"></i> View</a></li>
-                                                            <li><a class="dropdown-item edit-item-btn" data-bs-toggle="modal" href="#showModal"><i class="ph-pencil align-middle me-1"></i> Edit</a></li>
-                                                            <li><a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal"><i class="ph-trash align-middle me-1"></i> Remove</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr></tbody>
+                                                    </td>
+
+                                                    <td class="category">
+                                                        {{ $product->categories->pluck('name')->join(', ') ?: '-' }}
+                                                    </td>
+
+                                                    <td class="stock">
+                                                        {{ $product->stock ?? 0 }}
+                                                    </td>
+
+                                                    <td class="price">
+                                                        ₹{{ number_format($product->price, 2) }}
+                                                    </td>
+
+                                                    <td class="orders">
+                                                        0
+                                                    </td>
+
+                                                    <td class="rating">
+                                                        <span class="badge bg-warning-subtle text-warning">
+                                                            <i class="bi bi-star-fill"></i> 4.5
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="published">
+                                                        {{ $product->created_at->format('d M, Y') }}
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="dropdown position-static">
+                                                            <button class="btn btn-subtle-secondary btn-sm btn-icon"
+                                                                    data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#">
+                                                                        <i class="ph-eye me-1"></i> View
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item"
+                                                                    href="{{ route('products.edit', $product->id) }}">
+                                                                        <i class="ph-pencil me-1"></i> Edit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <form action="{{ route('products.destroy', $product->id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button class="dropdown-item text-danger">
+                                                                            <i class="ph-trash me-1"></i> Remove
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="9" class="text-center text-muted py-4">
+                                                        No products found.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
                                     </table>
                                 </div><!--end table-responsive-->
 

@@ -3,24 +3,17 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <h5 class="mb-4 card-title">{{ __('tags.Product_Tag_Listing') }}</h5>
-                </div>
-                <div class="mb-4 search-box">
-                    <a href="{{ route('tags.create') }}" class="btn btn-primary add-btn">
-                        <i class="align-baseline bi bi-plus-circle me-1"></i> {{ __('tags.Add_Tags_Button') }}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div class="col-xl-12">
     <div class="card">
+         <div class="card-header d-flex align-items-center justify-content-between flex-nowrap">
+            <h4 class="mb-0 card-title">Tags list</h4>
+
+            <a href="{{ route('tags.create') }}" class="btn btn-primary add-btn">
+                <i class="align-baseline bi bi-plus-circle me-1"></i>
+                Add Tag
+            </a>
+        </div>
         <div class="card-body">
             <p class="text-muted">{{ __('tags.tag_list_Description') }} </p>
             <div class="table-responsive">
@@ -96,4 +89,14 @@
         </div>
     </div>
 </div>
+<script>
+    function setDeleteFormAction(element) {
+        let deleteUrl = element.getAttribute('data-delete-url');
+        let form = document.getElementById('deleteForm');
+        form.action = deleteUrl;
+
+        let modal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
+        modal.show();
+    }
+</script>
 <x-admin.footer />

@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum ProductVisibility: string
 {
-    case PUBLIC = 'public';
-    case HIDDEN = 'hidden';
+    case PUBLIC = '0';
+    case HIDDEN = '1';
 
     public function label(): string
     {

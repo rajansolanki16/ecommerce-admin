@@ -8,26 +8,28 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }}</title>
     {{-- favicon icon --}}
-    <link rel="shortcut icon" href="{{ publicPath(getSetting("site_icon")) }}">
-    
+    <link rel="shortcut icon" href="{{ asset(getSetting('site_icon')) }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="{{ publicPath('admin/css/bootstrap.min.css') }}" type="text/css" />
-    <link rel="stylesheet" href="{{ publicPath('admin/css/icons.min.css') }}" type="text/css" />
-    <link rel="stylesheet" href="{{ publicPath('admin/css/app.min.css') }}" type="text/css" />
-    <link rel="stylesheet" href="{{ publicPath('admin/css/custom.min.css') }}?version={{ rand(10,99) }}.{{ rand(10,99) }}.{{ rand(100,999) }}" type="text/css" />
-    <link rel="stylesheet" href="{{ publicPath('assets/css/admin-style.css') }}?version={{ rand(10,99) }}.{{ rand(10,99) }}.{{ rand(100,999) }}" type="text/css" />
-    <script src="{{ publicPath('admin/js/layout.js') }}"></script>
-    <script src="{{ publicPath('admin/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ publicPath('admin/libs/simplebar/simplebar.min.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tinymce@5/tinymce.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/css/icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/css/app.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/css/custom.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/admin-style.css') }}">
+    
+    
 
+
+    <!-- Page specific styles -->
+    @stack('styles')
+
+    <!-- Steex layout config (ONLY this JS allowed in head) -->
+    <script src="{{ asset('admin/js/layout.js') }}"></script>
 </head>
-
 <body>
     <header id="page-topbar" id="fontsLink">
         <div class="layout-width">

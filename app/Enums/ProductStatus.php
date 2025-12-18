@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum ProductStatus: string
 {
-    case DRAFT = 'draft';
-    case PUBLISHED = 'published';
-    case SCHEDULED = 'scheduled';
+    case DRAFT = '0';
+    case PUBLISHED = '1';
+    case SCHEDULED = '2';
 
     public function label(): string
     {

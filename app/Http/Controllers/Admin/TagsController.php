@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\Models\Tags;
+use App\Models\Tag;
 
 class TagsController extends Controller
 {
@@ -16,7 +16,7 @@ class TagsController extends Controller
     public function index()
     {
         //
-        $tags = Tags::all();
+        $tags = Tag::all();
         return view('admin.tags.index', compact('tags'));
     }
 
@@ -50,7 +50,7 @@ class TagsController extends Controller
                 ->withInput();
         }
 
-        $tags = new Tags;
+        $tags = new Tag;
         $tags->name = $request->name;
         $tags->slug = Str::slug($request->name);
         $tags->save();
@@ -77,7 +77,7 @@ class TagsController extends Controller
     public function edit(string $id)
     {
         //
-        $tag = Tags::findOrFail($id);
+        $tag = Tag::findOrFail($id);
         return view('admin.tags.edit', compact('tag'));
     }
 
@@ -100,7 +100,7 @@ class TagsController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        $tags = Tags::findOrFail($id);
+        $tags = Tag::findOrFail($id);
         $tags->name = $request->name;
         $tags->slug = Str::slug($request->name);
         $tags->save();
@@ -119,7 +119,7 @@ class TagsController extends Controller
     public function destroy(string $id)
     {
         //
-        $tag = Tags::findOrFail($id);
+        $tag = Tag::findOrFail($id);
         $tag->delete();
         return redirect()->route('tags.index');
     }

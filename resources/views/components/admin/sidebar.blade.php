@@ -58,20 +58,23 @@
 
                     <!-- PRODUCT -->
                     <li class="nav-item">
-                            <a href="#sidebarproduct" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct">
-                                <i class="ri-profile-line"></i><span>Product</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarproduct">
-                            <div class="collapse menu-dropdown" id="sidebarproduct">
+                        <a class="nav-link menu-link" href="#sidebarProduct"
+                        data-bs-toggle="collapse" role="button"
+                        aria-expanded="false" aria-controls="sidebarProduct">
+                            <i class="ri-shopping-bag-line"></i>
+                            <span>Product</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarProduct">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('product.create') }}"  class="nav-link">Add Product</a>
+                                    <a href="{{ route('products.create') }}" class="nav-link">Create</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href=""  class="nav-link">All Product</a>
+                                    <a href="{{ route('products.index') }}" class="nav-link">Show</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="" class="nav-link">Categories</a>
+                                    <a href="{{ route('categories.index') }}" class="nav-link">Categories</a>
                                 </li>
                             </ul>
                         </div>
@@ -80,17 +83,20 @@
 
                     <!-- Category -->
                     <li class="nav-item">
-                            <a href="#sidebarproduct_category" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct_category">
-                                <i class="ri-profile-line"></i><span>Product_category</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarproduct_category">
-                            <div class="collapse menu-dropdown" id="sidebarproduct_category">
+                        <a class="nav-link menu-link" href="#sidebarCategory"
+                        data-bs-toggle="collapse" role="button"
+                        aria-expanded="false" aria-controls="sidebarCategory">
+                            <i class="ri-folder-line"></i>
+                            <span>Category</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarCategory">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('categories.create') }}"  class="nav-link">Create</a>
+                                    <a href="{{ route('categories.create') }}" class="nav-link">Create</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('categories.index') }}"  class="nav-link">Show</a>
+                                    <a href="{{ route('categories.index') }}" class="nav-link">Show</a>
                                 </li>
                             </ul>
                         </div>
@@ -99,17 +105,23 @@
 
                     <!-- tags -->
                     <li class="nav-item">
-                            <a href="#sidebarproduct_tags" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarproduct_tags">
-                                <i class="ri-profile-line"></i><span>Product_tags</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarproduct_tags">
-                            <div class="collapse menu-dropdown" id="sidebarproduct_tags">
+                        <a href="#sidebarproduct_tags"
+                        class="nav-link menu-link"
+                        data-bs-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="sidebarproduct_tags">
+                            <i class="ri-profile-line"></i>
+                            <span>Tags</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarproduct_tags">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.create') }}"  class="nav-link">Create</a>
+                                    <a href="{{ route('tags.create') }}" class="nav-link">Create</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.index') }}"  class="nav-link">Show</a>
+                                    <a href="{{ route('tags.index') }}" class="nav-link">Show</a>
                                 </li>
                             </ul>
                         </div>
@@ -197,9 +209,10 @@
                                 </ul>
                             </div>
                     </li> -->
+                    <!-- END PRODUCT -->
 
                     <!-- SETTINGS -->
-                    {{-- <li class="nav-item">
+                    <li class="nav-item">
                         @if(Route::is('view.settings.*') || Route::is('faqs.*') )
                             <a href="#sidebarSettings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarSettings">
                                 <i class="ri-home-gear-line"></i><span>Settings</span>
@@ -232,7 +245,7 @@
                                     </li>
                                 </ul>
                             </div>
-                    </li> --}}
+                    </li>
 
                     <!-- Users -->
                     <li class="nav-item">

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Categories;
+use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -16,8 +16,8 @@ class CategoryController extends Controller
     public function index()
     {
 
-        $parentCategories = Categories::whereNull('parent_id')->get();
-        $categories = Categories::all();
+        $parentCategories = Category::whereNull('parent_id')->get();
+        $categories = Category::all();
         return view('admin.category.index', compact('parentCategories', 'categories'));
     }
 
@@ -27,7 +27,7 @@ class CategoryController extends Controller
     public function create()
     {
         //
-        $parentCategories = Categories::whereNull('parent_id')->get();
+        $parentCategories = Category::whereNull('parent_id')->get();
 
         return view('admin.category.create', compact('parentCategories',));
     }
@@ -54,7 +54,7 @@ class CategoryController extends Controller
                 ->withInput();
         }
 
-        $categories = new Categories;
+        $categories = new Category;
         $categories->name = $request->name;
         $categories->slug = Str::slug($request->name);
         $categories->parent_id = $request->parent_id;
@@ -85,8 +85,8 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         //
-        $category = Categories::findOrFail($id);
-        $parentCategories = Categories::whereNull('parent_id')->get();
+        $category = Category::findOrFail($id);
+        $parentCategories = Category::whereNull('parent_id')->get();
         return view('admin.category.edit', compact('category', 'parentCategories'));
     }
 
@@ -111,7 +111,7 @@ class CategoryController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        $category = Categories::findOrFail($id);
+        $category = Category::findOrFail($id);
         $category->update([
             'name'      => $request->name,
             'slug'      => Str::slug($request->name),
@@ -129,7 +129,7 @@ class CategoryController extends Controller
     {
         //
 
-        $category = Categories::findOrFail($id);
+        $category = Category::findOrFail($id);
         $category->delete();
         return redirect()->route('categories.index');
     }

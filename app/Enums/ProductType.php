@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum ProductType: string
 {
-    case SIMPLE = 'simple';
-    case CLASSIFIED = 'classified';
+    case SIMPLE = '0';
+    case CLASSIFIED = '1';
 
     public function label(): string
     {
