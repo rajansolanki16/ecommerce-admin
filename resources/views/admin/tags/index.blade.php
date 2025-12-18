@@ -89,14 +89,4 @@
         </div>
     </div>
 </div>
-<script>
-    function setDeleteFormAction(element) {
-        let deleteUrl = element.getAttribute('data-delete-url');
-        let form = document.getElementById('deleteForm');
-        form.action = deleteUrl;
-
-        let modal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-        modal.show();
-    }
-</script>
 <x-admin.footer />

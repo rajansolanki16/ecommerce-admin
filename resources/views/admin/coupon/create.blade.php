@@ -107,17 +107,4 @@
         <button type="submit" name="action" value="store" class="btn btn-primary">{{ __('coupon.Create_Button') }}</button>
     </div>
 </form>
-
-<script>
-    function vec_generate_coupon_code() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-
-        for (let i = 0; i < 9; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        document.getElementById('vec_coupon_code').value = code;
-    }
-</script>
-
 <x-admin.footer />

@@ -19,8 +19,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{{ asset('admin/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('admin/libs/simplebar/simplebar.min.js') }}"></script>
-
-<!-- Core App -->
+<script src="{{ asset('assets/js/admin-script.js') }}"></script>
 <script src="{{ asset('admin/js/app.js') }}"></script>
 
 <!-- Plugins -->

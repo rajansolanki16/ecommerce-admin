@@ -149,40 +149,48 @@
                             </ul>
                         </div>
                     </li>
-
-
                     <!-- Coupon -->
                     <li class="nav-item">
-                        <a href="#sidebarcoupon" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarcoupon">
-                            <i class="ri-profile-line"></i><span>Coupon</span>
+                        <a href="#sidebarCoupon"
+                        class="nav-link menu-link"
+                        data-bs-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="sidebarCoupon">
+                            <i class="ri-profile-line"></i>
+                            <span>Coupon</span>
                         </a>
-                        <div class="menu-dropdown" id="sidebarcoupon">
-                            <div class="collapse menu-dropdown" id="sidebarcoupon">
-                                <ul class="nav nav-sm flex-column">
-                                    <li class="nav-item">
-                                        <a href="{{ route('coupons.create') }}" class="nav-link">Create</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('coupons.index') }}" class="nav-link">Show</a>
-                                    </li>
-                                </ul>
-                            </div>
+
+                        <div class="collapse menu-dropdown" id="sidebarCoupon">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('coupons.create') }}" class="nav-link">Create</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('coupons.index') }}" class="nav-link">Show</a>
+                                </li>
+                            </ul>
                         </div>
                     </li>
 
                     <!-- Payment Options -->
                     <li class="nav-item">
-                        <a href="#sidebarpayment_options" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarpayment_options">
-                            <i class="ri-profile-line"></i><span>Payment Options</span>
+                        <a href="#sidebarPaymentOptions"
+                        class="nav-link menu-link"
+                        data-bs-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="sidebarPaymentOptions">
+                            <i class="ri-profile-line"></i>
+                            <span>Payment Options</span>
                         </a>
-                        <div class="menu-dropdown" id="sidebarpayment_options">
-                            <div class="collapse menu-dropdown" id="sidebarpayment_options">
-                                <ul class="nav nav-sm flex-column">
-                                    <li class="nav-item">
-                                        <a href="{{ route('paymentoptions.create') }}" class="nav-link">Create</a>
-                                    </li>
-                                </ul>
-                            </div>
+
+                        <div class="collapse menu-dropdown" id="sidebarPaymentOptions">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('paymentoptions.create') }}" class="nav-link">Create</a>
+                                </li>
+                            </ul>
                         </div>
                     </li>
 

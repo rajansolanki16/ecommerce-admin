@@ -1,7 +1,5 @@
 <x-admin.header :title="'product category Listings'" />
 <!--datatable css-->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
 
 <div class="col-xl-12">
     <div class="card">
@@ -99,17 +97,4 @@
         </div>
     </div>
 </div>
-<script>
-    function setDeleteFormAction(element) {
-        const deleteUrl = element.getAttribute('data-delete-url');
-        const form = document.getElementById('deleteForm');
-
-        form.action = deleteUrl;
-
-        const modal = new bootstrap.Modal(
-            document.getElementById('deleteRecordModal')
-        );
-        modal.show();
-    }
-</script>
 <x-admin.footer />

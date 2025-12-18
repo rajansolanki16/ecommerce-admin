@@ -61,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');
         Route::resource('/coupons', CouponController::class)->names('coupons');
-        Route::resource('payment-options', PaymentOptionsController::class)->names('paymentoptions');
-        Route::resource('/product_attributes', ProductAttributeController::class)->names('product_attributes');
+        Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');
+        Route::resource('/product-attributes', ProductAttributeController::class)->names('product_attributes');
 
         //product routes
         Route::resource('/product', ProductController::class)->names('product');

@@ -1,6 +1,4 @@
 <?php
-
-
 namespace App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\DB;
 
@@ -14,19 +12,34 @@ use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Support\Str;
 
-
-
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-  public function index()
-{
-    $products = Product::with('categories')->latest()->paginate(10);
+    public function index(Request $request)
+    {
+        $query = Product::with('categories');
 
-    return view('admin.products.index', compact('products'));
-}
+        if ($request->filled('search')) {
+            $query->where('product_title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.id', $request->category);
+            });
+        }
+
+        $products = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.products.index', compact('products', 'categories'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -37,6 +50,7 @@ class ProductController extends Controller
         'productStatuses'    => ProductStatus::cases(),
         'productVisibilities'=> ProductVisibility::cases(),
         'categories'         => Category::orderBy('name')->get(),
+        'allTags'            => Tag::orderBy('name')->get(),
     ]);
     }
 
@@ -45,107 +59,135 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-    
-        $request->validate([
+        $validated = $request->validate([
             'title'             => 'required|string|max:255',
-            'categories'        => 'required|array',
-            'categories.*'      => 'exists:categories,id',
-            'product_type'      => 'required|in:0,1',
+            'categories'        => 'nullable',
+            'product_type'      => 'required',
             'short_description' => 'required|string',
             'price'             => 'required|numeric',
-           'product_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'product_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'gallery_images.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $mainImagePath = null;
+        if ($request->hasFile('product_image')) {
+            $mainImagePath = $request->file('product_image')->store('products/main', 'public');
+        }
 
-            /** 🔹 MAIN IMAGE */
-           $mainImagePath = null;
-            if ($request->hasFile('product_image')) {
-                $mainImagePath = $request->file('product_image')
-                    ->store('products/main', 'public');
+        $galleryImages = [];
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $galleryImages[] = $image->store('products/gallery', 'public');
             }
-
-            $galleryImages = [];
-            if ($request->hasFile('gallery_images')) {
-                foreach ($request->file('gallery_images') as $image) {
-                    $galleryImages[] = $image->store('products/gallery', 'public');
-                }
-            }
-            
-
-            /** 🔹 CREATE PRODUCT */
-            $product = Product::create([
-                'product_title'        => $request->title,
-                'slug'                 => Str::slug($request->title),
-                'product_type'         => $request->product_type === 'simple' ? 0 : 1,
-                'short_description'    => $request->short_description,
-                'product_decscription' => $request->product_description,
-                'brand'                => $request->brand,
-                'exchangeable'         => $request->boolean('exchangeable'),
-                'refundable'           => $request->boolean('refundable'),
-                'manufacturer_name'    => $request->manufacturer_name,
-                'manufacturer_brand'   => $request->manufacturer_brand,
-                'stock'                => $request->stock,
-                'price'                => $request->price,
-                'discount'             => $request->discount,
-                'status'               => $request->status,
-                'visibility'           => $request->visibility,
-                'product_image'        => $mainImagePath,
-                'gallery_images'       => json_encode($galleryImages),
-            ]);
-
-            /** 🔹 SYNC CATEGORIES */
-            $product->categories()->sync($request->categories);
-
-            /** 🔹 HANDLE TAGS (Choices.js) */
-            if ($request->filled('tags')) {
-                $tags = collect(explode(',', $request->tags))
-                    ->map(fn ($tag) => trim($tag))
-                    ->filter()
-                    ->map(function ($tagName) {
-                        return Tag::firstOrCreate(['name' => $tagName])->id;
-                    });
-
-                $product->tags()->sync($tags);
-            }
-        });
+        }
+        $product = new Product();
+        $product->product_title        = $validated['title'];
+        $product->slug                 = Str::slug($validated['title']);
+        $product->product_type         = $validated['product_type'];
+        $product->short_description    = $validated['short_description'];
+        $product->product_decscription = $request->product_decscription ?? null;
+        $product->brand                = $request->brand ?? null;
+        $product->exchangeable         = $request->boolean('exchangeable');
+        $product->refundable           = $request->boolean('refundable');
+        $product->manufacturer_name    = $request->manufacturer_name ?? null;
+        $product->manufacturer_brand   = $request->manufacturer_brand ?? null;
+        $product->stock                = $request->stock ?? 0;
+        $product->price                = $validated['price'];
+        $product->discount             = $request->discount ?? 0;
+        $product->status               = $request->status ?? null;
+        $product->visibility           = $request->visibility ?? null;
+        $product->product_image        = $mainImagePath;
+        $product->gallery_images       = json_encode($galleryImages);
+        $product->save();
+        $product->categories()->sync($validated['categories']);
+        $product->tags()->sync($request->tags ?? []);
 
         return redirect()
             ->route('products.index')
             ->with('success', 'Product created successfully!');
     }
 
-
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Product $product)
     {
-        //
+        $product->load('categories');
+        return view('admin.products.show', compact('product'));
     }
-
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+   public function edit(Product $product)
     {
-        //
+        return view('admin.products.edit', [
+            'product'            => $product,
+            'categories'         => Category::all(),
+            'productTypes'       => ProductType::cases(),
+            'productStatuses'    => ProductStatus::cases(),
+            'productVisibilities'=> ProductVisibility::cases(),
+            'allTags'            => Tag::orderBy('name')->get(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product)
     {
-        //
+        $validated = $request->validate([
+            'title'             => 'required|string|max:255',
+            'categories'        => 'nullable',
+            'product_type'      => 'required',
+            'short_description' => 'required|string',
+            'price'             => 'required|numeric',
+            'product_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'gallery_images.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp',
+         
+        ]);
+
+        if ($request->hasFile('product_image')) {
+            $product->product_image = $request->file('product_image')->store('products/main', 'public');
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = $product->gallery_images ? json_decode($product->gallery_images, true) : [];
+            foreach ($request->file('gallery_images') as $image) {
+                $galleryImages[] = $image->store('products/gallery', 'public');
+            }
+            $product->gallery_images = json_encode($galleryImages);
+        }
+
+        $product->product_title        = $validated['title'];
+        $product->slug                 = Str::slug($validated['title']);
+        $product->product_type         = $validated['product_type'];
+        $product->short_description    = $validated['short_description'];
+        $product->product_decscription = $request->product_decscription ?? $product->product_decscription;
+        $product->brand                = $request->brand ?? $product->brand;
+        $product->exchangeable         = $request->boolean('exchangeable');
+        $product->refundable           = $request->boolean('refundable');
+        $product->manufacturer_name    = $request->manufacturer_name ?? $product->manufacturer_name;
+        $product->manufacturer_brand   = $request->manufacturer_brand ?? $product->manufacturer_brand;
+        $product->stock                = $request->stock ?? $product->stock;
+        $product->price                = $validated['price'];
+        $product->discount             = $request->discount ?? $product->discount;
+        $product->status               = $request->status ?? $product->status;
+        $product->visibility           = $request->visibility ?? $product->visibility;
+        $product->save();
+
+        $product->categories()->sync($validated['categories']);
+        $product->tags()->sync($request->tags ?? []);
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Product updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+   public function destroy(Product $product)
     {
-        //
+        $product->delete(); 
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
 }

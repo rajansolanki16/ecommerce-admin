@@ -20,15 +20,14 @@
     <link rel="stylesheet" href="{{ asset('admin/css/app.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/css/custom.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/admin-style.css') }}">
-    
-    
-
-
-    <!-- Page specific styles -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
     @stack('styles')
 
-    <!-- Steex layout config (ONLY this JS allowed in head) -->
+    <script src="{{ asset('admin/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{{ asset('admin/js/layout.js') }}"></script>
+    @stack('scripts');
 </head>
 <body>
     <header id="page-topbar" id="fontsLink">

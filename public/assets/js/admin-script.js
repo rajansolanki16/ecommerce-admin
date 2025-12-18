@@ -385,3 +385,106 @@ $(document).ready(function () {
     get_room_services();
 
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-choices]').forEach(function (el) {
+
+        if (el.classList.contains('choices-initialized')) return;
+
+        const searchEnabled = el.dataset.choicesSearch !== 'false';
+        const removeItem = el.hasAttribute('data-choices-remove-item');
+        const isMultiple = el.hasAttribute('multiple');
+
+        new Choices(el, {
+            searchEnabled: searchEnabled,
+            removeItemButton: removeItem,
+            shouldSort: false,
+            placeholderValue: 'Select categories',
+            itemSelectText: '',
+        });
+
+        el.classList.add('choices-initialized');
+    });
+});
+
+function previewSingleImage(event) {
+    const reader = new FileReader();
+    reader.onload = function () {
+        document.getElementById('productImagePreview').src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function previewMultipleImages(event) {
+    const preview = document.getElementById('galleryPreview');
+    preview.innerHTML = '';
+
+    Array.from(event.target.files).forEach(file => {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            const col = document.createElement('div');
+            col.classList.add('col-md-3', 'mb-3');
+
+            col.innerHTML = `
+                <div class="card shadow-sm">
+                    <img src="${reader.result}" class="card-img-top" style="height:150px;object-fit:cover">
+                </div>
+            `;
+            preview.appendChild(col);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+
+$(document).ready(function () {
+    if ($('#productType').val() === '0') {
+        $('#vec_general_Info_Section').show();
+    } else {
+        $('#vec_general_Info_Section').hide();
+    }
+
+    $('#productType').on('change', function () {
+        if ($(this).val() === '0') {
+            $('#vec_general_Info_Section').show();
+        } else {
+            $('#vec_general_Info_Section').hide();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+const categorySelect = document.querySelector('select[name="category"]');
+    if(categorySelect) {
+        new Choices(categorySelect, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    }
+});
+    
+function setDeleteFormAction(element) {
+    const deleteUrl = element.getAttribute('data-delete-url');
+    const form = document.getElementById('deleteForm');
+
+    form.action = deleteUrl;
+
+    const modal = new bootstrap.Modal(
+        document.getElementById('deleteRecordModal')
+    );
+    modal.show();
+}
+
+
+function vec_generate_coupon_code() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+
+    for (let i = 0; i < 9; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('vec_coupon_code').value = code;
+}

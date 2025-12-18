@@ -24,32 +24,51 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-xxl">
-                                        <div class="search-box">
-                                            <input type="text" class="form-control search" placeholder="Search products, price etc...">
-                                            <i class="ri-search-line search-icon"></i>
+                                <form method="GET" action="{{ route('products.index') }}">
+                                    <div class="row g-3 align-items-end">
+
+                                        <div class="col-xxl">
+                                            <div class="search-box">
+                                                <input type="text"
+                                                    name="search"
+                                                    value="{{ request('search') }}"
+                                                    class="form-control"
+                                                    placeholder="Search products...">
+                                                <i class="ri-search-line search-icon"></i>
+                                            </div>
                                         </div>
-                                    </div><!--end col-->
-                                    <div class="col-xxl col-sm-6">
-                                        <div>
-                                            <div class="choices" data-type="select-multiple" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false"><div class="choices__inner"><select class="form-control choices__input" data-choices="" data-choices-search-false="" data-choices-removeitem="" multiple="" data-choices-limit="Required Limit" data-choices-text-unique-true="" hidden="" tabindex="-1" data-choice="active"><option value="Boat" data-custom-properties="[object Object]">Boat</option><option value="Puma" data-custom-properties="[object Object]">Puma</option></select><div class="choices__list choices__list--multiple"><div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="Boat" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Boat<button type="button" class="choices__button" aria-label="Remove item: 'Boat'" data-button="">Remove item</button></div><div class="choices__item choices__item--selectable" data-item="" data-id="2" data-value="Puma" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Puma<button type="button" class="choices__button" aria-label="Remove item: 'Puma'" data-button="">Remove item</button></div></div><input type="search" name="search_terms" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="Select Brands" placeholder="Select Brands" style="min-width: 14ch; width: 1ch;"></div><div class="choices__list choices__list--dropdown" aria-expanded="false"><div class="choices__list" aria-multiselectable="true" role="listbox"><div id="choices--azk9-item-choice-1" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="1" data-value="Adidas" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Adidas</div><div id="choices--azk9-item-choice-4" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="4" data-value="Realme" data-select-text="Press to select" data-choice-selectable="">Realme</div></div></div></div>
+
+                                        <div class="col-xxl col-sm-6">
+                                            <select
+                                                class="form-control"
+                                                name="category"
+                                                data-choices
+                                                data-choices-search="true"
+                                            >
+                                                <option value="">All Categories</option>
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">
+                                                        {{ $category->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                    </div><!--end col-->
-                                    <div class="col-xxl col-sm-6">
-                                        <div>
-                                            <div class="choices" data-type="select-one" tabindex="0" role="listbox" aria-haspopup="true" aria-expanded="false"><div class="choices__inner"><select class="form-control choices__input" id="idCategory" data-choices="" data-choices-search-false="" data-choices-removeitem="" hidden="" tabindex="-1" data-choice="active"><option value="all" data-custom-properties="[object Object]">Select Category</option></select><div class="choices__list choices__list--single"><div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="all" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Select Category<button type="button" class="choices__button" aria-label="Remove item: 'all'" data-button="">Remove item</button></div></div></div><div class="choices__list choices__list--dropdown" aria-expanded="false"><div class="choices__list" role="listbox"><div id="choices--idCategory-item-choice-1" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="1" data-value="Appliances" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Appliances</div><div id="choices--idCategory-item-choice-2" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="2" data-value="Automotive Accessories" data-select-text="Press to select" data-choice-selectable="">Automotive Accessories</div><div id="choices--idCategory-item-choice-3" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="3" data-value="Electronics" data-select-text="Press to select" data-choice-selectable="">Electronics</div><div id="choices--idCategory-item-choice-4" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="4" data-value="Fashion" data-select-text="Press to select" data-choice-selectable="">Fashion</div><div id="choices--idCategory-item-choice-5" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="5" data-value="Furniture" data-select-text="Press to select" data-choice-selectable="">Furniture</div><div id="choices--idCategory-item-choice-6" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="6" data-value="Grocery" data-select-text="Press to select" data-choice-selectable="">Grocery</div><div id="choices--idCategory-item-choice-7" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="7" data-value="Headphones" data-select-text="Press to select" data-choice-selectable="">Headphones</div><div id="choices--idCategory-item-choice-8" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="8" data-value="Kids" data-select-text="Press to select" data-choice-selectable="">Kids</div><div id="choices--idCategory-item-choice-9" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="9" data-value="Luggage" data-select-text="Press to select" data-choice-selectable="">Luggage</div><div id="choices--idCategory-item-choice-10" class="choices__item choices__item--choice is-selected choices__item--selectable" role="option" data-choice="" data-id="10" data-value="all" data-select-text="Press to select" data-choice-selectable="">Select Category</div><div id="choices--idCategory-item-choice-11" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="11" data-value="Sports" data-select-text="Press to select" data-choice-selectable="">Sports</div><div id="choices--idCategory-item-choice-12" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="12" data-value="Watches" data-select-text="Press to select" data-choice-selectable="">Watches</div></div></div></div>
+
+                                        <div class="col-xxl-auto col-sm-6">
+                                            <button class="btn btn-primary w-md">
+                                                <i class="bi bi-funnel me-1"></i> Filter
+                                            </button>
                                         </div>
-                                    </div><!--end col-->
-                                    <div class="col-xxl-2 col-sm-6">
-                                        <div>
-                                            <div class="choices" data-type="select-one" tabindex="0" role="listbox" aria-haspopup="true" aria-expanded="false"><div class="choices__inner"><select class="form-control choices__input" id="idDiscount" data-choices="" data-choices-search-false="" data-choices-removeitem="" hidden="" tabindex="-1" data-choice="active"><option value="all" data-custom-properties="[object Object]">Select All Discount</option></select><div class="choices__list choices__list--single"><div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="all" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Select All Discount<button type="button" class="choices__button" aria-label="Remove item: 'all'" data-button="">Remove item</button></div></div></div><div class="choices__list choices__list--dropdown" aria-expanded="false"><div class="choices__list" role="listbox"><div id="choices--idDiscount-item-choice-1" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="1" data-value="10" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">10% or more</div><div id="choices--idDiscount-item-choice-2" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="2" data-value="20" data-select-text="Press to select" data-choice-selectable="">20% or more</div><div id="choices--idDiscount-item-choice-3" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="3" data-value="30" data-select-text="Press to select" data-choice-selectable="">30% or more</div><div id="choices--idDiscount-item-choice-4" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="4" data-value="40" data-select-text="Press to select" data-choice-selectable="">40% or more</div><div id="choices--idDiscount-item-choice-5" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="5" data-value="50" data-select-text="Press to select" data-choice-selectable="">50% or more</div><div id="choices--idDiscount-item-choice-6" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="6" data-value="0" data-select-text="Press to select" data-choice-selectable="">Less than 10%</div><div id="choices--idDiscount-item-choice-7" class="choices__item choices__item--choice is-selected choices__item--selectable" role="option" data-choice="" data-id="7" data-value="all" data-select-text="Press to select" data-choice-selectable="">Select All Discount</div></div></div></div>
+
+                                        <div class="col-xxl-auto col-sm-6">
+                                            <a href="{{ route('products.index') }}" class="btn btn-light w-md">
+                                                Reset
+                                            </a>
                                         </div>
-                                    </div><!--end col-->
-                                    <div class="col-xxl-auto col-sm-6">
-                                        <button type="button" class="btn btn-secondary w-md" onclick="filterData();"><i class="bi bi-funnel align-baseline me-1"></i> Filters</button>
-                                    </div><!--end col-->
-                                </div><!--end row-->
+
+                                    </div>
+                                </form>
+
                             </div>
                         </div>
                     </div><!--end col-->
@@ -65,7 +84,9 @@
                                 <div class="flex-shrink-0">
                                     <div class="d-flex flex-wrap align-items-start gap-2">
                                         <button class="btn btn-subtle-danger d-none" id="remove-actions" onclick="deleteMultiple()"><i class="ri-delete-bin-2-line"></i></button>
-                                        <button type="button" class="btn btn-primary add-btn" data-bs-toggle="modal" data-bs-target="#showModal"><i class="bi bi-plus-circle align-baseline me-1"></i> Add Product</button>
+                                        <a href="{{ route('products.create') }}" class="btn btn-primary add-btn">
+                                            <i class="bi bi-plus-circle align-baseline me-1"></i> Add Product
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -155,25 +176,22 @@
 
                                                             <ul class="dropdown-menu dropdown-menu-end">
                                                                 <li>
-                                                                    <a class="dropdown-item" href="#">
+                                                                    <a class="dropdown-item"  href="{{ route('products.show', $product->id) }}">
                                                                         <i class="ph-eye me-1"></i> View
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <a class="dropdown-item"
-                                                                    href="{{ route('products.edit', $product->id) }}">
+                                                                    <a class="dropdown-item" href="{{ route('products.edit', $product->id) }}">
                                                                         <i class="ph-pencil me-1"></i> Edit
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <form action="{{ route('products.destroy', $product->id) }}"
-                                                                        method="POST">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button class="dropdown-item text-danger">
-                                                                            <i class="ph-trash me-1"></i> Remove
-                                                                        </button>
-                                                                    </form>
+                                                                    <button class="dropdown-item text-danger" 
+                                                                            type="button" 
+                                                                            data-delete-url="{{ route('products.destroy', $product->id) }}"
+                                                                            onclick="setDeleteFormAction(this)">
+                                                                        <i class="ph-trash me-1"></i> Remove
+                                                                    </button>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -203,25 +221,24 @@
                                 </div>
                                 <!-- end noresult -->
 
-                                <div class="row mt-3 align-items-center" id="pagination-element">
+                                <div class="row align-items-center mt-3">
                                     <div class="col-sm">
-                                        <div class="text-muted text-center text-sm-start">
-                                            Showing <span class="fw-semibold">10</span> of <span class="fw-semibold">35</span> Results
-                                        </div>
+                                        <p class="text-muted mb-0">
+                                            Showing
+                                            <span class="fw-semibold">{{ $products->firstItem() }}</span>
+                                            to
+                                            <span class="fw-semibold">{{ $products->lastItem() }}</span>
+                                            of
+                                            <span class="fw-semibold">{{ $products->total() }}</span>
+                                            results
+                                        </p>
                                     </div>
 
-                                    <div class="col-sm-auto mt-3 mt-sm-0">
-                                        <div class="pagination-wrap hstack gap-2 justify-content-center">
-                                            <a class="page-item pagination-prev disabled" href="#">
-                                                <i class="mdi mdi-chevron-left align-middle"></i>
-                                            </a>
-                                            <ul class="pagination listjs-pagination mb-0"><li class="active"><a class="page" href="#" data-i="1" data-page="10">1</a></li></ul>
-                                            <a class="page-item pagination-next" href="#">
-                                                <i class="mdi mdi-chevron-right align-middle"></i>
-                                            </a>
-                                        </div>
+                                    <div class="col-sm-auto">
+                                     {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
                                     </div>
-                                </div>
+                                    </div>
+
                                 <!-- end pagination-element -->
                             </div>
                         </div><!--end card-->
@@ -232,3 +249,35 @@
         <!-- container-fluid -->
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteRecordModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-md-5">
+                    <div class="text-center">
+                        <div class="text-danger">
+                            <i class="bi bi-trash display-4"></i>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="mb-2">Are you sure?</h3>
+                            <p class="mx-3 mb-0 text-muted fs-lg">
+                                Are you sure you want to remove this product <b>permanently</b>?
+                            </p>
+                        </div>
+                    </div>
+                    <form id="deleteForm" method="POST" action="">
+                        @csrf
+                        @method('DELETE')
+                        <div class="gap-2 mt-4 mb-2 d-flex justify-content-center">
+                            <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">No</button>
+                            <button type="submit" class="btn w-sm btn-danger">Yes!</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <x-admin.footer />
