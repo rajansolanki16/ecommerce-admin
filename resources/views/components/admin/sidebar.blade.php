@@ -156,7 +156,7 @@
                             <div class="collapse menu-dropdown" id="sidebarpayment_options">
                                 <ul class="nav nav-sm flex-column">
                                     <li class="nav-item">
-                                        <a href="" class="nav-link">Create</a>
+                                        <a href="{{ route('paymentoptions.create') }}" class="nav-link">Create</a>
                                     </li>
                                 </ul>
                             </div>

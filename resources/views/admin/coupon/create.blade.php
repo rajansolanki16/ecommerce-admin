@@ -31,21 +31,16 @@
                             <div class="mb-3">
                                 <label for="coupon_code" class="form-label">{{ __('coupon.Coupon_code') }} <span
                                         class="text-danger">{{ __('coupon.required_mark') }}</span></label>
-                                <input type="text" name="code" id="coupon_code" class="form-control"
-                                    placeholder="Enter coupon code" value="{{ old('code', session('generated_code')) }}">
+                                <input type="text" name="code" id="vec_coupon_code" class="form-control"
+                                    placeholder="Enter coupon code" value="">
                                 @error('code')
                                 <span class="form-error-message text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                             <!-- Generate Coupon Code -->
-                            <button type="submit"
-                                name="action"
-                                value="generate"
-                                class="btn btn-secondary">
-                                {{ __('coupon.Generate_Code_Button') }}
-                            </button>
-
-
+                            <div class="gap-2 mb-3 hstack justify-content">
+                                <button type="button" onclick="vec_generate_coupon_code()" class="btn btn-secondary">{{ __('coupon.Generate_Code_Button') }} </button>
+                            </div>
 
                             <div class="mb-3">
                                 <label for="description" class="form-label">{{ __('coupon.description') }} </label>
@@ -102,7 +97,6 @@
                                 <input type="number" name="max_usage" id="max_usage" class="form-control"
                                     placeholder="Enter usage limit">
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -114,6 +108,16 @@
     </div>
 </form>
 
+<script>
+    function vec_generate_coupon_code() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
 
+        for (let i = 0; i < 9; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('vec_coupon_code').value = code;
+    }
+</script>
 
 <x-admin.footer />

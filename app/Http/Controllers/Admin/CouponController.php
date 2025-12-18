@@ -36,15 +36,6 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        // Generate a random coupon code
-        if ($request->action === 'generate') {
-            do {
-                $code = strtoupper(Str::random(9));
-            } while (Coupon::where('code', $code)->exists());
-
-            return redirect()->back()
-                ->with('generated_code', $code);
-        }
         $rules = [
             'code' => 'required',
             'type' => 'required|in:percentage,fixed',
