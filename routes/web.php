@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PaymentOptionsController;
+use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
@@ -60,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');
         Route::resource('/coupons', CouponController::class)->names('coupons');
-
         Route::resource('payment-options', PaymentOptionsController::class)->names('paymentoptions');
+        Route::resource('/product_attributes', ProductAttributeController::class)->names('product_attributes');
 
         //product routes
         Route::resource('/product', ProductController::class)->names('product');

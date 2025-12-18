@@ -81,6 +81,29 @@
                     </li>
                     <!-- END PRODUCT -->
 
+                    <!-- Product Attribute -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarProductAttribute"
+                            data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarProductAttribute">
+                            <i class="ri-folder-line"></i>
+                            <span>Product Attribute</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarProductAttribute">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('product_attributes.create') }}" class="nav-link">Create</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('product_attributes.index') }}" class="nav-link">Show</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+
+
                     <!-- Category -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarCategory"
