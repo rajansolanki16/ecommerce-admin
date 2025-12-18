@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogCategoriesController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\RoomController;
@@ -25,17 +26,17 @@ use App\Http\Controllers\Admin\TagsController;
 use App\Models\Faq;
 
 //Auth
-Route::get('/login',[RedirectController::class , 'login'])->name('login');
-Route::post('/login',[AuthController::class , 'login'])->name('auth.login');
-Route::get('/sign-up',[AuthController::class , 'view_signup'])->name('view.signup');
-Route::post('/sign-up',[AuthController::class , 'signup'])->name('auth.signup');
+Route::get('/login', [RedirectController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+Route::get('/sign-up', [AuthController::class, 'view_signup'])->name('view.signup');
+Route::post('/sign-up', [AuthController::class, 'signup'])->name('auth.signup');
 Route::get('/forgot-password', [RedirectController::class, 'forgotPassword'])->name('view.forget_password');
 Route::post('/forgot-password', [AuthController::class, 'forgot_password'])->name('auth.password.otp');
-Route::get('/verification/{token}',[AuthController::class , 'view_otp_verify'])->name('view.otp_verify');
-Route::post('/verification',[AuthController::class , 'otp_verify'])->name('auth.otp_verify');
+Route::get('/verification/{token}', [AuthController::class, 'view_otp_verify'])->name('view.otp_verify');
+Route::post('/verification', [AuthController::class, 'otp_verify'])->name('auth.otp_verify');
 Route::get('/new-password/{token}', [RedirectController::class, 'newPassword'])->name('view.new_password');
 Route::post('/new-password', [AuthController::class, 'new_password'])->name('auth.password');
-Route::get('/logout',[AuthController::class , 'logout'])->name('auth.logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::post('/states', [AuthController::class, 'getStates'])->name("get.states");
 
 
@@ -57,9 +58,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');
+        Route::resource('/coupons', CouponController::class)->names('coupons');
 
         //product routes
-        Route::resource('/product',ProductController::class )->names('product');
+        Route::resource('/product', ProductController::class)->names('product');
 
         //end product routes
 
@@ -70,19 +72,17 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/env', [SettingController::class, 'show_env'])->name('view.settings.env');
             Route::post('/env', [SettingController::class, 'save_env'])->name('settings.env.save');
-            
+
             Route::resource('/faqs', FaqController::class)->names('faqs');
-            
+
             Route::get('/general', [SettingController::class, 'show_general'])->name('view.settings.general');
             Route::post('/general', [SettingController::class, 'save_general'])->name('settings.general.save');
-            
+
             Route::get('/home', [SettingController::class, 'show_home'])->name('view.settings.home');
             Route::post('/home', [SettingController::class, 'save_home'])->name('settings.home.save');
 
             Route::get('/pages', [SettingController::class, 'show_pages'])->name('view.settings.pages');
             Route::post('/pages', [SettingController::class, 'save_pages'])->name('settings.pages.save');
-
-
         });
 
         Route::get('/offline-booking', [BookingController::class, 'show_offline_booking'])->name('view.offline_booking');
@@ -96,9 +96,7 @@ Route::middleware(['auth'])->group(function () {
         // Route::post('/booking/{id}/edit', [BookingController::class, 'save_edit_booking'])->name('edit_booking.save');
         Route::post('/booking/pay-status/{bid}', [BookingController::class, 'change_pay_status'])->name('booking_payment.change.save');
         Route::get('/users', [AdminController::class, 'show_users'])->name('view.users');
-        Route::post('/remove-room-media',[ RoomController::class , 'remove_room_media'])->name('rooms.media.remove');
-        Route::post('/room-wise-services',[ RoomController::class , 'room_wise_services'])->name('rooms.services');
+        Route::post('/remove-room-media', [RoomController::class, 'remove_room_media'])->name('rooms.media.remove');
+        Route::post('/room-wise-services', [RoomController::class, 'room_wise_services'])->name('rooms.services');
     });
 });
-
-
