@@ -1,4 +1,8 @@
 <x-admin.header :title="'Product Edit Tags'" />
+
+<!--datatable css-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
 <div class="card">
     <div class="card-header d-flex align-items-center">
         <div class="flex-grow-1">
@@ -23,7 +27,7 @@
                         <input type="text" name="name" id="tag" class="form-control @error('name') is-invalid @enderror" placeholder="Enter tag title" value="{{ old('name', isset($attribute) ? $attribute->name : '') }}">
 
                         @error('name')
-                        <div class="invalid-response" style="display:flex">{{ $message }}</div>
+                        <div  class="invalid-response" style="display:flex">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -59,7 +63,7 @@
 
             <div class="card-body">
                 <p class="text-muted">{{ __('values.product_attributes_value_description') }}</p>
-                <form
+                <form id="vec_attribute_value_form"
                     action="{{ isset($edit_value)
         ? route('attribute_values.update', $edit_value->id)
         : route('attribute_values.store') }}"
@@ -74,11 +78,13 @@
                     <label for="values" class="form-label">{{ __('values.attribute_value') }}<span class="text-danger">{{ __('values.required_mark') }}</span></label>
                     <input type="text"
                         name="value"
+                        id="values"
                         class="form-control @error('value') is-invalid @enderror"
-                        value="{{ old('value', $edit_value->value ?? '') }}">
+                        value="{{ old('value', $edit_value->value ?? '') }}"
+                        placeholder=" Enter attribute value">
 
                     @error('value')
-                    <div class="invalid-response" style="display:flex">{{ $message }}</div>
+                    <div id="valueError" class="invalid-response" style="display:flex">{{ $message }}</div>
                     @enderror
 
                     <div class="mb-5 text-end">
@@ -113,9 +119,9 @@
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="vec_attribute_value">
                             @foreach ($attribute->values as $value)
-                            <tr>
+                            <tr id="row-{{ $value->id }}">
                                 <td>{{ $value->id }}</td>
                                 <td>{{ $value->value }}</td>
                                 <td>{{ $attribute->name }}</td>
@@ -126,8 +132,17 @@
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a href="{{ route('attribute_values.edit', $value->id) }}" class="dropdown-item edit-item-btn"><i class="align-middle ph-pencil me-1"></i>Edit</a></li>
-                                            <li><a href="javascript:void(0)" class="dropdown-item remove-item-btn" data-delete-url="{{ route('attribute_values.destroy', $value->id) }}" onclick="setDeleteFormAction(this)"><i class="align-middle ph-trash me-1"></i> Remove</a>
+                                            <li><a href="javascript:void(0);"
+                                                    class="dropdown-item editValue"
+                                                    data-edit-url="{{ route('attribute_values.edit', $value->id) }}"
+                                                    data-update-url="{{ route('attribute_values.update', $value->id) }}">
+                                                    <i class="align-middle ph-pencil me-1"></i> Edit
+                                                </a></li>
+                                            <li><a href="#"
+                                                    class="dropdown-item deleteValue"
+                                                    data-url="{{ route('attribute_values.destroy', $value->id) }}">
+                                                    <i class="align-middle ph-trash me-1"></i> Remove
+                                                </a>
                                             </li>
                                         </ul>
                                     </div>

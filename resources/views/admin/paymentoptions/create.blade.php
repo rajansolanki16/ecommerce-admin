@@ -34,7 +34,7 @@
                     <div class="mb-3">
                         <label for="payment_type" class="form-label">Payment Type<span class="text-danger">*</span></label>
 
-                        <input type="text" name="payment_type" id="payment_type" class="form-control @error('payment_type') is-invalid @enderror" placeholder="Enter category title">
+                        <input type="text" name="payment_type" id="payment_type" class="form-control @error('payment_type') is-invalid @enderror" placeholder="Enter payment type">
 
                         @error('payment_type')
                         <div class="invalid-response" style="display:flex">{{ $message }}</div>

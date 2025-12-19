@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Payment_Options;
+use App\Models\PaymentOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,6 +15,8 @@ class PaymentOptionsController extends Controller
     public function index()
     {
         //
+        $paymentOptions = PaymentOption::all();
+        return view('admin.paymentoptions.index', compact('paymentOptions'));
     }
 
     /**
@@ -45,11 +47,11 @@ class PaymentOptionsController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        $paymentOption = new Payment_Options();
+        $paymentOption = new PaymentOption();
         $paymentOption->payment_type = $request->payment_type;
         $paymentOption->is_active = $request->has('is_active') ? 1 : 0;
         $paymentOption->save(); 
-        return redirect()->route('paymentoptions.create')->with('success', 'Payment option created successfully.');
+        return redirect()->route('paymentoptions.index')->with('success', 'Payment option created successfully.');
     }
 
     /**

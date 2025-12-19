@@ -488,3 +488,175 @@ function vec_generate_coupon_code() {
     }
     document.getElementById('vec_coupon_code').value = code;
 }
+
+
+let table;
+
+$(document).ready(function () {
+
+    // Initialize DataTable
+    if ($.fn.DataTable.isDataTable('#fixed-header')) {
+        table = $('#fixed-header').DataTable();
+    } else {
+        table = $('#fixed-header').DataTable({
+            pageLength: 10
+        });
+    }
+
+    // Function to reset form to "Add" mode
+    function resetForm() {
+        $('#vec_attribute_value_form')[0].reset();
+        $('#vec_attribute_value_form').attr('action', $('#vec_attribute_value_form').data('store-url'));
+        $('#vec_attribute_value_form').find('input[name="_method"]').remove();
+        $('#vec_attribute_value_form button[type="submit"]').text('Submit');
+        $('#valueError').text('');
+    }
+
+    // ADD OR UPDATE VALUE VIA AJAX
+    $('#vec_attribute_value_form').on('submit', function (e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+        $('#valueError').text('');
+
+        let method = $(this).find('input[name="_method"]').val() || 'POST';
+
+        fetch(this.action, {
+            method: method,
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': $('input[name=_token]').val()
+            },
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(err => Promise.reject(err));
+            return res.json();
+        })
+        .then(data => {
+
+            // If editing an existing row
+            if (method === 'PUT') {
+                let row = table.row(`#row-${data.id}`);
+                let actionHtml = generateActionHtml(data.id);
+
+                row.data([
+                    data.id,
+                    data.value,
+                    data.attribute,
+                    actionHtml
+                ]).draw(false);
+
+                resetForm();
+            } else {
+                // Adding new row
+                let actionHtml = generateActionHtml(data.id);
+
+                table.row.add([
+                    data.id,
+                    data.value,
+                    data.attribute,
+                    actionHtml
+                ]).node().id = `row-${data.id}`;
+
+                table.draw(false);
+                resetForm();
+            }
+        })
+        .catch(err => {
+            if (err.errors?.value) {
+                $('#valueError').text(err.errors.value[0]);
+            }
+        });
+    });
+
+    // DELETE VALUE VIA AJAX
+    $(document).on('click', '.deleteValue', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let url = $(this).data('url');
+        if (!url) { alert('Delete URL not found'); return; }
+
+        let row = table.row($(this).closest('tr'));
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === true) {
+                row.remove().draw(false);
+            } else {
+                alert('Delete failed');
+            }
+        })
+        .catch(err => { console.error(err); alert('Delete error'); });
+    });
+
+    // EDIT VALUE VIA AJAX (populate form)
+    $(document).on('click', '.editValue', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let editUrl = $(this).data('edit-url');
+        let updateUrl = $(this).data('update-url');
+
+        fetch(editUrl, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Populate the form with existing value
+            $('#values').val(data.value);
+            $('#vec_attribute_value_form').attr('action', updateUrl);
+
+            // Add _method PUT if not exists
+            if ($('#vec_attribute_value_form').find('input[name="_method"]').length === 0) {
+                $('#vec_attribute_value_form').append('<input type="hidden" name="_method" value="PUT">');
+            }
+
+            // Change button text to Update
+            $('#vec_attribute_value_form button[type="submit"]').text('Update');
+
+            // Scroll to the form (optional)
+            $('html, body').animate({ scrollTop: $('#vec_attribute_value_form').offset().top - 100 }, 500);
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to fetch data for edit');
+        });
+    });
+
+    // Function to generate action buttons for table
+    function generateActionHtml(id) {
+        return `
+            <div class="dropdown position-static">
+                <button class="btn btn-subtle-secondary btn-sm btn-icon"
+                    data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a href="javascript:void(0);"
+                           class="dropdown-item editValue"
+                           data-edit-url="/attribute-values/${id}/edit"
+                           data-update-url="/attribute-values/${id}">
+                           <i class="align-middle ph-pencil me-1"></i> Edit
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);"
+                           class="dropdown-item deleteValue"
+                           data-url="/attribute-values/${id}">
+                           <i class="align-middle ph-trash me-1"></i> Remove
+                        </a>
+                    </li>
+                </ul>
+            </div>`;
+    }
+
+});

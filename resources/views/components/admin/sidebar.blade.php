@@ -190,6 +190,9 @@
                                 <li class="nav-item">
                                     <a href="{{ route('paymentoptions.create') }}" class="nav-link">Create</a>
                                 </li>
+                                 <li class="nav-item">
+                                    <a href="{{ route('paymentoptions.index') }}" class="nav-link">Show</a>
+                                </li>
                             </ul>
                         </div>
                     </li>

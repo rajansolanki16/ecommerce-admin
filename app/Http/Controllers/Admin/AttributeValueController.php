@@ -33,37 +33,30 @@ class AttributeValueController extends Controller
     public function store(Request $request)
     {
         //
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'value' => 'required|unique:attribute_values,value'
-        ];
-
-        $messages = [
+        ], [
             'value.required' => 'The attribute value field is required.',
-            'value.unique' => 'This attribute value is already exist'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
+            'value.unique' => 'This attribute value already exists.'
+        ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $attributeValue = new Attribute_values();
-        $attributeValue->product_attribute_id = $request->product_attribute_id;
-        $attributeValue->value = $request->value;
-        $attributeValue->slug = Str::slug($request->value);
-        $attributeValue->save();
+        $attributeValue = Attribute_values::create([
+            'product_attribute_id' => $request->product_attribute_id,
+            'value' => $request->value,
+            'slug' => Str::slug($request->value),
+        ]);
 
-
-        if ($attributeValue) {
-            return redirect()->back()->with('success', 'Attribute value added successfully.');
-        }
-
-        return redirect()->back()
-            ->withErrors(['attribute_values' => 'Unable to add attribute value.'])
-            ->withInput();
+        return response()->json([
+            'id' => $attributeValue->id,
+            'value' => $attributeValue->value,
+            'attribute' => $attributeValue->productAttribute->name,
+        ]);
     }
 
     /**
@@ -82,14 +75,15 @@ class AttributeValueController extends Controller
         //
 
         $edit_value = Attribute_values::findOrFail($id);
-
         $attribute = Product_Attribute::with('values')
             ->findOrFail($edit_value->product_attribute_id);
 
-        return view(
-            'admin.productattribute.edit',
-            compact('attribute', 'edit_value')
-        );
+
+        return response()->json([
+            'id' => $edit_value->id,
+            'value' => $edit_value->value,
+            'product_attribute_id' => $edit_value->product_attribute_id
+        ]);
     }
 
     /**
@@ -112,18 +106,20 @@ class AttributeValueController extends Controller
         $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422); // 422 Unprocessable Entity for validation errors
         }
 
         $valueModel->value = $request->value;
         $valueModel->slug  = Str::slug($request->value);
         $valueModel->save();
 
-        return redirect()
-            ->route('product_attributes.edit', $valueModel->product_attribute_id)
-            ->with('success', 'Attribute value updated successfully.');
+        return response()->json([
+            'id' => $valueModel->id,
+            'value' => $valueModel->value,
+            'attribute' => $valueModel->attribute->name
+        ]);
     }
 
     /**
@@ -132,8 +128,11 @@ class AttributeValueController extends Controller
     public function destroy(string $id)
     {
         //
-        $attributeValue = Attribute_values::find($id);
-        $attributeValue->delete();
-        return redirect()->back()->with('success', 'Attribute value deleted successfully.');
+        $value = Attribute_values::findOrFail($id);
+        $value->delete();
+
+        return response()->json([
+            'status' => true
+        ]);
     }
 }
