@@ -11,6 +11,7 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AmenityController;
+use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogCategoriesController;
 use App\Http\Controllers\Admin\BookingController;
@@ -63,11 +64,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/coupons', CouponController::class)->names('coupons');
         Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');
         Route::resource('/product-attributes', ProductAttributeController::class)->names('product_attributes');
+        Route::resource('/attribute-values', AttributeValueController::class)->names('attribute_values');
 
-        //product routes
-        Route::resource('/product', ProductController::class)->names('product');
 
-        //end product routes
 
         Route::prefix('settings')->group(function () {
 
@@ -104,3 +103,4 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/room-wise-services', [RoomController::class, 'room_wise_services'])->name('rooms.services');
     });
 });
+ 

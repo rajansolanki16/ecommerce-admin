@@ -13,4 +13,9 @@ class Product_Attribute extends Model
         'name',
         'slug',
     ];  
+
+    public function values()
+    {
+        return $this->hasMany(Attribute_values::class, 'product_attribute_id');
+    }
 }

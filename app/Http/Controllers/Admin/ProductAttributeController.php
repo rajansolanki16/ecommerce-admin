@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class ProductAttributeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource.      
      */
     public function index()
     {
@@ -78,7 +78,7 @@ class ProductAttributeController extends Controller
     public function edit(string $id)
     {
         //
-        $attribute = Product_Attribute::findOrFail($id);
+        $attribute = Product_Attribute::with('values')->findOrFail($id);
         return view('admin.productattribute.edit', compact('attribute'));
     }
 
