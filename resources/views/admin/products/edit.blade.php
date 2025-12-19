@@ -85,6 +85,17 @@
                                                         @enderror
                                                 </div>
                                             </div>
+                                            <div class="col-lg-6">
+                                                <label class="form-label">SKU Number</label>
+                                                <input type="text"
+                                                    name="sku_number"
+                                                    class="form-control"
+                                                    value="{{ old('sku_number', $product->sku_number) }}"
+                                                    placeholder="SKU-ABC-001">
+                                                @error('sku_number')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-lg-6">
@@ -179,7 +190,9 @@
                                     </div>
 
                                     <div class="mb-4">
-                                        <label class="form-label">Gallery Images
+                                        <label class="form-label fw-semibold">
+                                            Gallery Images
+                                        </label>
 
                                         <input type="file"
                                             name="gallery_images[]"
@@ -189,18 +202,22 @@
                                             onchange="previewMultipleImages(event)">
 
                                         <div class="row mt-3" id="galleryPreview">
-                                            @foreach (json_decode($product->gallery_images) ?? [] as $image)
+                                            @foreach ($product->gallery_images ?? [] as $image)
                                                 <div class="col-md-3 mb-3">
                                                     <div class="card shadow-sm">
-                                                        <img src="{{ asset('storage/' . $image) }}" class="card-img-top" style="height:150px; object-fit:cover">
+                                                        <img src="{{ asset('storage/' . $image) }}"
+                                                            class="card-img-top"
+                                                            style="height:150px; object-fit:cover">
                                                     </div>
                                                 </div>
                                             @endforeach
                                         </div>
+
                                         @error('gallery_images')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
+
                                 </div>
                             </div><!--end row-->
                         </div>
@@ -220,14 +237,27 @@
                                 <div class="col-xxl-8">
                                     <div class="row gy-3">
                                         <div class="col-lg-4">
-                                            <div>
-                                                <label for="productStocks" class="form-label">Stocks <span class="text-danger">*</span></label>
-                                                <input type="number" name="stock" class="form-control" value="{{ old('stock', $product->stock) }}">
-                                            </div>
+                                            <label class="form-label">
+                                                Stock <span class="text-danger">*</span>
+                                            </label>
+
+                                            <select name="stock"
+                                                    class="form-control"
+                                                    data-choices
+                                                    data-choices-search-false>
+                                                <option value="">Select Stock</option>
+                                                <option value="1" {{ old('stock', $product->stock) == 1 ? 'selected' : '' }}>
+                                                    In Stock
+                                                </option>
+                                                <option value="0" {{ old('stock', $product->stock) == 0 ? 'selected' : '' }}>
+                                                    Out of Stock
+                                                </option>
+                                            </select>
+
                                             @error('stock')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
-                                        </div><!--end col-->
+                                        </div>
                                         <div class="col-lg-4">
                                             <div>
                                                 <label class="form-label" for="product-price-input">Price</label>
@@ -253,6 +283,41 @@
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                         </div><!--end col-->
+                                          <!-- Sell Price -->
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Sell Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number"
+                                                    step="0.01"
+                                                    name="sell_price"
+                                                    class="form-control"
+                                                    value="{{ old('sell_price', $product->sell_price) }}">
+                                            </div>
+                                            @error('sell_price')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Sell Price Start Date</label>
+                                            <input type="date"
+                                                name="sell_price_start_date"
+                                                class="form-control"
+                                                value="{{ old('sell_price_start_date', optional($product->sell_price_start_date)->format('Y-m-d')) }}">
+                                            @error('sell_price_start_date')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Sell Price End Date</label>
+                                            <input type="date"
+                                                name="sell_price_end_date"
+                                                class="form-control"
+                                                value="{{ old('sell_price_end_date', optional($product->sell_price_end_date)->format('Y-m-d')) }}">
+                                            @error('sell_price_end_date')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                         <div class="row gy-2" >
                                             <div class="col-lg-6">
                                                 <div class="form-check form-switch mb-3">
@@ -294,12 +359,7 @@
                                         <div class="col-lg-4">
                                             <div>
                                                 <label class="form-label">Weight (kg)</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="weight"
-                                                    value="{{ old('weight') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 1.5">
+                                                <input type="number" step="0.01" name="weight" value="{{ old('weight', $product->weight) }}" class="form-control">
                                                 @error('weight')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -310,12 +370,7 @@
                                         <div class="col-lg-4">
                                             <div>
                                                 <label class="form-label">Length (cm)</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="length"
-                                                    value="{{ old('length') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 30">
+                                                <input type="number" step="0.01" name="length" value="{{ old('length', $product->length) }}" class="form-control">
                                                 @error('length')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -326,12 +381,7 @@
                                         <div class="col-lg-4">
                                             <div>
                                                 <label class="form-label">Width (cm)</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="width"
-                                                    value="{{ old('width') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 20">
+                                                <input type="number" step="0.01" name="width" value="{{ old('width', $product->width) }}" class="form-control">
                                                 @error('width')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -342,12 +392,7 @@
                                         <div class="col-lg-4">
                                             <div>
                                                 <label class="form-label">Height (cm)</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="height"
-                                                    value="{{ old('height') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 10">
+                                                <input type="number" step="0.01" name="height" value="{{ old('height', $product->height) }}" class="form-control">
                                                 @error('height')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -357,11 +402,8 @@
                                         <!-- Free Shipping -->
                                         <div class="col-lg-8 d-flex align-items-center">
                                             <div class="form-check form-switch mt-4">
-                                                <input class="form-check-input"
-                                                    type="checkbox"
-                                                    name="free_shipping"
-                                                    value="1"
-                                                    {{ old('free_shipping') ? 'checked' : '' }}>
+                                                <input class="form-check-input" type="checkbox" name="free_shipping" value="1"
+                                                   {{ old('free_shipping', $product->free_shipping) ? 'checked' : '0' }}>
                                                 <label class="form-check-label">
                                                     Free Shipping
                                                 </label>

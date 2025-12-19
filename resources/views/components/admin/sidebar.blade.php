@@ -61,7 +61,7 @@
                         <a class="nav-link menu-link" href="#sidebarProduct"
                             data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="sidebarProduct">
-                            <i class="ri-shopping-bag-line"></i>
+                            <i class="ri-shopping-bag-3-line"></i>
                             <span>Product</span>
                         </a>
 
@@ -86,7 +86,7 @@
                         <a class="nav-link menu-link" href="#sidebarProductAttribute"
                             data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="sidebarProductAttribute">
-                            <i class="ri-folder-line"></i>
+                            <i class="ri-list-settings-line"></i>
                             <span>Product Attribute</span>
                         </a>
 
@@ -109,7 +109,7 @@
                         <a class="nav-link menu-link" href="#sidebarCategory"
                             data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="sidebarCategory">
-                            <i class="ri-folder-line"></i>
+                            <i class="ri-folder-2-line"></i>
                             <span>Category</span>
                         </a>
 
@@ -134,7 +134,7 @@
                             role="button"
                             aria-expanded="false"
                             aria-controls="sidebarproduct_tags">
-                            <i class="ri-profile-line"></i>
+                            <i class="ri-price-tag-3-line"></i>
                             <span>Tags</span>
                         </a>
 
@@ -157,7 +157,7 @@
                         role="button"
                         aria-expanded="false"
                         aria-controls="sidebarCoupon">
-                            <i class="ri-profile-line"></i>
+                            <i class="ri-coupon-3-line"></i>
                             <span>Coupon</span>
                         </a>
 
@@ -181,7 +181,7 @@
                         role="button"
                         aria-expanded="false"
                         aria-controls="sidebarPaymentOptions">
-                            <i class="ri-profile-line"></i>
+                            <i class="ri-bank-card-line"></i>
                             <span>Payment Options</span>
                         </a>
 
@@ -253,33 +253,6 @@
             </ul>
         </div>
         </li> --}}
-
-        <!-- Products -->
-        <!-- <li class="nav-item">
-                        @if(Route::is('products.index') || Route::is('products.create') || Route::is('products.edit') || Route::is('products.show'))
-                            <a href="#sidebarBookings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBookings">
-                                <i class=" ri-calendar-check-fill"></i><span>Products</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarBookings">
-                        @else
-                            <a href="#sidebarBookings" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBookings">
-                                <i class=" ri-calendar-check-fill"></i><span>Products</span>
-                            </a>
-                            <div class="collapse menu-dropdown" id="sidebarBookings">
-                        @endif
-                                <ul class="nav nav-sm flex-column">
-                                     <li class="nav-item">
-                                        <a href="{{ route('products.index') }}" class="nav-link">Show</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('products.create') }}" class="nav-link">Create</a>
-                                    </li>
-
-                                   
-                                </ul>
-                            </div>
-                    </li> -->
-        <!-- END PRODUCT -->
 
         <!-- SETTINGS -->
         <li class="nav-item">

@@ -386,26 +386,26 @@ $(document).ready(function () {
 
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-choices]').forEach(function (el) {
+// document.addEventListener('DOMContentLoaded', function () {
+//     document.querySelectorAll('[data-choices]').forEach(function (el) {
 
-        if (el.classList.contains('choices-initialized')) return;
+//         if (el.classList.contains('choices-initialized')) return;
 
-        const searchEnabled = el.dataset.choicesSearch !== 'false';
-        const removeItem = el.hasAttribute('data-choices-remove-item');
-        const isMultiple = el.hasAttribute('multiple');
+//         const searchEnabled = el.dataset.choicesSearch !== 'false';
+//         const removeItem = el.hasAttribute('data-choices-remove-item');
+//         const isMultiple = el.hasAttribute('multiple');
 
-        new Choices(el, {
-            searchEnabled: searchEnabled,
-            removeItemButton: removeItem,
-            shouldSort: false,
-            placeholderValue: 'Select categories',
-            itemSelectText: '',
-        });
+//         new Choices(el, {
+//             searchEnabled: searchEnabled,
+//             removeItemButton: removeItem,
+//             shouldSort: false,
+//             placeholderValue: 'Select categories',
+//             itemSelectText: '',
+//         });
 
-        el.classList.add('choices-initialized');
-    });
-});
+//         el.classList.add('choices-initialized');
+//     });
+// });
 
 function previewSingleImage(event) {
     const reader = new FileReader();
@@ -440,19 +440,26 @@ function previewMultipleImages(event) {
 
 
 $(document).ready(function () {
-    if ($('#productType').val() === '0') {
-        $('#vec_general_Info_Section').show();
-    } else {
-        $('#vec_general_Info_Section').hide();
+
+    function toggleSections() {
+        const type = $('#productType').val();
+
+        console.log('Product Type:', type); 
+
+        if (type == 1) {
+            $('#variantSection').stop(true, true).slideDown();
+            $('#vec_general_Info_Section').hide();
+        } else {
+            $('#variantSection').hide();
+            $('#vec_general_Info_Section').stop(true, true).slideDown();
+        }
     }
 
-    $('#productType').on('change', function () {
-        if ($(this).val() === '0') {
-            $('#vec_general_Info_Section').show();
-        } else {
-            $('#vec_general_Info_Section').hide();
-        }
-    });
+    // Initial load
+    toggleSections();
+
+    // On change
+    $('#productType').on('change', toggleSections);
 });
 
 document.addEventListener('DOMContentLoaded', function() {

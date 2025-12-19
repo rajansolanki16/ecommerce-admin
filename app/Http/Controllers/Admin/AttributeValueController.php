@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attribute_values;
-use App\Models\Product_Attribute;
+use App\Models\AttributeValue;
+use App\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -46,11 +46,12 @@ class AttributeValueController extends Controller
             ], 422);
         }
 
-        $attributeValue = Attribute_values::create([
-            'product_attribute_id' => $request->product_attribute_id,
-            'value' => $request->value,
-            'slug' => Str::slug($request->value),
-        ]);
+
+        $attributeValue = new AttributeValue();
+        $attributeValue->product_attribute_id = $request->product_attribute_id;
+        $attributeValue->value = $request->value;
+        $attributeValue->slug = Str::slug($request->value);
+        $attributeValue->save();
 
         return response()->json([
             'id' => $attributeValue->id,
@@ -74,8 +75,14 @@ class AttributeValueController extends Controller
     {
         //
 
+<<<<<<< Updated upstream
         $edit_value = Attribute_values::findOrFail($id);
         $attribute = Product_Attribute::with('values')
+=======
+        $edit_value = AttributeValue::findOrFail($id);
+
+        $attribute = ProductAttribute::with('values')
+>>>>>>> Stashed changes
             ->findOrFail($edit_value->product_attribute_id);
 
 
@@ -92,7 +99,7 @@ class AttributeValueController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $valueModel = Attribute_values::findOrFail($id);
+        $valueModel = AttributeValue::findOrFail($id);
 
         $rules = [
             'value' => 'required|max:255|unique:attribute_values,value,' . $id . ',id,product_attribute_id,' . $valueModel->product_attribute_id,
@@ -128,11 +135,17 @@ class AttributeValueController extends Controller
     public function destroy(string $id)
     {
         //
+<<<<<<< Updated upstream
         $value = Attribute_values::findOrFail($id);
         $value->delete();
 
         return response()->json([
             'status' => true
         ]);
+=======
+        $attributeValue = AttributeValue::find($id);
+        $attributeValue->delete();
+        return redirect()->back()->with('success', 'Attribute value deleted successfully.');
+>>>>>>> Stashed changes
     }
 }

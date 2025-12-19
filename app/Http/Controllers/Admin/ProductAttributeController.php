@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product_Attribute;
+use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -16,7 +16,7 @@ class ProductAttributeController extends Controller
     public function index()
     {
         //
-        $attributes = Product_Attribute::all();
+        $attributes = ProductAttribute::all();
         return view('admin.productattribute.index', compact('attributes'));
     }
 
@@ -51,7 +51,7 @@ class ProductAttributeController extends Controller
                 ->withInput();
         }
 
-        $attribute = new Product_Attribute;
+        $attribute = new ProductAttribute;
         $attribute->name = $request->name;
         $attribute->slug = Str::slug($request->name);
         $attribute->save();
@@ -78,7 +78,7 @@ class ProductAttributeController extends Controller
     public function edit(string $id)
     {
         //
-        $attribute = Product_Attribute::with('values')->findOrFail($id);
+        $attribute = ProductAttribute::with('values')->findOrFail($id);
         return view('admin.productattribute.edit', compact('attribute'));
     }
 
@@ -103,7 +103,7 @@ class ProductAttributeController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        $attribute = Product_Attribute::findOrFail($id);
+        $attribute = ProductAttribute::findOrFail($id);
         $attribute->name = $request->name;
         $attribute->slug = Str::slug($request->name);
         $attribute->save();
@@ -122,7 +122,7 @@ class ProductAttributeController extends Controller
     public function destroy(string $id)
     {
         //
-        $attribute = Product_Attribute::findOrFail($id);
+        $attribute = ProductAttribute::findOrFail($id);
         $attribute->delete();
         return redirect()->route('product_attributes.index');
     }

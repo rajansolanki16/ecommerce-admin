@@ -133,7 +133,7 @@
 
                                                             <div>
                                                                 <h6 class="mb-0">
-                                                                    <a href="#" class="text-reset">
+                                                                    <a href="{{ route('products.edit', $product->id) }}" class="text-reset">
                                                                         {{ $product->product_title }}
                                                                     </a>
                                                                 </h6>
