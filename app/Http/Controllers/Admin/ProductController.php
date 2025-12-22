@@ -90,9 +90,10 @@ class ProductController extends Controller
                 'tags.*'                    => 'exists:tags,id',
 
                 'product_type'              => 'required|integer',
-                'short_description'         => 'nullable|string',
+                'short_description'         => 'required|string',
+                'product_decscription'      => 'required',
 
-                'price'                     => 'nullable|numeric|min:0',
+                'price'                     => 'required|numeric|min:0',
                 'discount'                  => 'nullable|numeric|min:0',
 
                 'sell_price'                => 'nullable|numeric|min:0',
@@ -212,15 +213,11 @@ class ProductController extends Controller
 
         $product->product_title        = $validated['title'];
         $product->slug                 = Str::slug($validated['title']);
-    //  $product->sku_number           = $validated['sku_number'] ?? null;
+        $product->sku_number           = $validated['sku_number'] ?? null;
 
         $product->product_type         = $validated['product_type'];
         $product->short_description    = $validated['short_description'];
         $product->product_decscription = $request->product_decscription;
-
-        $product->brand                = $request->brand;
-        $product->manufacturer_name    = $request->manufacturer_name;
-        $product->manufacturer_brand   = $request->manufacturer_brand;
 
         $product->exchangeable         = $request->boolean('exchangeable');
         $product->refundable           = $request->boolean('refundable');
@@ -243,7 +240,7 @@ class ProductController extends Controller
             $product->height               = $validated['height'] ?? null;
         } else {
             $product->stock                = 0;
-            $product->price                = null;
+            $product->price                = $validated['price'];
             $product->discount             = 0;
             $product->sell_price           = null;
             $product->sell_price_start_date= null;
@@ -520,7 +517,7 @@ class ProductController extends Controller
 
                     $pvData = [
                         'product_id' => $product->id,
-                         'sku'        => $variant['sku'] ?? null,
+                        'sku'        => $variant['sku'] ?? null,
                         'price'      => $variant['price'] ?? null,
                         'stock'      => $variant['stock'] ?? 0,
                         'sell_price' => $variant['sell_price'] ?? null,

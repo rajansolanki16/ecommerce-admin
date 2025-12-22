@@ -440,7 +440,7 @@ $('#productType').on('change', toggleSections);
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    const categorySelect = document.querySelector('#vec_productCategories');
+    const categorySelect = document.querySelector('#productCategories');
     if (categorySelect) {
         new Choices(categorySelect, {
             searchEnabled: true,
@@ -480,6 +480,11 @@ document.addEventListener('DOMContentLoaded', function() {
             placeholderValue: 'Select variant attributes',
         });
     }
+    const productStatusSelect = document.querySelector('#productStatus');
+    if (productStatusSelect) { new Choices(productStatusSelect, {}); }
+
+    const productVisibilitySelect = document.querySelector('#productVisibility');
+    if (productVisibilitySelect) { new Choices(productVisibilitySelect, {}); }
 });
     
 function setDeleteFormAction(element) {

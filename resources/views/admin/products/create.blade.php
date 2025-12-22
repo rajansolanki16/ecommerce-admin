@@ -14,7 +14,6 @@
                                     <p class="text-muted">Product Information refers to any information held by an organisation about the products it produces, buys, sells or distributes.</p>
                                 </div>
                                 <div class="col-xxl-8">
-                                    
                                         <div class="mb-3">
                                             <label for="productTitle" class="form-label">Product Title <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="title" id="productTitle"
@@ -45,7 +44,7 @@
 
                                             <select class="form-control"
                                                     name="categories[]"
-                                                    id="vec_productCategories"
+                                                    id="productCategories"
                                                     multiple>
                                                 @forelse ($categories as $category)
                                                     <option value="{{ $category->id }}"
@@ -82,6 +81,21 @@
                                                     @enderror
                                                 </div>
                                             </div>
+
+                                            <div class="col-lg-6">
+                                                <div>
+                                                    <label class="form-label" for="product-price-input">Price</label>
+                                                    <div class="input-group has-validation">
+                                                        <span class="input-group-text" id="product-price-addon">$</span>
+                                                        <input type="number" step="0.01" name="price" class="form-control">
+                                                        <div class="invalid-feedback">Please Enter a product price.</div>
+                                                    </div>
+                                                </div>
+                                                @error('price')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div><!--end col-->
+
                                             <div class="mb-3">
                                                 <label class="form-label">Tags</label>
                                                 <select id="productTags" name="tags[]" class="form-control" multiple>
@@ -227,9 +241,7 @@
                                             <div>
                                                 <label class="form-label">Stock Status <span class="text-danger">*</span></label>
                                                 <select name="stock_status"
-                                                        class="form-control"
-                                                        
-                                                        -search-false>
+                                                        class="form-control">
                                                     <option value="">Select Status</option>
                                                     <option value="instock" {{ old('stock_status') === 'instock' ? 'selected' : '' }}>
                                                         In Stock
@@ -244,20 +256,6 @@
                                                 @enderror
                                             </div>
                                         </div>
-
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label" for="product-price-input">Price</label>
-                                                <div class="input-group has-validation">
-                                                    <span class="input-group-text" id="product-price-addon">$</span>
-                                                    <input type="number" step="0.01" name="price" class="form-control">
-                                                    <div class="invalid-feedback">Please Enter a product price.</div>
-                                                </div>
-                                            </div>
-                                            @error('price')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div><!--end col-->
                                         
                                         <div class="col-lg-4">
                                             <div>
@@ -364,7 +362,7 @@
                                         <!-- Weight -->
                                         <div class="col-lg-4">
                                             <div>
-                                                <label class="form-label">Weight (kg)</label>
+                                                <label class="form-label">Weight</label>
                                                 <input type="number"
                                                     step="0.01"
                                                     name="weight"
@@ -446,7 +444,6 @@
                     </div>
                 </div><!--end col-->
             </div><!--end row-->
-
             
             {{-- Variant Section --}}
             <div class="row" id="variantSection" style="display:none;">

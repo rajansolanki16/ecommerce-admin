@@ -37,7 +37,7 @@
                                                     Categories 
                                                 </label>
 
-                                                <select class="form-control" name="categories[]" id="vec_productCategories">
+                                                <select class="form-control" name="categories[]" id="productCategories" multiple>
                                                     @foreach ($categories as $category)
                                                         <option value="{{ $category->id }}"
                                                             {{ in_array($category->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'selected' : '' }}>
@@ -238,10 +238,7 @@
                                                 Stock <span class="text-danger">*</span>
                                             </label>
 
-                                            <select name="stock"
-                                                    class="form-control"
-                                                    data-choices
-                                                    data-choices-search-false>
+                                            <select name="stock" class="form-control">
                                                 <option value="">Select Stock</option>
                                                 <option value="1" {{ old('stock', $product->stock) == 1 ? 'selected' : '' }}>
                                                     In Stock
@@ -337,7 +334,7 @@
                 </div><!--end col-->
             </div><!--end row-->
 
-            <div class="row" class="vec_shipping_section">
+            <div class="row" class="vec_shipping_section" id="vec_shipping_section">
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
@@ -454,12 +451,11 @@
             </div><!--end row-->
 
             <div class="hstack gap-2 justify-content-end mb-3">
-               <a href="{{ route('products.index') }}" class="btn btn-danger">
+                <a href="{{ route('products.index') }}" class="btn btn-danger">
                     <i class="ph-x align-middle"></i> Cancel
                 </a>
                 <button class="btn btn-primary">Submit</button>
             </div>
-
         </form>
     </div>
     <script>
@@ -583,13 +579,12 @@
                                 ${renderFieldGroup('Shipping Address', 'variant-shipping-addr', 'shipping_address', 'text', 'col-md-6')}
                             </div>
                             <div class="row">
-                                ${renderFieldGroup('Weight', 'variant-weight', 'weight', 'number', 'col-md-4')}
-                                ${renderFieldGroup('Length', 'variant-length', 'length', 'number', 'col-md-4')}
-                                ${renderFieldGroup('Width', 'variant-width', 'width', 'number', 'col-md-4')}
+                                ${renderFieldGroup('Weight', 'variant-weight', 'weight', 'number', 'col-md-3')}
+                                ${renderFieldGroup('Length', 'variant-length', 'length', 'number', 'col-md-3')}
+                                ${renderFieldGroup('Width', 'variant-width', 'width', 'number', 'col-md-3')}
+                                ${renderFieldGroup('Height', 'variant-height', 'height', 'number', 'col-md-3')}
                             </div>
-                            <div class="row">
-                                ${renderFieldGroup('Height', 'variant-height', 'height', 'number', 'col-md-6')}
-                            </div>
+                           
                         </div>
                     `;
 
