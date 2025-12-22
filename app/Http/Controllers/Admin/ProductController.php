@@ -11,7 +11,9 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tag;
 use App\Models\ProductAttribute;
+use App\Models\ProductVariant;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -46,13 +48,23 @@ class ProductController extends Controller
      */
     public function create()
     {
+       $attributes = ProductAttribute::with('values')->get();
+       $attributesJson = $attributes->map(function($a){
+           return [
+               'id' => $a->id,
+               'name' => $a->name,
+               'values' => $a->values->map(function($v){ return ['id'=>$v->id,'value'=>$v->value]; }),
+           ];
+       })->toJson();
+
        return view('admin.products.create', [
             'productTypes'       => ProductType::cases(),
             'productStatuses'    => ProductStatus::cases(),
             'productVisibilities'=> ProductVisibility::cases(),
             'categories'         => Category::orderBy('name')->get(),
             'allTags'            => Tag::orderBy('name')->get(),
-            'attributes'        =>  ProductAttribute::with('values')->get(),
+            'attributes'         => $attributes,
+            'attributesJson'     => $attributesJson,
         ]);
     }
 
@@ -61,34 +73,117 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title'                     => 'required|string|max:255',
-            'sku_number'                => 'nullable|string|max:255|unique:products,sku_number',
-
-            'categories'                => 'nullable|array',
-            'categories.*'              => 'exists:categories,id',
-
-            'tags'                      => 'nullable|array',
-            'tags.*'                    => 'exists:tags,id',
-
-            'product_type'              => 'required|integer',
-            'short_description'         => 'nullable|string',
-
-            'price'                     => 'required|numeric|min:0',
-            'discount'                  => 'nullable|numeric|min:0',
-
-            'sell_price'                => 'nullable|numeric|min:0',
-            'sell_price_start_date'     => 'nullable|date',
-            'sell_price_end_date'       => 'nullable|date|after_or_equal:sell_price_start_date',
-
-            'weight'                    => 'nullable|numeric|min:0',
-            'length'                    => 'nullable|numeric|min:0',
-            'width'                     => 'nullable|numeric|min:0',
-            'height'                    => 'nullable|numeric|min:0',
-
-            'product_image'             => 'required|image|mimes:jpg,jpeg,png,webp',
-            'gallery_images.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp',
+        Log::info('=== STORE METHOD STARTED ===', [
+            'all_inputs' => $request->except(['product_image', 'gallery_images']),
+            'has_files' => count($request->files->all()) > 0,
         ]);
+
+        try {
+            $validated = $request->validate([
+                'title'                     => 'required|string|max:255',
+                'sku_number'                => 'nullable|string|max:255|unique:products,sku_number',
+
+                'categories'                => 'nullable|array',
+                'categories.*'              => 'exists:categories,id',
+
+                'tags'                      => 'nullable|array',
+                'tags.*'                    => 'exists:tags,id',
+
+                'product_type'              => 'required|integer',
+                'short_description'         => 'nullable|string',
+
+                'price'                     => 'nullable|numeric|min:0',
+                'discount'                  => 'nullable|numeric|min:0',
+
+                'sell_price'                => 'nullable|numeric|min:0',
+                'sell_price_start_date'     => 'nullable|date',
+                'sell_price_end_date'       => 'nullable|date|after_or_equal:sell_price_start_date',
+
+                'weight'                    => 'nullable|numeric|min:0',
+                'length'                    => 'nullable|numeric|min:0',
+                'width'                     => 'nullable|numeric|min:0',
+                'height'                    => 'nullable|numeric|min:0',
+
+                'product_image'             => 'nullable|image|mimes:jpg,jpeg,png,webp',
+                'gallery_images.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            ]);
+
+            Log::info('=== INITIAL VALIDATION PASSED ===', ['validated' => $validated]);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::error('=== INITIAL VALIDATION FAILED ===', [
+                    'errors' => $e->errors(),
+                ]);
+                throw $e;
+            }
+
+        $productType = $validated['product_type'] ?? $request->input('product_type');
+        Log::info('=== PRODUCT TYPE CHECK ===', ['product_type' => $productType, 'is_simple' => $productType == ProductType::SIMPLE->value]);
+
+        if ($productType == ProductType::SIMPLE->value || $productType == ProductType::SIMPLE) {
+            Log::info('=== SIMPLE PRODUCT VALIDATION STARTED ===');
+            try {
+                $validatedSimple = $request->validate([
+                    'price'    => 'required|numeric|min:0',
+                    'product_image' => 'required|image|mimes:jpg,jpeg,png,webp',
+                ]);
+                Log::info('=== SIMPLE PRODUCT VALIDATION PASSED ===');
+                $validated = array_merge($validated, $validatedSimple);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::error('=== SIMPLE PRODUCT VALIDATION FAILED ===', ['errors' => $e->errors()]);
+                throw $e;
+            }
+        }
+
+        if ($productType == ProductType::VARIANTS->value || $productType == ProductType::VARIANTS) {
+            Log::info('=== VARIANTS PRODUCT VALIDATION STARTED ===');
+            try {
+                $validatedVariants = $request->validate([
+                    'product_attributes' => 'required|array|min:1',
+                    // 'product_attributes.*' => 'exists:product_attributes,id',
+                    'variants' => 'required|array|min:1',
+                    'variants.*.values' => 'required|array|min:1',
+                    'variants.*.values.*' => 'exists:attribute_values,id',
+                    'variants.*.sku' => 'nullable|string|max:255',
+                    'variants.*.price' => 'nullable|numeric|min:0',
+                    'variants.*.stock' => 'nullable|integer|min:0',
+                    'variants.*.sell_price' => 'nullable|numeric|min:0',
+                    'variants.*.shipping' => 'nullable|string|max:255',
+                    'variants.*.shipping_address' => 'nullable|string|max:255',
+                    'variants.*.general_info' => 'nullable|string',
+                    'variants.*.weight' => 'nullable|numeric|min:0',
+                    'variants.*.length' => 'nullable|numeric|min:0',
+                    'variants.*.width' => 'nullable|numeric|min:0',
+                    'variants.*.height' => 'nullable|numeric|min:0',
+                    'variants.*.image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+                    'variants.*.exchangeable' => 'nullable|boolean',
+                    'variants.*.refundable' => 'nullable|boolean',
+                    'variants.*.free_shipping' => 'nullable|boolean',
+                ], [
+                    'variants.*.price.numeric' => 'Price must be a valid number',
+                    'variants.*.price.min' => 'Price must be greater than or equal to 0',
+                    'variants.*.stock.integer' => 'Stock must be a whole number',
+                    'variants.*.stock.min' => 'Stock must be greater than or equal to 0',
+                    'variants.*.sell_price.numeric' => 'Sell Price must be a valid number',
+                    'variants.*.sell_price.min' => 'Sell Price must be greater than or equal to 0',
+                    'variants.*.weight.numeric' => 'Weight must be a valid number',
+                    'variants.*.weight.min' => 'Weight must be greater than or equal to 0',
+                    'variants.*.length.numeric' => 'Length must be a valid number',
+                    'variants.*.length.min' => 'Length must be greater than or equal to 0',
+                    'variants.*.width.numeric' => 'Width must be a valid number',
+                    'variants.*.width.min' => 'Width must be greater than or equal to 0',
+                    'variants.*.height.numeric' => 'Height must be a valid number',
+                    'variants.*.height.min' => 'Height must be greater than or equal to 0',
+                    'variants.*.image.image' => 'Image must be a valid image file',
+                    'variants.*.image.mimes' => 'Image must be a file of type: jpg, jpeg, png, webp',
+                ]);
+
+                Log::info('=== VARIANTS PRODUCT VALIDATION PASSED ===');
+                $validated = array_merge($validated, $validatedVariants);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::error('=== VARIANTS PRODUCT VALIDATION FAILED ===', ['errors' => $e->errors()]);
+                throw $e;
+            }
+        }
 
         /* ===============================
         Upload Images
@@ -111,11 +206,13 @@ class ProductController extends Controller
         Create Product
         =============================== */
 
+        Log::info('=== CREATING PRODUCT ===');
+
         $product = new Product();
 
         $product->product_title        = $validated['title'];
         $product->slug                 = Str::slug($validated['title']);
-        $product->sku_number           = $validated['sku_number'] ?? null;
+    //  $product->sku_number           = $validated['sku_number'] ?? null;
 
         $product->product_type         = $validated['product_type'];
         $product->short_description    = $validated['short_description'];
@@ -129,19 +226,33 @@ class ProductController extends Controller
         $product->refundable           = $request->boolean('refundable');
         $product->free_shipping        = $request->boolean('free_shipping');
 
-        $product->stock                = $request->stock ?? 0;
+        // Only store general info for SIMPLE products; for VARIANTS these come from variants
+        if ($product->product_type == ProductType::SIMPLE->value || $product->product_type == ProductType::SIMPLE) {
+            $product->stock                = $request->stock ?? 0;
 
-        $product->price                = $validated['price'];
-        $product->discount             = $validated['discount'] ?? 0;
+            $product->price                = $validated['price'] ?? 0;
+            $product->discount             = $validated['discount'] ?? 0;
 
-        $product->sell_price           = $validated['sell_price'] ?? null;
-        $product->sell_price_start_date= $validated['sell_price_start_date'] ?? null;
-        $product->sell_price_end_date  = $validated['sell_price_end_date'] ?? null;
+            $product->sell_price           = $validated['sell_price'] ?? null;
+            $product->sell_price_start_date= $validated['sell_price_start_date'] ?? null;
+            $product->sell_price_end_date  = $validated['sell_price_end_date'] ?? null;
 
-        $product->weight               = $validated['weight'] ?? null;
-        $product->length               = $validated['length'] ?? null;
-        $product->width                = $validated['width'] ?? null;
-        $product->height               = $validated['height'] ?? null;
+            $product->weight               = $validated['weight'] ?? null;
+            $product->length               = $validated['length'] ?? null;
+            $product->width                = $validated['width'] ?? null;
+            $product->height               = $validated['height'] ?? null;
+        } else {
+            $product->stock                = 0;
+            $product->price                = null;
+            $product->discount             = 0;
+            $product->sell_price           = null;
+            $product->sell_price_start_date= null;
+            $product->sell_price_end_date  = null;
+            $product->weight               = null;
+            $product->length               = null;
+            $product->width                = null;
+            $product->height               = null;
+        }
 
         $product->status               = $request->status ?? 1;
         $product->visibility           = $request->visibility ?? 1;
@@ -149,7 +260,16 @@ class ProductController extends Controller
         $product->product_image        = $mainImagePath;
         $product->gallery_images       = $galleryImages;
 
-        $product->save();
+        try {
+            $product->save();
+            Log::info('=== PRODUCT SAVED SUCCESSFULLY ===', ['product_id' => $product->id]);
+        } catch (\Exception $e) {
+            Log::error('=== PRODUCT SAVE FAILED ===', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         /* ===============================
         Sync Relations
@@ -163,6 +283,78 @@ class ProductController extends Controller
             $product->tags()->sync($request->tags);
         }
 
+        // Save assigned product attributes (selected on create form)
+        if ($request->filled('product_attributes')) {
+            $product->attributes()->sync($request->product_attributes);
+        }
+
+        // Handle variants (if product type is VARIANTS)
+        if ($product->product_type == ProductType::VARIANTS->value || $product->product_type == ProductType::VARIANTS) {
+            Log::info('=== HANDLING VARIANTS ===', ['variant_count' => count($request->variants ?? [])]);
+
+            // ensure product attributes synced
+            if ($request->filled('product_attributes')) {
+                $product->attributes()->sync($request->product_attributes);
+                Log::info('=== ATTRIBUTES SYNCED ===');
+            }
+
+            // clear existing variants and recreate (simpler approach)
+            $product->variants()->delete();
+
+            if ($request->filled('variants') && is_array($request->variants)) {
+                foreach ($request->variants as $idx => $variant) {
+                    $values = $variant['values'] ?? [];
+
+                    $pvData = [
+                        'product_id' => $product->id,
+                        'sku'        => $variant['sku'] ?? null,
+                        'price'      => $variant['price'] ?? null,
+                        'stock'      => $variant['stock'] ?? 0,
+                        'sell_price' => $variant['sell_price'] ?? null,
+                        'shipping'   => $variant['shipping'] ?? null,
+                        'weight'     => $variant['weight'] ?? null,
+                        'length'     => $variant['length'] ?? null,
+                        'width'      => $variant['width'] ?? null,
+                        'height'     => $variant['height'] ?? null,
+                        'status'     => $variant['status'] ?? $product->status,
+                        'visibility' => $variant['visibility'] ?? $product->visibility,
+                        'exchangeable'=> $variant['exchangeable'] ?? $product->exchangeable,
+                        'refundable' => $variant['refundable'] ?? $product->refundable,
+                        'free_shipping'=> $variant['free_shipping'] ?? $product->free_shipping,
+                        'shipping_address' => $variant['shipping_address'] ?? null,
+                        'general_info' => $variant['general_info'] ?? null,
+                    ];
+
+                    // handle variant image file input
+                    if ($request->hasFile("variants.$idx.image")) {
+                        $file = $request->file("variants.$idx.image");
+                        if ($file && $file->isValid()) {
+                            $pvData['image'] = $file->store('products/variants', 'public');
+                        }
+                    }
+
+                    try {
+                        $pv = ProductVariant::create($pvData);
+                        Log::info("=== VARIANT $idx CREATED ===", ['variant_id' => $pv->id]);
+                    } catch (\Exception $e) {
+                        Log::error("=== VARIANT $idx CREATION FAILED ===", [
+                            'error' => $e->getMessage(),
+                            'data' => $pvData,
+                        ]);
+                        throw $e;
+                    }
+
+                    if (!empty($values)) {
+                        $pv->attributeValues()->sync($values);
+                    }
+                }
+            }
+            Log::info('=== ALL VARIANTS CREATED SUCCESSFULLY ===');
+        } else {
+            $product->variants()->delete();
+        }
+
+        Log::info('=== STORE METHOD COMPLETED SUCCESSFULLY ===', ['product_id' => $product->id]);
         return redirect()
             ->route('products.index')
             ->with('success', 'Product created successfully!');
@@ -181,6 +373,46 @@ class ProductController extends Controller
      */
    public function edit(Product $product)
     {
+
+       $attributes = ProductAttribute::with('values')->get();
+
+       $attributesJson = $attributes->map(function($a){
+           return [
+               'id' => $a->id,
+               'name' => $a->name,
+               'values' => $a->values->map(function($v){ return ['id'=>$v->id,'value'=>$v->value]; }),
+           ];
+       })->toJson();
+
+        $product->load(['variants' => function($query) {
+            $query->with('attributeValues');
+        }]);
+
+        $variantsData = $product->variants->map(function($variant) {
+            return [
+                'id' => $variant->id,
+                'name' => $variant->attributeValues->pluck('value')->join(' / ') ?: 'Variant #' . $variant->id,
+                'values' => $variant->attributeValues->pluck('id')->toArray(),
+                'sku' => $variant->sku,
+                'price' => $variant->price,
+                'stock' => $variant->stock,
+                'sell_price' => $variant->sell_price,
+                'shipping' => $variant->shipping,
+                'shipping_address' => $variant->shipping_address,
+                'general_info' => $variant->general_info,
+                'weight' => $variant->weight,
+                'length' => $variant->length,
+                'width' => $variant->width,
+                'height' => $variant->height,
+                'exchangeable' => $variant->exchangeable,
+                'refundable' => $variant->refundable,
+                'free_shipping' => $variant->free_shipping,
+                'image' => $variant->image,
+            ];
+        });
+
+        $variantsJson = json_encode($variantsData);
+
         return view('admin.products.edit', [
             'product'            => $product,
             'categories'         => Category::all(),
@@ -188,6 +420,9 @@ class ProductController extends Controller
             'productStatuses'    => ProductStatus::cases(),
             'productVisibilities'=> ProductVisibility::cases(),
             'allTags'            => Tag::orderBy('name')->get(),
+            'attributes'         => $attributes,
+            'attributesJson'     => $attributesJson,
+            'variantsJson'       => $variantsJson,
         ]);
     }
 
@@ -201,11 +436,19 @@ class ProductController extends Controller
             'categories'        => 'nullable|array',
             'product_type'      => 'required',
             'short_description' => 'required|string',
-            'price'             => 'required|numeric',
-            'stock'             => 'required|in:0,1',
+            'price'             => 'nullable|numeric',
+            'stock'             => 'nullable|integer',
             'product_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'gallery_images.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
+
+        $prodType = $validated['product_type'] ?? $request->input('product_type');
+        if ($prodType == ProductType::SIMPLE->value || $prodType == ProductType::SIMPLE) {
+            $request->validate([
+                'price' => 'required|numeric',
+                'stock' => 'required|integer',
+            ]);
+        }
 
         /* ---------- MAIN IMAGE ---------- */
         if ($request->hasFile('product_image')) {
@@ -236,10 +479,15 @@ class ProductController extends Controller
         $product->refundable           = $request->boolean('refundable');
         $product->free_shipping        = $request->boolean('free_shipping');
 
-        $product->stock                = $validated['stock']; 
-        $product->price                = $validated['price'];
-        $product->discount             = $request->discount ?? $product->discount;
-        
+        if ($product->product_type == ProductType::SIMPLE->value || $product->product_type == ProductType::SIMPLE) {
+            $product->stock                = $validated['stock']; 
+            $product->price                = $validated['price'];
+            $product->discount             = $request->discount ?? $product->discount;
+        } else {
+            $product->stock = 0;
+            $product->price = null;
+            $product->discount = 0;
+        }
         $product->status               = $request->status ?? $product->status;
         $product->visibility           = $request->visibility ?? $product->visibility;
 
@@ -256,6 +504,54 @@ class ProductController extends Controller
         /* ---------- RELATIONS ---------- */
         $product->categories()->sync($validated['categories'] ?? []);
         $product->tags()->sync($request->tags ?? []);
+
+        // Handle variants on update
+        if ($product->product_type == ProductType::VARIANTS->value || $product->product_type == ProductType::VARIANTS) {
+            if ($request->filled('product_attributes')) {
+                $product->attributes()->sync($request->product_attributes);
+            }
+
+            // remove existing and recreate
+            $product->variants()->delete();
+
+            if ($request->filled('variants') && is_array($request->variants)) {
+                foreach ($request->variants as $idx => $variant) {
+                    $values = $variant['values'] ?? [];
+
+                    $pvData = [
+                        'product_id' => $product->id,
+                         'sku'        => $variant['sku'] ?? null,
+                        'price'      => $variant['price'] ?? null,
+                        'stock'      => $variant['stock'] ?? 0,
+                        'sell_price' => $variant['sell_price'] ?? null,
+                        'shipping'   => $variant['shipping'] ?? null,
+                        'weight'     => $variant['weight'] ?? null,
+                        'length'     => $variant['length'] ?? null,
+                        'width'      => $variant['width'] ?? null,
+                        'height'     => $variant['height'] ?? null,
+                        'status'     => $variant['status'] ?? $product->status,
+                        'visibility' => $variant['visibility'] ?? $product->visibility,
+                        'exchangeable'=> $variant['exchangeable'] ?? $product->exchangeable,
+                        'refundable' => $variant['refundable'] ?? $product->refundable,
+                        'free_shipping'=> $variant['free_shipping'] ?? $product->free_shipping,
+                    ];
+
+                    if ($request->hasFile("variants.$idx.image")) {
+                        $file = $request->file("variants.$idx.image");
+                        if ($file && $file->isValid()) {
+                            $pvData['image'] = $file->store('products/variants', 'public');
+                        }
+                    }
+
+                    $pv = ProductVariant::create($pvData);
+                    if (!empty($values)) {
+                        $pv->attributeValues()->sync($values);
+                    }
+                }
+            }
+        } else {
+            $product->variants()->delete();
+        }
 
         return redirect()
             ->route('products.index')

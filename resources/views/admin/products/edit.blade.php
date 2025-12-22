@@ -23,7 +23,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="productType" class="form-label">Product Type <span class="text-danger">*</span></label>
-                                            <select name="product_type" id="productType" class="form-control" data-choices>
+                                            <select name="product_type" id="productType" class="form-control">
                                                 @foreach ($productTypes as $type)
                                                     <option value="{{ $type->value }}" 
                                                         {{ old('product_type', $product->product_type) == $type->value ? 'selected' : '' }}>
@@ -37,7 +37,7 @@
                                                     Categories 
                                                 </label>
 
-                                                <select class="form-control" name="categories[]" multiple data-choices data-choices-search="true" data-choices-remove-item>
+                                                <select class="form-control" name="categories[]" id="vec_productCategories">
                                                     @foreach ($categories as $category)
                                                         <option value="{{ $category->id }}"
                                                             {{ in_array($category->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'selected' : '' }}>
@@ -69,10 +69,7 @@
                                                        <select class="form-control"
                                                                 name="tags[]"
                                                                 id="productTags"
-                                                                multiple
-                                                                data-choices
-                                                                data-choices-search="true"
-                                                                data-choices-remove-item>
+                                                                multiple>
                                                             @foreach ($allTags as $tag)
                                                                 <option value="{{ $tag->id }}"
                                                                     {{ isset($product) && $product->tags->contains($tag->id) ? 'selected' : '' }}>
@@ -100,7 +97,7 @@
                                         <div class="row">
                                             <div class="col-lg-6">
                                                 <label for="productStatus" class="form-label">Status</label>
-                                                <select name="status" class="form-control" data-choices>
+                                                <select name="status" class="form-control" id="vec_productStatus">
                                                     @foreach ($productStatuses as $status)
                                                         <option value="{{ $status->value }}" 
                                                             {{ old('status', $product->status) == $status->value ? 'selected' : '' }}>
@@ -114,7 +111,7 @@
                                             </div>
                                             <div class="col-lg-6">
                                                 <label for="productVisibility" class="form-label">Visibility</label>
-                                                <select name="visibility" class="form-control" data-choices>
+                                                <select name="visibility" class="form-control" id="vec_visibility">
                                                     @foreach ($productVisibilities as $visibility)
                                                         <option value="{{ $visibility->value }}" 
                                                             {{ old('visibility', $product->visibility) == $visibility->value ? 'selected' : '' }}>
@@ -358,7 +355,7 @@
                                         <!-- Weight -->
                                         <div class="col-lg-4">
                                             <div>
-                                                <label class="form-label">Weight (kg)</label>
+                                                <label class="form-label">Weight</label>
                                                 <input type="number" step="0.01" name="weight" value="{{ old('weight', $product->weight) }}" class="form-control">
                                                 @error('weight')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -369,7 +366,7 @@
                                         <!-- Length -->
                                         <div class="col-lg-4">
                                             <div>
-                                                <label class="form-label">Length (cm)</label>
+                                                <label class="form-label">Length</label>
                                                 <input type="number" step="0.01" name="length" value="{{ old('length', $product->length) }}" class="form-control">
                                                 @error('length')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -380,7 +377,7 @@
                                         <!-- Width -->
                                         <div class="col-lg-4">
                                             <div>
-                                                <label class="form-label">Width (cm)</label>
+                                                <label class="form-label">Width</label>
                                                 <input type="number" step="0.01" name="width" value="{{ old('width', $product->width) }}" class="form-control">
                                                 @error('width')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -391,7 +388,7 @@
                                         <!-- Height -->
                                         <div class="col-lg-4">
                                             <div>
-                                                <label class="form-label">Height (cm)</label>
+                                                <label class="form-label">Height</label>
                                                 <input type="number" step="0.01" name="height" value="{{ old('height', $product->height) }}" class="form-control">
                                                 @error('height')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -418,6 +415,44 @@
                 </div><!--end col-->
             </div><!--end row-->
 
+            <!-- Variants Section (Only for product_type=VARIANTS) -->
+            <div id="variantsSection" class="row" style="display: none;">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xxl-4">
+                                    <h5 class="card-title mb-3">Product Variants</h5>
+                                    <p class="text-muted">Manage product variants with different attribute values.</p>
+                                </div>
+                                <div class="col-xxl-8">
+                                    <!-- Attribute Selection -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold">Select Attributes</label>
+                                        <select id="variantAttributesSelect" class="form-control" multiple>
+                                            @foreach ($attributes as $attr)
+                                                <option value="{{ $attr->id }}">{{ $attr->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Attribute Values Selection -->
+                                    <div id="attributeValuesContainers" class="mb-4"></div>
+
+                                    <!-- Generate Button -->
+                                    <button type="button" id="generateVariants" class="btn btn-secondary mb-4">
+                                        <i class="ph-plus me-2"></i>Generate Variants
+                                    </button>
+
+                                    <!-- Variants List -->
+                                    <div id="variantsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--end row-->
+
             <div class="hstack gap-2 justify-content-end mb-3">
                <a href="{{ route('products.index') }}" class="btn btn-danger">
                     <i class="ph-x align-middle"></i> Cancel
@@ -426,6 +461,381 @@
             </div>
 
         </form>
+    </div>
+    <script>
+        window.attributesData = {!! $attributesJson ?? '[]' !!};
+        window.errors = {!! json_encode($errors->getMessages() ?? []) !!};
+        window.variantsStore = {!! $variantsJson ?? '[]' !!};
+
+        $(document).ready(function(){
+            const $attrSelect = $('#variantAttributesSelect');
+            const $containers = $('#attributeValuesContainers');
+            const $generateBtn = $('#generateVariants');
+            const $variantsList = $('#variantsList');
+            const $variantsSection = $('#variantsSection');
+            const $productTypeSelect = $('#productType');
+
+            function createValuesMultiSelect(attribute) {
+                const $wrapper = $('<div>').addClass('mb-3');
+                const $label = $('<label>').addClass('form-label fw-semibold').text(attribute.name + ' values');
+                $wrapper.append($label);
+
+                const $select = $('<select>')
+                    .addClass('form-control')
+                    .attr('multiple', true)
+                    .data('attributeId', attribute.id);
+
+                attribute.values.forEach(v => {
+                    $('<option>').val(v.id).text(v.value).appendTo($select);
+                });
+
+                $wrapper.append($select);
+
+                if (window.Choices) {
+                    setTimeout(() => {
+                        try {
+                            new Choices($select[0], {
+                                searchEnabled: true,
+                                removeItemButton: true,
+                                shouldSort: false,
+                                placeholderValue: 'Select values',
+                                itemSelectText: ''
+                            });
+                        } catch (e) { /* ignore */ }
+                    }, 30);
+                }
+                return $wrapper;
+            }
+
+            function onAttributesChange() {
+                $containers.empty();
+                const selected = $attrSelect.val() || [];
+                selected.forEach(id => {
+                    const attribute = window.attributesData.find(a => String(a.id) === String(id));
+                    if (attribute) {
+                        $containers.append(createValuesMultiSelect(attribute));
+                    }
+                });
+            }
+
+            function cartesian(arrays) {
+                return arrays.reduce((a, b) => a.flatMap(d => b.map(e => d.concat([e]))), [[]]);
+            }
+
+            function getFieldError(idx, fieldName) {
+                const errorKey = `variants.${idx}.${fieldName}`;
+                return window.errors[errorKey] ? window.errors[errorKey][0] : null;
+            }
+
+            function renderFieldGroup(label, fieldClass, fieldName, inputType = 'text', colClass = 'col-md-6') {
+                let html = `<div class="${colClass} mb-3"><label class="form-label">${label}</label>`;
+                if (inputType === 'textarea') {
+                    html += `<textarea class="form-control ${fieldClass}" rows="3" data-field="${fieldName}"></textarea>`;
+                } else {
+                    const step = inputType === 'number' ? '0.01' : 'any';
+                    const accept = inputType === 'file' ? 'accept="image/*"' : '';
+                    html += `<input type="${inputType}" step="${step}" class="form-control ${fieldClass}" value="" data-field="${fieldName}" ${accept}>`;
+                }
+                html += '<div class="invalid-feedback d-block" style="display: none;"></div></div>';
+                return html;
+            }
+
+            function renderTable() {
+                $variantsList.empty();
+
+                window.variantsStore.forEach((variant, idx) => {
+                    const $card = $('<div>').addClass('card mb-3 border-start border-start-3 border-primary');
+
+                    const $header = $('<div>')
+                        .addClass('card-header bg-light d-flex justify-content-between align-items-center')
+                        .css('cursor', 'pointer')
+                        .html(`
+                            <div>
+                                <h6 class="mb-0"><strong>${variant.name}</strong></h6>
+                                <small class="text-muted">SKU: ${variant.sku || '-'} | Price: $${variant.price || '-'} | Stock: ${variant.stock || 0}</small>
+                            </div>
+                            <div><i class="ph-caret-down" style="transition: transform 0.3s;"></i></div>
+                        `);
+
+                    const $body = $('<div>').addClass('card-body').hide();
+
+                    // Basic Info
+                    const basicHtml = `
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="mb-3 fw-semibold">Basic Info</h6>
+                            <div class="row">
+                                ${renderFieldGroup('SKU', 'variant-sku', 'sku', 'text', 'col-md-6')}
+                                ${renderFieldGroup('Price', 'variant-price', 'price', 'number', 'col-md-6')}
+                            </div>
+                            <div class="row">
+                                ${renderFieldGroup('Stock', 'variant-stock', 'stock', 'number', 'col-md-6')}
+                                ${renderFieldGroup('Sell Price', 'variant-sell-price', 'sell_price', 'number', 'col-md-6')}
+                            </div>
+                        </div>
+                    `;
+
+                    // Shipping Info
+                    const shippingHtml = `
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="mb-3 fw-semibold">Shipping Info</h6>
+                            <div class="row">
+                                ${renderFieldGroup('Shipping Cost', 'variant-shipping', 'shipping', 'text', 'col-md-6')}
+                                ${renderFieldGroup('Shipping Address', 'variant-shipping-addr', 'shipping_address', 'text', 'col-md-6')}
+                            </div>
+                            <div class="row">
+                                ${renderFieldGroup('Weight', 'variant-weight', 'weight', 'number', 'col-md-4')}
+                                ${renderFieldGroup('Length', 'variant-length', 'length', 'number', 'col-md-4')}
+                                ${renderFieldGroup('Width', 'variant-width', 'width', 'number', 'col-md-4')}
+                            </div>
+                            <div class="row">
+                                ${renderFieldGroup('Height', 'variant-height', 'height', 'number', 'col-md-6')}
+                            </div>
+                        </div>
+                    `;
+
+                    // General Info
+                    const generalHtml = `
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="mb-3 fw-semibold">General Info</h6>
+                            ${renderFieldGroup('', 'variant-general-info', 'general_info', 'textarea', 'col-12')}
+                        </div>
+                    `;
+
+                    // Image
+                    const imageHtml = `
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="mb-3 fw-semibold">Image</h6>
+                            ${renderFieldGroup('', 'variant-image', 'image', 'file', 'col-12')}
+                        </div>
+                    `;
+
+                    // Flags
+                    const flagsHtml = `
+                        <div class="mb-3">
+                            <h6 class="mb-3 fw-semibold">Options</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input variant-exchangeable" ${variant.exchangeable ? 'checked' : ''} data-idx="${idx}">
+                                        <label class="form-check-label">Exchangeable</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input variant-refundable" ${variant.refundable ? 'checked' : ''} data-idx="${idx}">
+                                        <label class="form-check-label">Refundable</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input variant-free-shipping" ${variant.free_shipping ? 'checked' : ''} data-idx="${idx}">
+                                        <label class="form-check-label">Free Shipping</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    $body.html(basicHtml + shippingHtml + generalHtml + imageHtml + flagsHtml);
+
+                    const $footer = $('<div>')
+                        .addClass('card-footer bg-light')
+                        .html(`<button type="button" class="btn btn-sm btn-danger delete-variant-btn" data-idx="${idx}"><i class="ph-trash me-1"></i>Delete Variant</button>`);
+
+                    $card.append($header, $body, $footer);
+                    $variantsList.append($card);
+
+                    // Populate field values and display errors
+                    const fieldMap = {
+                        'variant-sku': 'sku',
+                        'variant-price': 'price',
+                        'variant-stock': 'stock',
+                        'variant-sell-price': 'sell_price',
+                        'variant-shipping': 'shipping',
+                        'variant-shipping-addr': 'shipping_address',
+                        'variant-weight': 'weight',
+                        'variant-length': 'length',
+                        'variant-width': 'width',
+                        'variant-height': 'height',
+                        'variant-general-info': 'general_info'
+                    };
+
+                    Object.entries(fieldMap).forEach(([className, fieldName]) => {
+                        const $input = $body.find(`.${className}`);
+                        if ($input.length) {
+                            $input.val(variant[fieldName] || '').data('idx', idx).on('change', updateVariant);
+
+                            const error = getFieldError(idx, fieldName);
+                            if (error) {
+                                $input.addClass('is-invalid');
+                                $input.closest('div').find('.invalid-feedback').text(error).show();
+                            }
+                        }
+                    });
+
+                    // File input
+                    const $imageInput = $body.find('.variant-image');
+                    if ($imageInput.length) {
+                        $imageInput.data('idx', idx).on('change', updateVariant);
+                        const imageError = getFieldError(idx, 'image');
+                        if (imageError) {
+                            $imageInput.addClass('is-invalid');
+                            $imageInput.closest('div').find('.invalid-feedback').text(imageError).show();
+                        }
+                    }
+
+                    // Toggle expand/collapse
+                    $header.on('click', function() {
+                        const isVisible = $body.is(':visible');
+                        $body.toggle();
+                        $(this).find('i').css('transform', isVisible ? 'rotate(0deg)' : 'rotate(180deg)');
+                    });
+                });
+
+                // Attach event listeners
+                $variantsList.on('change', '.variant-exchangeable, .variant-refundable, .variant-free-shipping', updateVariantCheckbox);
+                $variantsList.on('click', '.delete-variant-btn', deleteVariant);
+            }
+
+            function updateVariant(e) {
+                const idx = $(this).data('idx');
+                const variant = window.variantsStore[idx];
+                const $this = $(this);
+
+                if ($this.hasClass('variant-sku')) variant.sku = $this.val();
+                else if ($this.hasClass('variant-price')) variant.price = $this.val();
+                else if ($this.hasClass('variant-stock')) variant.stock = $this.val();
+                else if ($this.hasClass('variant-sell-price')) variant.sell_price = $this.val();
+                else if ($this.hasClass('variant-shipping')) variant.shipping = $this.val();
+                else if ($this.hasClass('variant-shipping-addr')) variant.shipping_address = $this.val();
+                else if ($this.hasClass('variant-weight')) variant.weight = $this.val();
+                else if ($this.hasClass('variant-length')) variant.length = $this.val();
+                else if ($this.hasClass('variant-width')) variant.width = $this.val();
+                else if ($this.hasClass('variant-height')) variant.height = $this.val();
+                else if ($this.hasClass('variant-general-info')) variant.general_info = $this.val();
+                else if ($this.hasClass('variant-image')) variant.image = $this[0].files[0] || null;
+
+                // Clear error styling
+                $this.removeClass('is-invalid').closest('div').find('.invalid-feedback').hide();
+            }
+
+            function updateVariantCheckbox(e) {
+                const idx = $(this).data('idx');
+                const variant = window.variantsStore[idx];
+                const $this = $(this);
+
+                if ($this.hasClass('variant-exchangeable')) variant.exchangeable = $this.is(':checked') ? 1 : 0;
+                else if ($this.hasClass('variant-refundable')) variant.refundable = $this.is(':checked') ? 1 : 0;
+                else if ($this.hasClass('variant-free-shipping')) variant.free_shipping = $this.is(':checked') ? 1 : 0;
+            }
+
+            function deleteVariant(e) {
+                const idx = $(this).data('idx');
+                if (confirm('Delete this variant?')) {
+                    window.variantsStore.splice(idx, 1);
+                    renderTable();
+                }
+            }
+
+            function generateTable() {
+                const $selects = $containers.find('select');
+                if (!$selects.length) return alert('Select attributes and values first');
+
+                const valueLists = $selects.toArray().map(s => {
+                    return Array.from($(s).find('option:selected')).map(o => ({
+                        id: o.value,
+                        text: o.textContent
+                    }));
+                });
+
+                if (valueLists.some(l => l.length === 0)) return alert('Choose at least one value for each selected attribute');
+
+                const combos = cartesian(valueLists);
+
+                combos.forEach((combo, idx) => {
+                    window.variantsStore.push({
+                        name: combo.map(c => c.text).join(' / '),
+                        values: combo.map(c => c.id),
+                        sku: '',
+                        price: '',
+                        stock: 0,
+                        sell_price: '',
+                        shipping: '',
+                        shipping_address: '',
+                        general_info: '',
+                        weight: '',
+                        length: '',
+                        width: '',
+                        height: '',
+                        exchangeable: 0,
+                        refundable: 0,
+                        free_shipping: 0,
+                        image: null
+                    });
+                });
+
+                renderTable();
+            }
+
+            // Show/hide variants section based on product type
+            if ($productTypeSelect.length) {
+                function toggleVariantsSection() {
+                    const isVariants = $productTypeSelect.val() === '1' || $productTypeSelect.val() == 1;
+                    $variantsSection.toggle(isVariants);
+                    
+                    // If editing a variants product and variantsStore has data, render existing variants
+                    if (isVariants && window.variantsStore && window.variantsStore.length > 0 && $variantsList.is(':empty')) {
+                        renderTable();
+                    }
+                }
+
+                $productTypeSelect.on('change', toggleVariantsSection);
+                toggleVariantsSection();
+            } else if (window.variantsStore && window.variantsStore.length > 0) {
+                // Auto-render existing variants if page loads directly
+                renderTable();
+            }
+
+            $attrSelect.on('change', onAttributesChange);
+            $generateBtn.on('click', generateTable);
+
+            // On form submit, inject hidden inputs for variants
+            $('#productForm').on('submit', function(e) {
+                if (window.variantsStore && window.variantsStore.length > 0) {
+                    const $variantsContainer = $('<div>').hide();
+
+                    window.variantsStore.forEach((variant, idx) => {
+                        Object.keys(variant).forEach(key => {
+                            if (key === 'name' || key === 'image') return;
+
+                            if (key === 'values') {
+                                variant.values.forEach(val => {
+                                    $('<input>')
+                                        .attr({
+                                            type: 'hidden',
+                                            name: `variants[${idx}][values][]`,
+                                            value: val
+                                        })
+                                        .appendTo($variantsContainer);
+                                });
+                            } else {
+                                $('<input>')
+                                    .attr({
+                                        type: 'hidden',
+                                        name: `variants[${idx}][${key}]`,
+                                        value: variant[key]
+                                    })
+                                    .appendTo($variantsContainer);
+                            }
+                        });
+                    });
+
+                    $(this).append($variantsContainer);
+                }
+            });
+        });
+    </script>
+    </form>
     </div>
 
     <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>

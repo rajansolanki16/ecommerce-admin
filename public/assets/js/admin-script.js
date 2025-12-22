@@ -386,26 +386,7 @@ $(document).ready(function () {
 
 });
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     document.querySelectorAll('[data-choices]').forEach(function (el) {
-
-//         if (el.classList.contains('choices-initialized')) return;
-
-//         const searchEnabled = el.dataset.choicesSearch !== 'false';
-//         const removeItem = el.hasAttribute('data-choices-remove-item');
-//         const isMultiple = el.hasAttribute('multiple');
-
-//         new Choices(el, {
-//             searchEnabled: searchEnabled,
-//             removeItemButton: removeItem,
-//             shouldSort: false,
-//             placeholderValue: 'Select categories',
-//             itemSelectText: '',
-//         });
-
-//         el.classList.add('choices-initialized');
-//     });
-// });
+//admin panel e-commerce
 
 function previewSingleImage(event) {
     const reader = new FileReader();
@@ -438,37 +419,65 @@ function previewMultipleImages(event) {
     });
 }
 
+// product type hide/show
+function toggleSections() {
+    const type = $('#productType').val();
+    console.log('Product Type:', type); 
 
-$(document).ready(function () {
-
-    function toggleSections() {
-        const type = $('#productType').val();
-
-        console.log('Product Type:', type); 
-
-        if (type == 1) {
-            $('#variantSection').stop(true, true).slideDown();
-            $('#vec_general_Info_Section').hide();
-        } else {
-            $('#variantSection').hide();
-            $('#vec_general_Info_Section').stop(true, true).slideDown();
-        }
+    if (type == 1) {
+        $('#vec_shipping_section').hide();
+        $('#variantSection').stop(true, true).slideDown();
+        $('#vec_general_Info_Section').hide();
+    } else {
+        $('#variantSection').hide();
+        $('#vec_general_Info_Section').stop(true, true).slideDown();
+        $('#vec_shipping_section').show();
     }
+}
 
-    // Initial load
-    toggleSections();
+toggleSections();
+$('#productType').on('change', toggleSections);
 
-    // On change
-    $('#productType').on('change', toggleSections);
-});
 
 document.addEventListener('DOMContentLoaded', function() {
-const categorySelect = document.querySelector('select[name="category"]');
-    if(categorySelect) {
+    const categorySelect = document.querySelector('#vec_productCategories');
+    if (categorySelect) {
         new Choices(categorySelect, {
             searchEnabled: true,
             itemSelectText: '',
-            shouldSort: false
+            shouldSort: false,
+            removeItemButton: true,
+            placeholderValue: 'Select categories',
+        });
+    }
+
+    const tagsSelect = document.querySelector('#productTags');
+    if (tagsSelect) {
+        new Choices(tagsSelect, {
+            searchEnabled: true,
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select tags',
+        });
+    }
+
+    const productTypeSelect = document.querySelector('#productType');
+    if (productTypeSelect) {
+        new Choices(productTypeSelect, {
+            searchEnabled: true,
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select tags',
+        });
+    }
+    
+    const attrSelect = document.querySelector('#variantAttributesSelect');
+    if (attrSelect) {
+        new Choices(attrSelect, {
+            searchEnabled: true,
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select variant attributes',
         });
     }
 });
@@ -665,5 +674,4 @@ $(document).ready(function () {
                 </ul>
             </div>`;
     }
-
 });
