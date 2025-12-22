@@ -73,19 +73,8 @@ class AttributeValueController extends Controller
      */
     public function edit(string $id)
     {
-        //
-
-<<<<<<< Updated upstream
-        $edit_value = Attribute_values::findOrFail($id);
-        $attribute = Product_Attribute::with('values')
-=======
         $edit_value = AttributeValue::findOrFail($id);
-
-        $attribute = ProductAttribute::with('values')
->>>>>>> Stashed changes
-            ->findOrFail($edit_value->product_attribute_id);
-
-
+        $attribute = ProductAttribute::with('values')->findOrFail($edit_value->product_attribute_id);
         return response()->json([
             'id' => $edit_value->id,
             'value' => $edit_value->value,
@@ -134,18 +123,8 @@ class AttributeValueController extends Controller
      */
     public function destroy(string $id)
     {
-        //
-<<<<<<< Updated upstream
-        $value = Attribute_values::findOrFail($id);
-        $value->delete();
-
-        return response()->json([
-            'status' => true
-        ]);
-=======
         $attributeValue = AttributeValue::find($id);
         $attributeValue->delete();
         return redirect()->back()->with('success', 'Attribute value deleted successfully.');
->>>>>>> Stashed changes
     }
 }
