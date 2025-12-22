@@ -18,7 +18,7 @@ class ProductAttribute extends Model
     {
         return $this->belongsToMany(
             Product::class,
-            'product_attributes',
+            'attribute_product',
             'product_attribute_id',
             'product_id'
         );
@@ -30,6 +30,5 @@ class ProductAttribute extends Model
         return $this->hasMany(AttributeValue::class, 'product_attribute_id');
     }
     
-
     
 }

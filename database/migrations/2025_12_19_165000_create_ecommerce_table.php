@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('ecommerce', function (Blueprint $table) {
@@ -18,14 +15,10 @@ return new class extends Migration
             $table->string('store_address');
             $table->string('store_city');
 
-            // Explicit column type matching country.id
-            $table->unsignedBigInteger('store_country');
+            $table->foreignId('store_country')
+                ->constrained('countries')
+                ->cascadeOnDelete();
 
-            // Add foreign key
-            $table->foreign('store_country')
-                ->references('id')
-                ->on('country')
-                ->onDelete('cascade');
 
             $table->integer('store_postal_code');
             $table->string('weight_unit');
@@ -34,9 +27,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('ecommerce');

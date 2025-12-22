@@ -22,10 +22,10 @@ return new class extends Migration
             $table->date('sell_price_end_date')->nullable()->after('sell_price_start_date');
 
             // Shipping details
-            $table->decimal('weight', 8, 2)->nullable()->comment('Weight in kg')->after('sell_price_end_date');
-            $table->decimal('length', 8, 2)->nullable()->comment('Length in cm')->after('weight');
-            $table->decimal('width', 8, 2)->nullable()->comment('Width in cm')->after('length');
-            $table->decimal('height', 8, 2)->nullable()->comment('Height in cm')->after('width');
+            $table->decimal('weight', 8, 2)->nullable()->after('sell_price_end_date');
+            $table->decimal('length', 8, 2)->nullable()->after('weight');
+            $table->decimal('width', 8, 2)->nullable()->after('length');
+            $table->decimal('height', 8, 2)->nullable()->after('width');
 
             // Free shipping option
             $table->tinyInteger('free_shipping')

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\ProductVariant;
 
 class Product extends Model
 {
@@ -100,5 +101,14 @@ class Product extends Model
             User::class,
             'wishlists'
         )->withTimestamps();
+    }
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id');
+    }
+
+    public function attributes()
+    {
+        return $this->belongsToMany(ProductAttribute::class, 'attribute_product', 'product_id', 'product_attribute_id');
     }
 }

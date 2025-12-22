@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
         $users = [
             [
                 'name' => 'Admin',
-                'email' => 'knight.admin@gmail.com',
+                'email' => 'admin@gmail.com',
                 'mobile' => '+911234567890',
                 'state' => 'Rajasthan',
                 'country' => 'India',
@@ -27,7 +27,7 @@ class UsersSeeder extends Seeder
             ],
             [
                 'name' => 'User',
-                'email' => 'knight.user@gmail.com',
+                'email' => 'user@gmail.com',
                 'mobile' => '+919876543210',
                 'state' => 'Gujrat',
                 'country' => 'India',
