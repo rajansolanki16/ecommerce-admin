@@ -86,6 +86,9 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/pages', [SettingController::class, 'show_pages'])->name('view.settings.pages');
             Route::post('/pages', [SettingController::class, 'save_pages'])->name('settings.pages.save');
+
+            Route::get('/ecommerce', [SettingController::class, 'show_ecommerce'])->name('view.settings.ecommerce');
+            Route::post('/ecommerce/store', [SettingController::class, 'store_ecommerce'])->name('settings.ecommerce.store');
         });
 
         Route::get('/offline-booking', [BookingController::class, 'show_offline_booking'])->name('view.offline_booking');
@@ -103,4 +106,3 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/room-wise-services', [RoomController::class, 'room_wise_services'])->name('rooms.services');
     });
 });
- 

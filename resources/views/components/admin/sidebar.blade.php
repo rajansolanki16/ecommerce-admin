@@ -286,6 +286,9 @@
                         <li class="nav-item">
                             <a href="{{ route('view.settings.pages') }}/" class="nav-link">Pages</a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('view.settings.ecommerce') }}/" class="nav-link">E-Commerce</a>
+                        </li>
                     </ul>
                 </div>
         </li>
