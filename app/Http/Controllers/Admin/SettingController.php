@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Ecommerce;
 use Illuminate\Http\Request;
 use App\Models\Amenity;
+use App\Models\Countries;
 use App\Models\Country;
 use App\Models\Setting;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
 {
@@ -367,26 +369,37 @@ class SettingController extends Controller
     public function show_ecommerce()
     {
 
-        $countries = Country::select('c_name','id')
-            ->groupBy('c_name','id')
-            ->orderBy('c_name')
+        $countries = Countries::select('name', 'id')
+            ->groupBy('name', 'id')
+            ->orderBy('name')
             ->get();
 
         return view('admin.settings.ecommerce', compact('countries'));
     }
     public function store_ecommerce(Request $request)
     {
-        $request->validate([
-            'currency_symbol' => 'required|string',
-            'currency_word' => 'required|string',
+
+        $rules = [
             'store_address' => 'required|string',
             'store_city' => 'required|string',
             'store_country' => 'required|exists:country,id',
-            'store_postal_code' => 'required|integer',
             'weight_unit' => 'required|string',
             'dimension_unit' => 'required|string',
-        ]);
+        ];
+        $messages = [
+            'store_address.required' => 'The store address field is required.',
+            'store_city.required' => 'The store city field is required.',
+            'store_country.required' => 'The store country field is required.',
+            'weight_unit.required' => 'The weight unit field is required.',
+            'dimension_unit.required' => 'The dimension unit field is required.',
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
 
         Ecommerce::create([

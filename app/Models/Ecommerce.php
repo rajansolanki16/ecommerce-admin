@@ -19,8 +19,8 @@ class Ecommerce extends Model
         'dimension_unit',
     ];
 
-     public function country()
+    public function country()
     {
-        return $this->belongsTo(Country::class, 'store_country', 'id');
+        return $this->belongsTo(Countries::class, 'store_country', 'id');
     }
 }
