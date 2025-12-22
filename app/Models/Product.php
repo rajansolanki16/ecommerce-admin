@@ -86,4 +86,19 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    // Product → Wishlist (One to Many)
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    // Product → Users (Many to Many via wishlists)
+    public function wishlistedByUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'wishlists'
+        )->withTimestamps();
+    }
 }

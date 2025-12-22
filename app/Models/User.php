@@ -34,4 +34,19 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    // User → Wishlist (One to Many)
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    // User → Products (Many to Many via wishlists table)
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'wishlists'
+        )->withTimestamps();
+    }
 }
