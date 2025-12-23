@@ -2,7 +2,6 @@
 <!--datatable css-->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
-
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -67,7 +66,7 @@
                             <div class="mb-3">
                                 <label for="store_country" class="form-label">{{ __('ecommerce.store_country') }}<span
                                         class="text-danger">*</span></label>
-                                <select name="store_country" id="store_country" class="form-control">
+                                <select name="store_country" id="vec_store_country" class="form-control">
                                     <option value="">Select Country</option>
 
                                     @foreach($countries as $country)

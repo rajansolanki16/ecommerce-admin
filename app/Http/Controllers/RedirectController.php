@@ -21,26 +21,42 @@ class RedirectController extends Controller
 
     public function login()
     {
-        if (Auth::check()) {
+
+        if (!Auth::check()) {
+            return view('auth.login');
+        }
+
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
             return redirect()->route('view.admin.dashboard');
         }
 
-        return view('auth.login');
+        if ($user->hasRole('user')) {
+            return view('admin.home');
+        }
+       
+
+        return redirect('/');
     }
 
-    public function show_about(){
+    public function show_about()
+    {
         return view('about');
     }
 
-    public function show_contact(){
+    public function show_contact()
+    {
         return view('contact');
     }
 
-    public function forgotPassword(){
+    public function forgotPassword()
+    {
         return view('auth.forgot-password');
     }
 
-    public function mail_contact(Request $request){
+    public function mail_contact(Request $request)
+    {
 
         $rules = [
             'fname' => 'required|string|min:2|max:255',
@@ -77,9 +93,9 @@ class RedirectController extends Controller
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
-        }else{
+        } else {
             $recaptchaResponse = $request->input('g-recaptcha-response');
-            $secretKey = env('CAPTCHA_SECRET_KEY'); 
+            $secretKey = env('CAPTCHA_SECRET_KEY');
 
             $verifyResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret' => $secretKey,
@@ -109,7 +125,8 @@ class RedirectController extends Controller
         }
     }
 
-    public function newPassword($token){
+    public function newPassword($token)
+    {
         $user = User::where('token', $token)->first();
 
         if ($user && isset($user->email)) {

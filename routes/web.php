@@ -30,6 +30,7 @@ use App\Models\Faq;
 
 //Auth
 Route::get('/login', [RedirectController::class, 'login'])->name('login');
+
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 Route::get('/sign-up', [AuthController::class, 'view_signup'])->name('view.signup');
 Route::post('/sign-up', [AuthController::class, 'signup'])->name('auth.signup');
@@ -50,9 +51,17 @@ Route::get('/', [RedirectController::class, 'login'])->name('view.home');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
+    // USER HOME (returns view only)
+    Route::get('/home', function () {
+        return view('admin.home'); 
+    })->name('user.home');
+
+    //Route::get('/home',RedirectController::class,'login')->name('user.home');
+
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
+
         Route::resource('/blogs', BlogController::class)->names('blogs');
         Route::resource('/blog-categories', BlogCategoriesController::class)->names('blog_categories');
         Route::resource('/room-services', ServiceController::class)->names('services');

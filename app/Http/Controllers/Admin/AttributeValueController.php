@@ -17,6 +17,9 @@ class AttributeValueController extends Controller
     public function index()
     {
         //
+         $attribute = ProductAttribute::with('values');
+
+        return view('admin.productattributes.edit', compact('attribute'));
     }
 
     /**
@@ -53,10 +56,13 @@ class AttributeValueController extends Controller
         $attributeValue->slug = Str::slug($request->value);
         $attributeValue->save();
 
+        // Load the relationship to get attribute name
+        $attributeValue->load('attribute');
+
         return response()->json([
             'id' => $attributeValue->id,
             'value' => $attributeValue->value,
-            'attribute' => $attributeValue->productAttribute->name,
+            'attribute' => $attributeValue->attribute->name,
         ]);
     }
 
@@ -73,12 +79,11 @@ class AttributeValueController extends Controller
      */
     public function edit(string $id)
     {
-        $edit_value = AttributeValue::findOrFail($id);
-        $attribute = ProductAttribute::with('values')->findOrFail($edit_value->product_attribute_id);
+        $value = AttributeValue::findOrFail($id);
+
         return response()->json([
-            'id' => $edit_value->id,
-            'value' => $edit_value->value,
-            'product_attribute_id' => $edit_value->product_attribute_id
+            'id' => $value->id,
+            'value' => $value->value
         ]);
     }
 
@@ -87,34 +92,28 @@ class AttributeValueController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
-        $valueModel = AttributeValue::findOrFail($id);
+        $value = AttributeValue::findOrFail($id);
 
-        $rules = [
-            'value' => 'required|max:255|unique:attribute_values,value,' . $id . ',id,product_attribute_id,' . $valueModel->product_attribute_id,
-        ];
-
-        $messages = [
-            'value.required' => 'The attribute value field is required.',
-            'value.unique' => 'This attribute value already exists.',
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
+        $validator = Validator::make($request->all(), [
+            'value' => 'required|unique:attribute_values,value,' . $id . ',id,product_attribute_id,' . $value->product_attribute_id
+        ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422); // 422 Unprocessable Entity for validation errors
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $valueModel->value = $request->value;
-        $valueModel->slug  = Str::slug($request->value);
-        $valueModel->save();
+        $value->update([
+            'value' => $request->value,
+            'slug' => Str::slug($request->value)
+        ]);
+
+        // Load the relationship to get attribute name
+        $value->load('attribute');
 
         return response()->json([
-            'id' => $valueModel->id,
-            'value' => $valueModel->value,
-            'attribute' => $valueModel->attribute->name
+            'id' => $value->id,
+            'value' => $value->value,
+            'attribute' => $value->attribute->name
         ]);
     }
 
@@ -123,8 +122,10 @@ class AttributeValueController extends Controller
      */
     public function destroy(string $id)
     {
-        $attributeValue = AttributeValue::find($id);
-        $attributeValue->delete();
-        return redirect()->back()->with('success', 'Attribute value deleted successfully.');
+        AttributeValue::findOrFail($id)->delete();
+
+        return response()->json([
+            'status' => true
+        ]);
     }
 }

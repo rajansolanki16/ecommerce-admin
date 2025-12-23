@@ -27,7 +27,7 @@
                         <input type="text" name="name" id="tag" class="form-control @error('name') is-invalid @enderror" placeholder="Enter tag title" value="{{ old('name', isset($attribute) ? $attribute->name : '') }}">
 
                         @error('name')
-                        <div  class="invalid-response" style="display:flex">{{ $message }}</div>
+                        <div class="invalid-response" style="display:flex">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -64,15 +64,11 @@
             <div class="card-body">
                 <p class="text-muted">{{ __('values.product_attributes_value_description') }}</p>
                 <form id="vec_attribute_value_form"
-                    action="{{ isset($edit_value)
-        ? route('attribute_values.update', $edit_value->id)
-        : route('attribute_values.store') }}"
+                    data-store-url="{{ route('attribute_values.store') }}"
+                    data-base-url="{{ url('/') }}"
                     method="post">
 
                     @csrf
-                    @if(isset($edit_value))
-                    @method('PUT')
-                    @endif
 
                     <input type="hidden" name="product_attribute_id" value="{{ $attribute->id }}">
                     <label for="values" class="form-label">{{ __('values.attribute_value') }}<span class="text-danger">{{ __('values.required_mark') }}</span></label>
@@ -83,9 +79,13 @@
                         value="{{ old('value', $edit_value->value ?? '') }}"
                         placeholder=" Enter attribute value">
 
-                    @error('value')
+                    <!-- @error('value')
                     <div id="valueError" class="invalid-response" style="display:flex">{{ $message }}</div>
-                    @enderror
+                    @enderror -->
+                    <div id="valueError"
+                        class="invalid-response text-danger"
+                        style="display:none">
+                    </div>
 
                     <div class="mb-5 text-end">
                         <button type="submit" class="btn btn-primary">{{ __('values.Submit') }}</button>
@@ -121,12 +121,12 @@
                         </thead>
                         <tbody id="vec_attribute_value">
                             @foreach ($attribute->values as $value)
-                            <tr id="row-{{ $value->id }}">
+                            <tr>
                                 <td>{{ $value->id }}</td>
                                 <td>{{ $value->value }}</td>
                                 <td>{{ $attribute->name }}</td>
                                 <td>
-                                    <div class="dropdown position-static">
+                                     <div class="dropdown position-static">
                                         <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button"
                                             data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="bi bi-three-dots-vertical"></i>
@@ -145,7 +145,7 @@
                                                 </a>
                                             </li>
                                         </ul>
-                                    </div>
+                                    </div> 
                                 </td>
                             </tr>
                             @endforeach
@@ -157,7 +157,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal For Product Attribute -->
 <div id="deleteRecordModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

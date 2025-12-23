@@ -510,173 +510,259 @@ function vec_generate_coupon_code() {
     document.getElementById('vec_coupon_code').value = code;
 }
 
-
+//Start attribute values crud ajax
 let table;
+let attributeName = '';
 
 $(document).ready(function () {
 
-    // Initialize DataTable
-    if ($.fn.DataTable.isDataTable('#fixed-header')) {
-        table = $('#fixed-header').DataTable();
-    } else {
+    /* =====================
+       DATATABLE (INIT ONCE)
+    ===================== */
+    
+    // Get attribute name from the first row if it exists
+    if ($('#vec_attribute_value tr').length > 0) {
+        attributeName = $('#vec_attribute_value tr:first td:nth-child(3)').text().trim();
+    }
+    
+    // table = $('#fixed-header').DataTable({
+    //     pageLength: 10
+    // });
+    if (!$.fn.DataTable.isDataTable('#fixed-header')) {
         table = $('#fixed-header').DataTable({
             pageLength: 10
         });
+    } else {
+        table = $('#fixed-header').DataTable();
     }
 
-    // Function to reset form to "Add" mode
-    function resetForm() {
-        $('#vec_attribute_value_form')[0].reset();
-        $('#vec_attribute_value_form').attr('action', $('#vec_attribute_value_form').data('store-url'));
-        $('#vec_attribute_value_form').find('input[name="_method"]').remove();
-        $('#vec_attribute_value_form button[type="submit"]').text('Submit');
-        $('#valueError').text('');
-    }
-
-    // ADD OR UPDATE VALUE VIA AJAX
+    /* =====================
+       FORM SUBMIT HANDLER (CREATE/UPDATE)
+    ===================== */
     $('#vec_attribute_value_form').on('submit', function (e) {
         e.preventDefault();
-        let formData = new FormData(this);
-        $('#valueError').text('');
 
-        let method = $(this).find('input[name="_method"]').val() || 'POST';
+        let form = this;
+        let formData = new FormData(form);
+        let editId = $(form).data('edit-id');
+        let updateUrl = $(form).data('update-url');
+        let isEditMode = editId && updateUrl;
+        
+        let url = isEditMode ? updateUrl : $(form).data('store-url');
+        let submitButton = $(form).find('button[type="submit"]');
+        let originalButtonText = submitButton.text();
 
-        fetch(this.action, {
-            method: method,
+        // Disable button and show loading
+        //submitButton.prop('disabled', true).text(isEditMode ? 'Updating...' : 'Submitting...');
+        
+        // Clear previous errors
+        $('#valueError').text('').hide();
+        $(form).find('.is-invalid').removeClass('is-invalid');
+
+        // Add _method for update
+        if (isEditMode) {
+            formData.append('_method', 'PUT');
+        }
+
+        fetch(url, {
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': $('input[name=_token]').val()
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             body: formData
         })
         .then(res => {
-            if (!res.ok) return res.json().then(err => Promise.reject(err));
+            if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
             return res.json();
         })
         .then(data => {
-
-            // If editing an existing row
-            if (method === 'PUT') {
-                let row = table.row(`#row-${data.id}`);
-                let actionHtml = generateActionHtml(data.id);
-
-                row.data([
-                    data.id,
-                    data.value,
-                    data.attribute,
-                    actionHtml
-                ]).draw(false);
-
-                resetForm();
+            if (isEditMode) {
+                // Update existing row in DataTable
+                table.rows().every(function() {
+                    let rowData = this.data();
+                    if (rowData[0] == data.id) {
+                        this.data([
+                            data.id,
+                            data.value,
+                            data.attribute || attributeName,
+                            actionButtons(data.id, data.attribute || attributeName)
+                        ]).draw(false);
+                        return false;
+                    }
+                });
+                
+                // Reset form from edit mode
+                $(form).removeData('edit-id');
+                $(form).removeData('update-url');
+                submitButton.text('Submit');
+                $('.cancel-edit').remove();
             } else {
-                // Adding new row
-                let actionHtml = generateActionHtml(data.id);
-
+                // Add new row to DataTable
+                let displayAttribute = data.attribute || attributeName || '';
                 table.row.add([
                     data.id,
                     data.value,
-                    data.attribute,
-                    actionHtml
-                ]).node().id = `row-${data.id}`;
-
-                table.draw(false);
-                resetForm();
+                    displayAttribute,
+                    actionButtons(data.id, data.attribute || attributeName)
+                ]).draw(false);
             }
+
+            form.reset();
+            $('#valueError').text('').hide();
+            submitButton.prop('disabled', false).text('Submit');
         })
-        .catch(err => {
-            if (err.errors?.value) {
-                $('#valueError').text(err.errors.value[0]);
+        .catch(error => {
+            submitButton.prop('disabled', false).text(originalButtonText);
+            
+            if (error.errors) {
+                // Handle validation errors
+                $.each(error.errors, function(key, messages) {
+                    if (key === 'value') {
+                        $('#valueError').text(messages[0]).show();
+                        $(form).find('[name="value"]').addClass('is-invalid');
+                    }
+                });
+            } else {
+                alert('An error occurred: ' + (error.message || 'Unknown error'));
             }
         });
     });
 
-    // DELETE VALUE VIA AJAX
-    $(document).on('click', '.deleteValue', function (e) {
+    /* =====================
+       EDIT VALUE HANDLER
+    ===================== */
+    $(document).on('click', '.editValue', function(e) {
         e.preventDefault();
-        e.stopPropagation();
-
-        let url = $(this).data('url');
-        if (!url) { alert('Delete URL not found'); return; }
-
-        let row = table.row($(this).closest('tr'));
-
-        fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === true) {
-                row.remove().draw(false);
-            } else {
-                alert('Delete failed');
-            }
-        })
-        .catch(err => { console.error(err); alert('Delete error'); });
-    });
-
-    // EDIT VALUE VIA AJAX (populate form)
-    $(document).on('click', '.editValue', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
         let editUrl = $(this).data('edit-url');
         let updateUrl = $(this).data('update-url');
+        let row = $(this).closest('tr');
+        let valueId = row.find('td:first').text();
+        let currentValue = row.find('td:nth-child(2)').text();
 
-        fetch(editUrl, {
-            headers: { 'Accept': 'application/json' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            // Populate the form with existing value
-            $('#values').val(data.value);
-            $('#vec_attribute_value_form').attr('action', updateUrl);
-
-            // Add _method PUT if not exists
-            if ($('#vec_attribute_value_form').find('input[name="_method"]').length === 0) {
-                $('#vec_attribute_value_form').append('<input type="hidden" name="_method" value="PUT">');
-            }
-
-            // Change button text to Update
-            $('#vec_attribute_value_form button[type="submit"]').text('Update');
-
-            // Scroll to the form (optional)
-            $('html, body').animate({ scrollTop: $('#vec_attribute_value_form').offset().top - 100 }, 500);
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Failed to fetch data for edit');
-        });
+        // Populate form with current value
+        $('#values').val(currentValue);
+        $('#vec_attribute_value_form').data('edit-id', valueId);
+        $('#vec_attribute_value_form').data('update-url', updateUrl);
+        
+        // Change form to update mode
+        let submitButton = $('#vec_attribute_value_form').find('button[type="submit"]');
+        let cancelButton = $('#vec_attribute_value_form').find('.cancel-edit');
+        
+        if (cancelButton.length === 0) {
+            submitButton.after('<a href="javascript:void(0);" class="btn btn-danger cancel-edit">Cancel</a>');
+        }
+        
+        submitButton.text('Update');
+        $('#values').focus();
     });
 
-    // Function to generate action buttons for table
-    function generateActionHtml(id) {
-        return `
-            <div class="dropdown position-static">
-                <button class="btn btn-subtle-secondary btn-sm btn-icon"
-                    data-bs-toggle="dropdown">
-                    <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a href="javascript:void(0);"
-                           class="dropdown-item editValue"
-                           data-edit-url="/attribute-values/${id}/edit"
-                           data-update-url="/attribute-values/${id}">
-                           <i class="align-middle ph-pencil me-1"></i> Edit
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);"
-                           class="dropdown-item deleteValue"
-                           data-url="/attribute-values/${id}">
-                           <i class="align-middle ph-trash me-1"></i> Remove
-                        </a>
-                    </li>
-                </ul>
-            </div>`;
+    /* =====================
+       CANCEL EDIT HANDLER
+    ===================== */
+    $(document).on('click', '.cancel-edit', function(e) {
+        e.preventDefault();
+        $('#vec_attribute_value_form')[0].reset();
+        $('#vec_attribute_value_form').removeData('edit-id');
+        $('#vec_attribute_value_form').removeData('update-url');
+        $('#vec_attribute_value_form').find('button[type="submit"]').text('Submit');
+        $(this).remove();
+        $('#valueError').text('').hide();
+    });
+
+    /* =====================
+       DELETE VALUE HANDLER
+    ===================== */
+    $(document).on('click', '.deleteValue', function(e) {
+        e.preventDefault();
+        let deleteUrl = $(this).data('url');
+        let row = $(this).closest('tr');
+        let valueId = row.find('td:first').text();
+        
+        //if (confirm('Are you sure you want to delete this attribute value?')) {
+            let formData = new FormData();
+            formData.append('_method', 'DELETE');
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status) {
+                    // Find and remove the row from DataTable
+                    table.rows().every(function() {
+                        let rowData = this.data();
+                        if (rowData[0] == valueId) {
+                            this.remove().draw(false);
+                            return false;
+                        }
+                    });
+                }
+            })
+            
+        //}
+    });
+});
+
+
+/* =====================
+   ACTION BUTTONS
+===================== */
+function actionButtons(id, attributeName) {
+    // Get base URL from the form store URL
+    let storeUrl = $('#vec_attribute_value_form').data('store-url') || '';
+    // Extract base path (remove /attribute-values from end)
+    let basePath = storeUrl.replace(/\/attribute-values\/?$/, '');
+    
+    // Construct URLs following Laravel resource route pattern
+    let editUrl = basePath + '/attribute-values/' + id + '/edit';
+    let updateUrl = basePath + '/attribute-values/' + id;
+    let deleteUrl = basePath + '/attribute-values/' + id;
+    
+    return `
+    <div class="dropdown position-static">
+        <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <a href="javascript:void(0);"
+                   class="dropdown-item editValue"
+                   data-edit-url="${editUrl}"
+                   data-update-url="${updateUrl}">
+                   <i class="align-middle ph-pencil me-1"></i> Edit
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0);"
+                   class="dropdown-item deleteValue"
+                   data-url="${deleteUrl}">
+                   <i class="align-middle ph-trash me-1"></i> Remove
+                </a>
+            </li>
+        </ul>
+    </div>`;
+}
+//End attribute values crud ajax
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.querySelector('#vec_store_country');
+    if (categorySelect) {
+        new Choices(categorySelect, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+            removeItemButton: true,
+            placeholderValue: 'Select Country',
+        });
     }
 });
