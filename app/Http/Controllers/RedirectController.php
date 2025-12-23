@@ -33,7 +33,8 @@ class RedirectController extends Controller
         }
 
         if ($user->hasRole('user')) {
-            return view('admin.home');
+           // return view('user.home');
+           return redirect()->route('user.home');
         }
        
 

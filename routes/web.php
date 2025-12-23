@@ -2,6 +2,7 @@
 
 // Libraries
 
+use App\Http\Controllers\User\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,9 +53,12 @@ Route::get('/', [RedirectController::class, 'login'])->name('view.home');
 //admin panel
 Route::middleware(['auth'])->group(function () {
     // USER HOME (returns view only)
-    Route::get('/home', function () {
-        return view('admin.home'); 
-    })->name('user.home');
+    // Route::get('/home', function () {
+    //     return view('user.home'); 
+    // })->name('user.home');
+
+    Route::get('/home',[HomeController::class,'index'])->name('user.home');
+    Route::get('/product',[HomeController::class,'list'])->name('user.product');
 
     //Route::get('/home',RedirectController::class,'login')->name('user.home');
 
