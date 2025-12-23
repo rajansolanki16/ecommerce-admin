@@ -8,6 +8,7 @@ use App\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AttributeValueController extends Controller
 {
@@ -17,7 +18,7 @@ class AttributeValueController extends Controller
     public function index()
     {
         //
-         $attribute = ProductAttribute::with('values');
+        $attribute = ProductAttribute::with('values');
 
         return view('admin.productattributes.edit', compact('attribute'));
     }
@@ -37,10 +38,15 @@ class AttributeValueController extends Controller
     {
         //
         $validator = Validator::make($request->all(), [
-            'value' => 'required|unique:attribute_values,value'
+            'value' => [
+                'required',
+                Rule::unique('attribute_values')->where(function ($query) use ($request) {
+                    return $query->where('product_attribute_id', $request->product_attribute_id);
+                })
+            ]
         ], [
             'value.required' => 'The attribute value field is required.',
-            'value.unique' => 'This attribute value already exists.'
+            'value.unique' => 'This attribute value already exists for this attribute.'
         ]);
 
         if ($validator->fails()) {

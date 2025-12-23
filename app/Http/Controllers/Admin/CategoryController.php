@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -39,12 +40,19 @@ class CategoryController extends Controller
     {
         //
         $rules = [
-            'name' => 'required|min:3|unique:categories,name,'
+            'name' => [
+                'required',
+                'min:3',
+                Rule::unique('categories')->where(function ($query) use ($request) {
+                    return $query->where('parent_id', $request->parent_id);
+                }),
+            ],
         ];
+
         $messages = [
             'name.required' => 'The category field is required.',
             'name.min' => 'The category must be at least 3 characters.',
-            'name.unique' => 'The category already exists. Please choose a different name.',
+            'name.unique' => 'This category already exists under the same parent. Please choose a different name.',
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
 
@@ -96,8 +104,17 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $category = Category::findOrFail($id);
         $rules = [
-            'name' => 'required|min:3|unique:categories,name,'
+            'name' => [
+                'required',
+                'min:3',
+                Rule::unique('categories')
+                    ->ignore($category->id) // ignore current category
+                    ->where(function ($query) use ($request) {
+                        return $query->where('parent_id', $request->parent_id);
+                    }),
+            ],
         ];
         $messages = [
             'name.required' => 'The category field is required.',

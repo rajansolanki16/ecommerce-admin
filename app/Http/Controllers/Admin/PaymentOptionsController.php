@@ -35,11 +35,12 @@ class PaymentOptionsController extends Controller
     {
         //
         $rules = [
-            'payment_type' => ['required','regex:/^[A-Za-z\s]+$/'],
+            'payment_type' => ['required','regex:/^[A-Za-z\s]+$/','unique:payment_options,payment_type',],
         ];
         $messages = [
             'payment_type.required' => 'The payment type field is required.',
             'payment_type.regex' => 'The payment type must be a string.',
+            'payment_type.unique'=>'This payment type is already exists'
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
