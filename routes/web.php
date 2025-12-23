@@ -52,25 +52,19 @@ Route::get('/', [RedirectController::class, 'login'])->name('view.home');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
-    // USER HOME (returns view only)
-    // Route::get('/home', function () {
-    //     return view('user.home'); 
-    // })->name('user.home');
-
     Route::get('/home',[HomeController::class,'index'])->name('user.home');
     Route::get('/product',[HomeController::class,'list'])->name('user.product');
 
-    //Route::get('/home',RedirectController::class,'login')->name('user.home');
-
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
-
         Route::resource('/blogs', BlogController::class)->names('blogs');
         Route::resource('/blog-categories', BlogCategoriesController::class)->names('blog_categories');
         Route::resource('/room-services', ServiceController::class)->names('services');
         Route::resource('/room-amenities', AmenityController::class)->names('amenities');
         Route::resource('/rooms', RoomController::class)->names('rooms');
+        
+        Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
+        Route::post('/products/{product}/variants/remove',[ProductController::class, 'removeVariant'])->name('products.variants.remove');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');
@@ -78,8 +72,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');
         Route::resource('/product-attributes', ProductAttributeController::class)->names('product_attributes');
         Route::resource('/attribute-values', AttributeValueController::class)->names('attribute_values');
-
-
 
         Route::prefix('settings')->group(function () {
 

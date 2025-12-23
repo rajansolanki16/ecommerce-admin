@@ -14,6 +14,7 @@ use App\Models\ProductAttribute;
 use App\Models\ProductVariant;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -34,11 +35,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
+        $products = $query->latest()->paginate(10)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'categories'));
@@ -223,7 +220,6 @@ class ProductController extends Controller
         $product->refundable           = $request->boolean('refundable');
         $product->free_shipping        = $request->boolean('free_shipping');
 
-        // Only store general info for SIMPLE products; for VARIANTS these come from variants
         if ($product->product_type == ProductType::SIMPLE->value || $product->product_type == ProductType::SIMPLE) {
             $product->stock                = $request->stock ?? 0;
 
@@ -271,7 +267,6 @@ class ProductController extends Controller
         /* ===============================
         Sync Relations
         =============================== */
-
         if (!empty($validated['categories'])) {
             $product->categories()->sync($validated['categories']);
         }
@@ -280,22 +275,17 @@ class ProductController extends Controller
             $product->tags()->sync($request->tags);
         }
 
-        // Save assigned product attributes (selected on create form)
         if ($request->filled('product_attributes')) {
             $product->attributes()->sync($request->product_attributes);
         }
 
-        // Handle variants (if product type is VARIANTS)
         if ($product->product_type == ProductType::VARIANTS->value || $product->product_type == ProductType::VARIANTS) {
             Log::info('=== HANDLING VARIANTS ===', ['variant_count' => count($request->variants ?? [])]);
-
-            // ensure product attributes synced
             if ($request->filled('product_attributes')) {
                 $product->attributes()->sync($request->product_attributes);
                 Log::info('=== ATTRIBUTES SYNCED ===');
             }
 
-            // clear existing variants and recreate (simpler approach)
             $product->variants()->delete();
 
             if ($request->filled('variants') && is_array($request->variants)) {
@@ -478,11 +468,11 @@ class ProductController extends Controller
 
         if ($product->product_type == ProductType::SIMPLE->value || $product->product_type == ProductType::SIMPLE) {
             $product->stock                = $validated['stock']; 
-            $product->price                = $validated['price'];
+            $product->price                = $validated['price'] ?? 0 ;
             $product->discount             = $request->discount ?? $product->discount;
         } else {
             $product->stock = 0;
-            $product->price = null;
+            $product->price = 0;
             $product->discount = 0;
         }
         $product->status               = $request->status ?? $product->status;
@@ -528,9 +518,9 @@ class ProductController extends Controller
                         'height'     => $variant['height'] ?? null,
                         'status'     => $variant['status'] ?? $product->status,
                         'visibility' => $variant['visibility'] ?? $product->visibility,
-                        'exchangeable'=> $variant['exchangeable'] ?? $product->exchangeable,
-                        'refundable' => $variant['refundable'] ?? $product->refundable,
-                        'free_shipping'=> $variant['free_shipping'] ?? $product->free_shipping,
+                       'exchangeable'  => (int) ($variantData['exchangeable'] ?? 0),
+                        'refundable'    => (int) ($variantData['refundable'] ?? 0),
+                        'free_shipping' => (int) ($variantData['free_shipping'] ?? 0),
                     ];
 
                     if ($request->hasFile("variants.$idx.image")) {
@@ -559,6 +549,64 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
+    public function updateVariants(Request $request, Product $product)
+    {
+        $variants = $request->variants ?? [];
+
+        foreach ($variants as $variantData) {
+
+            $variant = $product->variants()
+                ->updateOrCreate(
+                    ['id' => $variantData['id'] ?? null],
+                    [
+                        'sku'           => $variantData['sku'] ?? null,
+                        'price'         => $variantData['price'] ?? 0,
+                        'stock'         => $variantData['stock'] ?? 0,
+                        'sell_price'    => $variantData['sell_price'] ?? null,
+                        'weight'        => $variantData['weight'] ?? null,
+                        'length'        => $variantData['length'] ?? null,
+                        'width'         => $variantData['width'] ?? null,
+                        'height'        => $variantData['height'] ?? null,
+                        'exchangeable'  => (int) ($variantData['exchangeable'] ?? 0),
+                        'refundable'    => (int) ($variantData['refundable'] ?? 0),
+                        'free_shipping' => (int) ($variantData['free_shipping'] ?? 0),
+                    ]
+                );
+
+            if (!empty($variantData['values'])) {
+                $variant->attributeValues()->sync($variantData['values']);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Variants updated successfully'
+        ]);
+    }
+
+
+    public function removeVariant(Request $request, Product $product)
+    {
+        $variantId = $request->variant_id;
+
+        $variant = ProductVariant::where('id', $variantId)
+            ->where('product_id', $product->id)
+            ->firstOrFail();
+
+        // delete image if exists
+        if ($variant->image && Storage::disk('public')->exists($variant->image)) {
+            Storage::disk('public')->delete($variant->image);
+        }
+
+        $variant->delete();
+
+        return response()->json([
+            'success' => true,
+            'variant_id' => $variantId
+        ]);
+    }
+
    public function destroy(Product $product)
     {
         $product->delete(); 

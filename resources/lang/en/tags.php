@@ -1,29 +1,27 @@
 <?php
 
 return [
-
     // Titles
-    'Tag_Management'=> 'Product Tag Management',
+    'tags' => 'Tags',
+    'tag_management'=> 'Product Tag Management',
 
     //create tag
-    'Create_Tag'=> 'Create Tag',
-    'Edit_Tag'=> 'Edit Tag',
-    'Product_Tag_Listing'=> 'Product Tag Listing',
+    'create_tag'=> 'Create Tag',
+    'edit_tag'=> 'Edit Tag',
+    'product_tag_listing'=> 'Product Tag Listing',
 
     //description
-    'Tag_Description'=> 'Create the new tags for products tags.',
-    'Edit_Description'=> 'Update the tag for products.',
+    'tag_description'=> 'Create the new tags for products tags.',
+    'edit_description'=> 'Update the tag for products.',
     'tag_list_Description'=> 'This is the list of all product tags.',
     
     //form labels
-    'Tag_Title'=> 'Tag Title',
+    'tag_title'=> 'Tag Title',
     'required_mark'=> '*',
 
     //button
-    'Create_Button'=> 'Submit',
-    'Update_Button'=> 'Update',
-    'Cancel_Button'=> 'Cancel',
-    'Add_Tags_Button'=> 'Add Tags',
-   
-
+    'create_button'=> 'Submit',
+    'update_button'=> 'Update',
+    'cancel_button'=> 'Cancel',
+    'add_tags_button'=> 'Add Tags',    
 ];

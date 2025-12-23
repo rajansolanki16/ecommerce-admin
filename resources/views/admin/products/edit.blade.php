@@ -503,6 +503,14 @@
                 return $wrapper;
             }
 
+            function getExistingAttributesFromVariants() {
+                const attrs = new Set();
+                window.variantsStore.forEach(v => {
+                    (v.values || []).forEach(val => attrs.add(val));
+                });
+                return Array.from(attrs);
+            }
+
             function onAttributesChange() {
                 $containers.empty();
                 const selected = $attrSelect.val() || [];
@@ -635,7 +643,15 @@
 
                     const $footer = $('<div>')
                         .addClass('card-footer bg-light')
-                        .html(`<button type="button" class="btn btn-sm btn-danger delete-variant-btn" data-idx="${idx}"><i class="ph-trash me-1"></i>Delete Variant</button>`);
+                        .html(`
+                            <button type="button" class="btn btn-sm btn-success me-2 save-variants-btn">
+                                Save Variants
+                            </button>
+
+                            <button type="button" class="btn btn-sm btn-danger delete-variant-btn"  data-product-id="{{ $product->id }}" data-id="${variant.id ?? ''}" data-idx="${idx}">
+                                <i class="ph-trash me-1"></i> Delete Variant
+                            </button>
+                        `);
 
                     $card.append($header, $body, $footer);
                     $variantsList.append($card);
@@ -724,15 +740,52 @@
                 else if ($this.hasClass('variant-free-shipping')) variant.free_shipping = $this.is(':checked') ? 1 : 0;
             }
 
-            function deleteVariant(e) {
-                const idx = $(this).data('idx');
-                if (confirm('Delete this variant?')) {
+            function deleteVariant() {
+                const $btn = $(this);
+                const idx = $btn.data('idx');
+                const variantId = $btn.data('id');
+                const productId = $btn.data('product-id');
+
+                // Variant exists in DB
+                if (variantId) {
+                    $.ajax({
+                        url: "{{ route('products.variants.remove', $product->id) }}",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            variant_id: variantId
+                        },
+                        beforeSend() {
+                            $btn.prop('disabled', true);
+                        },
+                        success() {
+                            window.variantsStore.splice(idx, 1);
+                            renderTable();
+
+                            // optional toast (no alert)
+                            if (window.Toastify) {
+                                Toastify({
+                                    text: "Variant deleted",
+                                    duration: 2000,
+                                    gravity: "top",
+                                    position: "right",
+                                    backgroundColor: "#dc3545"
+                                }).showToast();
+                            }
+                        },
+                        error() {
+                            $btn.prop('disabled', false);
+                        }
+                    });
+                }
+                // Not saved yet → frontend only
+                else {
                     window.variantsStore.splice(idx, 1);
                     renderTable();
                 }
             }
 
-            function generateTable() {
+           function generateTable() {
                 const $selects = $containers.find('select');
                 if (!$selects.length) return alert('Select attributes and values first');
 
@@ -743,35 +796,50 @@
                     }));
                 });
 
-                if (valueLists.some(l => l.length === 0)) return alert('Choose at least one value for each selected attribute');
+                if (valueLists.some(l => l.length === 0)) {
+                    return alert('Choose at least one value for each attribute');
+                }
 
                 const combos = cartesian(valueLists);
 
-                combos.forEach((combo, idx) => {
-                    window.variantsStore.push({
-                        name: combo.map(c => c.text).join(' / '),
-                        values: combo.map(c => c.id),
-                        sku: '',
-                        price: '',
-                        stock: 0,
-                        sell_price: '',
-                        shipping: '',
-                        shipping_address: '',
-                        general_info: '',
-                        weight: '',
-                        length: '',
-                        width: '',
-                        height: '',
-                        exchangeable: 0,
-                        refundable: 0,
-                        free_shipping: 0,
-                        image: null
-                    });
+                const existingVariants = window.variantsStore;
+                const newVariants = [];
+
+                combos.forEach(combo => {
+                    const comboIds = combo.map(c => c.id).sort().join('-');
+
+                    const found = existingVariants.find(v =>
+                        v.values.slice().sort().join('-') === comboIds
+                    );
+
+                    if (found) {
+                        newVariants.push(found); // keep existing
+                    } else {
+                        newVariants.push({
+                            name: combo.map(c => c.text).join(' / '),
+                            values: combo.map(c => c.id),
+                            sku: '',
+                            price: '',
+                            stock: 0,
+                            sell_price: '',
+                            shipping: '',
+                            shipping_address: '',
+                            general_info: '',
+                            weight: '',
+                            length: '',
+                            width: '',
+                            height: '',
+                            exchangeable: 0,
+                            refundable: 0,
+                            free_shipping: 0,
+                            image: null
+                        });
+                    }
                 });
 
+                window.variantsStore = newVariants;
                 renderTable();
             }
-
             // Show/hide variants section based on product type
             if ($productTypeSelect.length) {
                 function toggleVariantsSection() {
@@ -787,14 +855,11 @@
                 $productTypeSelect.on('change', toggleVariantsSection);
                 toggleVariantsSection();
             } else if (window.variantsStore && window.variantsStore.length > 0) {
-                // Auto-render existing variants if page loads directly
                 renderTable();
             }
 
             $attrSelect.on('change', onAttributesChange);
             $generateBtn.on('click', generateTable);
-
-            // On form submit, inject hidden inputs for variants
             $('#productForm').on('submit', function(e) {
                 if (window.variantsStore && window.variantsStore.length > 0) {
                     const $variantsContainer = $('<div>').hide();
@@ -829,6 +894,55 @@
                 }
             });
         });
+
+        $(document).on('click', '.save-variants-btn', function () {
+
+            let formData = new FormData();
+            formData.append('_token', "{{ csrf_token() }}");
+
+            window.variantsStore.forEach((variant, idx) => {
+                Object.keys(variant).forEach(key => {
+                    if (key === 'image' && variant.image) {
+                        formData.append(`variants[${idx}][image]`, variant.image);
+                    } else if (Array.isArray(variant[key])) {
+                        variant[key].forEach(v =>
+                            formData.append(`variants[${idx}][${key}][]`, v)
+                        );
+                    } else {
+                        formData.append(`variants[${idx}][${key}]`, variant[key]);
+                    }
+                });
+            });
+
+            $.ajax({
+                url: "{{ route('products.variants.update', $product->id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success: function (res) {
+                    Toastify({
+                        text: res.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: res.success ? "#16a34a" : "#dc2626",
+                    }).showToast();
+                },
+
+                error: function () {
+                    Toastify({
+                        text: "Failed to save variants",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#dc2626",
+                    }).showToast();
+                }
+            });
+        });
+
     </script>
     </form>
     </div>
