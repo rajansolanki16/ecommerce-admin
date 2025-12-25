@@ -4,7 +4,7 @@
     <section class="ko-banner">
         <div class="ko-container">
             <div class="ko-banner-content">
-                <h2><i class="bi bi-heart-fill"  style="font-size:60px;color:red;"></i></a></h2>
+                <h2><i class="bi bi-heart-fill" style="font-size:60px;color:red;"></i></a></h2>
                 <!-- {!! getSetting('page_rooms_description') !!} -->
                 <nav>
                     <ol class="ko-banner-list">
@@ -31,6 +31,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th width="60"></th>
                     <th>Product Name</th>
                     <th>Price</th>
                     <th>Stock</th>
@@ -40,7 +41,14 @@
             <tbody>
                 @foreach($wishlists as $item)
                 <tr>
-                    <!-- Product Image -->
+                    <!-- DELETE ICON -->
+                    <td class="text-center align-middle">
+                        <i class="bi bi-trash vec_wishlist_remove"
+                            data-id="{{ $item->id }}"
+                            style="font-size:20px;color:#d1d1d1;cursor:pointer;"></i>
+                    </td>
+
+                    <!-- Product Image + Name  -->
                     <td>
                         <div class="position-relative d-inline-block">
                             <img
@@ -72,6 +80,13 @@
                                 Add to Cart
                             </button>
                         </form>
+
+                        {{-- OUT OF STOCK MESSAGE (only for this product) --}}
+                        @if(session('error') && session('error_product_id') == $item->product->id)
+                        <div class="text-danger mt-1" style="font-size:13px;">
+                            {{ session('error') }}
+                        </div>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

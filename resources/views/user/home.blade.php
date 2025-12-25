@@ -34,7 +34,7 @@
 
                 <!-- AJAX will replace this -->
                 <div class="ko-col-12 text-center">
-                    Loading products...
+                   
                 </div>
 
             </div>

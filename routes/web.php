@@ -58,12 +58,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/product', [HomeController::class, 'list'])->name('user.product');
     Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
+    Route::delete('/wishlist/delete/{id}', [WishlistController::class, 'deleteById'])
+        ->name('wishlist.delete');
 
     Route::post('/cart', [CartsController::class, 'add'])->name('cart.add');
     Route::get('/cart', [CartsController::class, 'index'])->name('cart.index');
     Route::post('/cart/remove/{id}', [CartsController::class, 'remove'])->name('cart.remove');
     Route::post('/cart/update/{id}', [CartsController::class, 'update'])
-    ->name('cart.update');
+        ->name('cart.update');
 
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {

@@ -4,7 +4,7 @@
     <section class="ko-bann">
         <div class="ko-container">
             <div class="ko-banner-content">
-                <h2>🛒</h2>
+                <h2><i class="bi bi-cart" style="font-size:30px;color:black;"></i></h2>
             </div>
         </div>
         <h2 class="mb-6">My Cart</h2>

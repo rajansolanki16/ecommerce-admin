@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\WishList;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,12 +44,26 @@ class WishListController extends Controller
 
         return response()->json(['status' => 'added']);
     }
-    public function showadmin(){
+    public function showadmin()
+    {
         $wishlists = WishList::with(['user', 'product'])
             ->latest()
             ->get();
 
         return view('admin.wishlist.index', compact('wishlists'));
+    }
+    public function deleteById($id)
+    {
+         $wishlist = Wishlist::where('id', $id)
+        ->where('user_id',  auth()->id())
+        ->first();
 
+        if (!$wishlist) {
+            return response()->json(['status' => 'error'], 404);
+        }
+
+        $wishlist->delete();
+
+        return response()->json(['status' => 'success']);
     }
 }

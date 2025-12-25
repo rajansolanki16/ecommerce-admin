@@ -64,3 +64,30 @@ $(document).on('click', '.wishlist-btn', function (e) {
     });
 });
 
+
+//delete wishlist product
+$(document).on('click', '.vec_wishlist_remove', function () {
+
+    let wishlistId = $(this).data('id');
+    let row = $(this).closest('tr');
+
+    $.ajax({
+        url: '/wishlist/delete/' + wishlistId,   // ID based API
+        type: 'DELETE',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.status === 'success') {
+                row.fadeOut(300, function () {
+                    $(this).remove();
+                });
+            }
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText);
+            alert('Something went wrong');
+        }
+    });
+});
+
