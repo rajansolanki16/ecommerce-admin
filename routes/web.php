@@ -2,6 +2,7 @@
 
 // Libraries
 
+use App\Http\Controllers\User\CartsController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\TagsController;
+use App\Http\Controllers\User\WishListController;
 use App\Models\Faq;
 
 //Auth
@@ -52,8 +54,17 @@ Route::get('/', [RedirectController::class, 'login'])->name('view.home');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home',[HomeController::class,'index'])->name('user.home');
-    Route::get('/product',[HomeController::class,'list'])->name('user.product');
+    Route::get('/home', [HomeController::class, 'index'])->name('user.home');
+    Route::get('/product', [HomeController::class, 'list'])->name('user.product');
+    Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
+    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
+
+    Route::post('/cart', [CartsController::class, 'add'])->name('cart.add');
+    Route::get('/cart', [CartsController::class, 'index'])->name('cart.index');
+    Route::post('/cart/remove/{id}', [CartsController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/update/{id}', [CartsController::class, 'update'])
+    ->name('cart.update');
+
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
@@ -62,9 +73,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/room-services', ServiceController::class)->names('services');
         Route::resource('/room-amenities', AmenityController::class)->names('amenities');
         Route::resource('/rooms', RoomController::class)->names('rooms');
-        
+
         Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
-        Route::post('/products/{product}/variants/remove',[ProductController::class, 'removeVariant'])->name('products.variants.remove');
+        Route::post('/products/{product}/variants/remove', [ProductController::class, 'removeVariant'])->name('products.variants.remove');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');
@@ -72,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');
         Route::resource('/product-attributes', ProductAttributeController::class)->names('product_attributes');
         Route::resource('/attribute-values', AttributeValueController::class)->names('attribute_values');
+
+        Route::get('/wishlist/show', [WishListController::class, 'showadmin'])->name('wishlist.show');
 
         Route::prefix('settings')->group(function () {
 

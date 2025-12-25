@@ -197,6 +197,25 @@
                         </div>
                     </li>
 
+                     <!-- Wishlists Show -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarwishlist"
+                            data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarwishlist">
+                            <i class="ri-folder-2-line"></i>
+                            <span>WishList</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarwishlist">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('wishlist.show') }}" class="nav-link">Show</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+
                     <!-- ROOMS -->
                     {{-- <li class="nav-item">
                         @if(Route::is('rooms.*') || Route::is('amenities.*') || Route::is('services.*'))
