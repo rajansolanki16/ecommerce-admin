@@ -54,7 +54,7 @@ Route::get('/', [RedirectController::class, 'login'])->name('view.home');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('user.home');
+    Route::get('/home', [HomeController::class, 'list'])->name('user.home');
     Route::get('/product', [HomeController::class, 'list'])->name('user.product');
     Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');

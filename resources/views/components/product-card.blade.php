@@ -10,16 +10,15 @@
                         : asset('assets/images/no-image.png') }}"
                 class="card-img-top"
                 alt="{{ $product->product_title }}"
-                style="height:220px;object-fit:cover;"
-            >
+                style="height:220px;object-fit:cover;">
 
             <!-- Wishlist -->
             <a class="wishlist-btn position-absolute top-0 end-0 m-2
                 {{ $product->is_wishlisted ? 'added' : '' }}"
-               data-product-id="{{ $product->id }}">
+                data-product-id="{{ $product->id }}">
 
                 <i class="bi {{ $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"
-                   style="font-size:20px;"></i>
+                    style="font-size:20px;"></i>
             </a>
         </div>
 
@@ -48,7 +47,7 @@
                 </strong>
 
                 <a href="#"
-                   class="btn btn-sm btn-dark">
+                    class="btn btn-sm btn-dark">
                     View
                 </a>
             </div>
@@ -57,3 +56,9 @@
     </div>
 </div>
 @endforeach
+
+
+<!-- Pagination -->
+<div class="col-12 d-flex justify-content-center">
+    {!! $products->links() !!}
+</div>

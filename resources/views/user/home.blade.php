@@ -17,7 +17,7 @@
 
                     <nav class="mt-3">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item"><a href="">Home</a></li>
                             <li class="breadcrumb-item active">Products</li>
                         </ol>
                     </nav>
@@ -34,6 +34,7 @@
             </div>
         </div>
     </section>
+
 
     <!-- FILTER + SORT BAR -->
     <section class="py-3 border-bottom bg-white">
@@ -59,19 +60,14 @@
     <section class="ko-roomlist-section py-5">
         <div class="ko-container">
             <div class="row g-4"
-                 id="vec_product-grid"
-                 data-fetch-url="{{ route('user.product') }}"
-                 data-wishlist-url="{{ route('wishlist.toggle') }}">
-
-                <!-- AJAX loader -->
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-dark"></div>
-                    <p class="mt-3 text-muted">Loading products...</p>
-                </div>
-
+                id="vec_product-grid"
+          
+                data-wishlist-url="{{ route('wishlist.toggle') }}">
+              @include('components.product-card')
             </div>
         </div>
     </section>
+
 
     <!-- FEATURES STRIP -->
     <section class="bg-white py-5 border-top">
