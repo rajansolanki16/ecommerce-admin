@@ -2,7 +2,7 @@
 
 // Libraries
 
-use App\Http\Controllers\User\CartsController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -61,13 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/wishlist/delete/{id}', [WishlistController::class, 'deleteById'])
         ->name('wishlist.delete');
 
-    Route::post('/cart', [CartsController::class, 'add'])->name('cart.add');
-    Route::get('/cart', [CartsController::class, 'index'])->name('cart.index');
-    Route::post('/cart/remove/{id}', [CartsController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/update/{id}', [CartsController::class, 'update'])
-        ->name('cart.update');
-
-
+    Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])
+->name('cart.update');
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
         Route::resource('/blogs', BlogController::class)->names('blogs');

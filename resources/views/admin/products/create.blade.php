@@ -446,7 +446,7 @@
             </div><!--end row-->
             
             {{-- Variant Section --}}
-            <div class="row" id="variantSection" style="display:none;">
+            <div class="row" id="vec_variantSection" style="display:none;">
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">

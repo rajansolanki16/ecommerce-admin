@@ -1,38 +1,59 @@
 @foreach($products as $product)
-<div class="ko-col-4">
-    <div class="ko-roomitem-inner">
+<div class="col-lg-3 col-md-4 col-sm-6">
+    <div class="card h-100 border-0 shadow-sm product-card">
 
-        <img src="{{ $product->product_image 
-            ? asset('storage/'.$product->product_image) 
-            : asset('assets/images/no-image.png') }}"
-            class="thumbnail">
+        <!-- Product Image -->
+        <div class="position-relative">
+            <img
+                src="{{ $product->product_image
+                        ? asset('storage/'.$product->product_image)
+                        : asset('assets/images/no-image.png') }}"
+                class="card-img-top"
+                alt="{{ $product->product_title }}"
+                style="height:220px;object-fit:cover;"
+            >
 
-        <div class="ko-roompricing-info">
-            <div class="ko-roompricing-infoinner">
-                <div class="label">
-                    {{ optional($product->categories)->pluck('name')->join(', ') ?: 'Uncategorized' }}
-                </div>
-                <h3 class="price">₹{{ $product->price }}</h3>
-                <!-- <a class="wishlist-btn" data-product-id="{{ $product->id }}">🤍</a> -->
-                <!-- <a class="wishlist-btn" data-product-id="{{ $product->id }}"><i class="bi bi-heart-fill" style="font-size:24px;color:white;"></i></a> -->
-                <a class="wishlist-btn {{ $product->is_wishlisted ? 'added' : '' }}"
-                    data-product-id="{{ $product->id }}">
+            <!-- Wishlist -->
+            <a class="wishlist-btn position-absolute top-0 end-0 m-2
+                {{ $product->is_wishlisted ? 'added' : '' }}"
+               data-product-id="{{ $product->id }}">
 
-                    <i class="bi {{ $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart-fill' }}"
-                        style="font-size:24px;color:white;"></i>
+                <i class="bi {{ $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"
+                   style="font-size:20px;"></i>
+            </a>
+        </div>
+
+        <!-- Product Body -->
+        <div class="card-body">
+
+            <!-- Category -->
+            <span class="badge bg-light text-dark mb-2 d-inline-block">
+                {{ optional($product->categories)->pluck('name')->join(', ') ?: 'Uncategorized' }}
+            </span>
+
+            <!-- Title -->
+            <h6 class="fw-semibold mb-1">
+                {{ $product->product_title }}
+            </h6>
+
+            <!-- Description -->
+            <p class="text-muted small mb-2">
+                {{ Str::limit($product->short_description, 60) }}
+            </p>
+
+            <!-- Price + CTA -->
+            <div class="d-flex justify-content-between align-items-center">
+                <strong class="text-dark">
+                    ₹{{ number_format($product->price) }}
+                </strong>
+
+                <a href="#"
+                   class="btn btn-sm btn-dark">
+                    View
                 </a>
-
             </div>
-        </div>
 
-        <div class="ko-roomdetails-info">
-            <div class="ko-roomdetails-infoinner">
-                <h3 class="title">{{ $product->product_title }}</h3>
-                <p>{{ $product->short_description }}</p>
-                <h3 class="price">₹{{ $product->price }}</h3>
-            </div>
         </div>
-
     </div>
 </div>
 @endforeach

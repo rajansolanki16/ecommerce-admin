@@ -45,3 +45,94 @@
 </head>
 
 <body>
+<header class="ecom-header sticky-top bg-white shadow-sm">
+    <div class="container">
+
+        <!-- TOP BAR -->
+        <div class="d-flex align-items-center justify-content-between py-3">
+
+            <!-- LOGO -->
+            <a href="/" class="ecom-logo text-decoration-none">
+                <img src="{{ publicPath(getSetting('site_logo')) }}"
+                     alt="Logo"
+                     height="40">
+            </a>
+
+            <!-- SEARCH -->
+            <form action="#"
+                  method="GET"
+                  class="ecom-search d-none d-lg-flex">
+                <input type="text"
+                       name="q"
+                       class="form-control"
+                       placeholder="Search for products...">
+                <button class="btn btn-dark">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <!-- ACTIONS -->
+            <div class="ecom-actions d-flex align-items-center gap-3">
+
+                <!-- Wishlist -->
+                <a href="{{ route('wishlist.index') }}" class="icon-btn">
+                    <i class="bi bi-heart"></i>
+                    <span class="count">{{ auth()->check() ? auth()->user()->wishlist_count ?? 0 : 0 }}</span>
+                </a>
+
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="icon-btn">
+                    <i class="bi bi-cart3"></i>
+                    <span class="count cart-count">0</span>
+                </a>
+
+                <!-- Account -->
+                @auth
+                    <div class="dropdown">
+                        <a class="icon-btn dropdown-toggle"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-person"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">My Account</a></li>
+                            <li><a class="dropdown-item" href="#">My Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                   href="{{ route('auth.logout') }}">
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline-dark btn-sm">
+                        Login
+                    </a>
+                @endauth
+            </div>
+        </div>
+
+        <!-- CATEGORY NAV -->
+        @php
+            $categories = \App\Models\Category::orderBy('name')->get();
+        @endphp
+        <nav class="ecom-nav border-top">
+            <ul class="nav gap-3 py-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.home') }}">All Products</a>
+                </li>
+
+                @foreach($categories ?? [] as $category)
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="#">
+                            {{ $category->name }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
+
+    </div>
+</header>

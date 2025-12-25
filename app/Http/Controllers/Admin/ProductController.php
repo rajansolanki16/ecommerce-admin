@@ -480,7 +480,7 @@ class ProductController extends Controller
 
         $product->sell_price           = $request->sell_price ?? $product->sell_price;
         $product->sell_price_start_date= $request->sell_price_start_date ?? $product->sell_price_start_date;
-        $product->sell_price_end_date  = $request->sell_price_start_date ?? $product->sell_price_start_date;
+        $product->sell_price_end_date  = $request->sell_price_end_date ?? $product->sell_price_end_date;
 
         $product->weight               = $request->weight ?? $product->weight;
         $product->length               = $request->length ?? $product->length;

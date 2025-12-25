@@ -3,43 +3,96 @@
     'description' => getSetting('page_rooms_meta_description')
 )" />
 
-<main>
-    <!-- Banner Section -->
-    <section class="ko-banner">
-        <div class="ko-container">
-            <div class="ko-banner-content">
-                <h2>Products</h2>
-                <nav>
-                    <ol class="ko-banner-list">
-                        <li><a>Home</a></li>
-                        <li><a>Products</a></li>
-                    </ol>
-                </nav>
-            </div>
+<main class="bg-light">
 
-            <div class="ko-container text-end mb-3">
-                <a href="{{ route('auth.logout') }}" class="btn btn-danger">Logout</a>
-                <a href="{{ route('wishlist.index') }}" class="btn btn-danger">My Wishlist</a>
+    <!-- HERO / BANNER -->
+    <section class="ko-banner py-5">
+        <div class="ko-container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="fw-bold mb-2">Shop Our Products</h1>
+                    <p class="text-muted mb-0">
+                        Discover quality products at the best prices
+                    </p>
+
+                    <nav class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Products</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a href="{{ route('wishlist.index') }}" class="btn btn-outline-dark me-2">
+                        ❤️ Wishlist
+                    </a>
+                    <a href="{{ route('auth.logout') }}" class="btn btn-outline-danger">
+                        Logout
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Product List -->
-    <section class="ko-roomlist-section">
+    <!-- FILTER + SORT BAR -->
+    <section class="py-3 border-bottom bg-white">
         <div class="ko-container">
-            <div class="ko-row"
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <strong>All Products</strong>
+                </div>
+
+                <div class="col-md-6 text-md-end">
+                    <select class="form-select d-inline-block w-auto">
+                        <option>Sort by latest</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Popularity</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCT GRID -->
+    <section class="ko-roomlist-section py-5">
+        <div class="ko-container">
+            <div class="row g-4"
                  id="vec_product-grid"
                  data-fetch-url="{{ route('user.product') }}"
                  data-wishlist-url="{{ route('wishlist.toggle') }}">
 
-                <!-- AJAX will replace this -->
-                <div class="ko-col-12 text-center">
-                   
+                <!-- AJAX loader -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-dark"></div>
+                    <p class="mt-3 text-muted">Loading products...</p>
                 </div>
 
             </div>
         </div>
     </section>
+
+    <!-- FEATURES STRIP -->
+    <section class="bg-white py-5 border-top">
+        <div class="ko-container">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <h5 class="fw-semibold">🚚 Free Shipping</h5>
+                    <p class="text-muted small">On all orders above ₹999</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-semibold">🔒 Secure Payment</h5>
+                    <p class="text-muted small">100% safe checkout</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-semibold">💬 24/7 Support</h5>
+                    <p class="text-muted small">We’re here to help</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </main>
 
 <x-footer />

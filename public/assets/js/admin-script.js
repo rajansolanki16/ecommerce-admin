@@ -426,10 +426,10 @@ function toggleSections() {
 
     if (type == 1) {
         $('#vec_shipping_section').hide();
-        $('#variantSection').stop(true, true).slideDown();
+        $('#vec_variantSection').stop(true, true).slideDown();
         $('#vec_general_Info_Section').hide();
     } else {
-        $('#variantSection').hide();
+        $('#vec_variantSection').hide();
         $('#vec_general_Info_Section').stop(true, true).slideDown();
         $('#vec_shipping_section').show();
     }
