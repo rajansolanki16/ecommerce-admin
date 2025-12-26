@@ -101,3 +101,154 @@ $(document).on('click', '.vec_wishlist_remove', function (e) {
         }
     });
 });
+
+//add to cart ajax
+$(document).ready(function() {
+
+    $(document).on('click', '.add-to-cart', function(e) {
+        e.preventDefault();
+
+        var productId = $(this).data('id');
+        //error msg 
+         $('.cart-error').hide().text('');
+         console.log('.cart-error');
+       
+        $.ajax({
+            url: '/cart/add',
+            type: 'POST',
+            data: {
+                product_id: productId,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#cart-count').text(response.count); // update cart count
+                    console.log('Product added to cart!');
+                }
+            },
+             error: function(xhr) {
+
+             if (xhr.status === 422 && xhr.responseJSON) {
+
+                let res = xhr.responseJSON;
+                $('#cart-error-' + res.product_id)
+                    .text(res.message)
+                    .show();
+                } else {
+                    alert('Something went wrong');
+                }
+            }
+        
+        });
+
+    });
+
+});
+
+//cart product delete ajax
+$(document).ready(function() {
+
+    // Remove from cart
+    $(document).on('click', '.remove-from-cart', function(e) {
+        e.preventDefault();
+        
+        var button = $(this);
+        var productId = button.data('id');
+        var rowId = button.data('row');
+        
+        $.ajax({
+            url: '/cart/remove/' + productId,
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#' + rowId).fadeOut(400, function() {
+                        $(this).remove();
+                        
+                        $('#cart-count').text(response.count);
+                        $('#grand-total').text('₹' + response.grandTotal);
+                    });
+                    
+                    console.log('Product removed from cart');
+                }
+            },
+            error: function(xhr) {
+                button.prop('disabled', false).text('Remove');
+                alert(xhr.responseJSON?.message || 'Failed to remove product');
+            }
+        });
+    });
+
+});
+
+//update cart quantity
+    var updateTimeout;
+    
+    $(document).on('input', '.update-quantity', function() {
+        var input = $(this);
+        var productId = input.data('id');
+        var quantity = parseInt(input.val()) || 1;
+        
+        if (quantity < 1) {
+            quantity = 1;
+            input.val(1);
+        }
+        
+        clearTimeout(updateTimeout);
+        
+        updateTimeout = setTimeout(function() {
+            updateCartQuantity(productId, quantity, input);
+        }, 500);
+    });
+    
+    // Also handle change event (for up/down arrows)
+    $(document).on('change', '.update-quantity', function() {
+        var input = $(this);
+        var productId = input.data('id');
+        var quantity = parseInt(input.val()) || 1;
+        
+        if (quantity < 1) {
+            quantity = 1;
+            input.val(1);
+        }
+        
+        clearTimeout(updateTimeout);
+        updateCartQuantity(productId, quantity, input);
+    });
+    
+    function updateCartQuantity(productId, quantity, input) {
+        // Disable input temporarily
+        input.prop('disabled', true);
+        
+        $.ajax({
+            url: '/cart/update/' + productId,
+            type: 'POST',
+            data: {
+                quantity: quantity,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Update item total for this row
+                    var row = input.closest('tr');
+                    row.find('.item-total').text('₹' + response.itemTotal.toLocaleString());
+                    $('#grand-total').text('₹' + response.grandTotal.toLocaleString());
+                    $('#cart-count').text(response.count);
+                    
+                    row.find('.item-total').addClass('text-success fw-bold');
+                    setTimeout(function() {
+                        row.find('.item-total').removeClass('text-success fw-bold');
+                    }, 800);
+                    
+                    console.log('Cart quantity updated');
+                }
+                input.prop('disabled', false);
+            },
+            error: function(xhr) {
+                alert(xhr.responseJSON?.message || 'Failed to update cart');
+                input.prop('disabled', false);
+            }
+        });
+    }

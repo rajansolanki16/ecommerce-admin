@@ -89,7 +89,8 @@
                     <!-- Cart -->
                     <a href="{{ route('cart.index') }}" class="icon-btn">
                         <i class="bi bi-cart3"></i>
-                        <span class="count cart-count">0</span>
+                        <!-- <span class="count cart-count" id="cart-count"> {{ array_sum(array_column(session('cart', []), 'quantity')) }}</span> -->
+                         <span class="count" id="cart-count">{{ array_sum(array_column(session('cart', []), 'quantity')) }}</span>
                     </a>
 
                     <!-- Account -->

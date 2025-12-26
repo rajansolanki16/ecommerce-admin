@@ -18,11 +18,11 @@
     <section>
         <h2 class="mb-6">My Wishlist</h2>
         @if(!$wishlists->isEmpty())
-        <div class="text-end mb-3">
+        <!-- <div class="text-end mb-3">
             <a href="{{ route('cart.index') }}" class="btn btn-secondary">
                 🛒 Cart ({{ count(session('cart', [])) }})
             </a>
-        </div>
+        </div> -->
         @endif
 
         @if($wishlists->isEmpty())
@@ -73,20 +73,22 @@
                         @endif
                     </td>
                     <td>
-                        <form method="POST" action="{{ route('cart.add') }}">
+                        <!-- <form method="POST" action="{{ route('cart.add') }}">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $item->product->id }}">
-                            <button class="btn btn-sm btn-primary">
+                            <button class="btn btn-sm btn-primary"   data-product-id="{{ $item->product->id}}" type="button">
                                 Add to Cart
                             </button>
-                        </form>
+                        </form> -->
+                        <button type="button" class="btn btn-sm btn-success add-to-cart" data-id="{{ $item->product->id  }}">
+                            Add to Cart
+                        </button>
 
                         {{-- OUT OF STOCK MESSAGE (only for this product) --}}
-                        @if(session('error') && session('error_product_id') == $item->product->id)
-                        <div class="text-danger mt-1" style="font-size:13px;">
-                            {{ session('error') }}
+                        <div class="text-danger mt-1 cart-error"
+                            id="cart-error-{{ $item->product->id }}"
+                            style="font-size:13px; display:none;">
                         </div>
-                        @endif
                     </td>
                 </tr>
                 @endforeach

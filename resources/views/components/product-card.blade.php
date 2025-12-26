@@ -53,15 +53,18 @@
                 </a>
 
                 <!-- Add to Cart Button -->
-                <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-success">
-                        Add to Cart
-                    </button>
-                </form>
+
+                <button type="button" class="btn btn-sm btn-success add-to-cart" data-id="{{ $product->id }}">
+                    Add to Cart
+                </button>
+
 
             </div>
 
+        </div>
+        <div class="text-danger  mt-1 cart-error"
+            id="cart-error-{{ $product->id }}"
+            style="font-size:13px; display:none;">
         </div>
     </div>
 </div>

@@ -14,43 +14,43 @@
             </div>
 
             @if(empty($cart))
-                <div class="col-12">
-                    <div class="alert alert-info">Your cart is empty.</div>
-                </div>
+            <div class="col-12">
+                <div class="alert alert-info">Your cart is empty.</div>
+            </div>
             @else
-                <div class="col-12 col-lg-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Qty</th>
-                                            <th>Total</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php $grandTotal = 0; @endphp
+            <div class="col-12 col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $grandTotal = 0; @endphp
 
-                                        @foreach($cart as $item)
-                                        @php
-                                        $total = $item['price'] * $item['quantity'];
-                                        $grandTotal += $total;
-                                        @endphp
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <img src="{{ asset('storage/'.$item['image']) }}" width="60" style="object-fit:cover">
-                                                    <div>
-                                                        <div class="fw-semibold">{{ $item['name'] }}</div>
-                                                    </div>
+                                    @foreach($cart as $item)
+                                    @php
+                                    $total = $item['price'] * $item['quantity'];
+                                    $grandTotal += $total;
+                                    @endphp
+                                    <tr id="cart-row-{{ $item['id'] }}">
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img src="{{ asset('storage/'.$item['image']) }}" width="60" style="object-fit:cover">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $item['name'] }}</div>
                                                 </div>
-                                            </td>
-                                            <td>₹{{ $item['price'] }}</td>
-                                            <td style="width:110px">
+                                            </div>
+                                        </td>
+                                        <td>₹{{ $item['price'] }}</td>
+                                        <!-- <td style="width:110px">
                                                 <form action="{{ route('cart.update', $item['id']) }}" method="POST" class="d-flex align-items-center gap-2">
                                                     @csrf
                                                     <input
@@ -62,40 +62,52 @@
                                                         style="width:70px"
                                                         onchange="this.form.submit()">
                                                 </form>
-                                            </td>
+                                            </td> -->
+                                        <td style="width:110px">
+                                            <input
+                                                type="number"
+                                                name="quantity"
+                                                value="{{ $item['quantity'] }}"
+                                                min="1"
+                                                class="form-control form-control-sm update-quantity"
+                                                data-id="{{ $item['id'] }}"
+                                                data-price="{{ $item['price'] }}"
+                                                style="width:70px">
+                                        </td>
 
-                                            <td>₹{{ $total }}</td>
-                                            <td>
-                                                <form action="{{ route('cart.remove', $item['id']) }}" method="POST">
-                                                    @csrf
-                                                    <button class="btn btn-sm btn-danger">Remove</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                        <td class="item-total">₹{{ $total }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger remove-from-cart"
+                                                data-id="{{ $item['id'] }}"
+                                                data-row="cart-row-{{ $item['id'] }}">
+                                                Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-12 col-lg-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Order Summary</h5>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <span>Grand Total</span>
-                                <strong>₹{{ $grandTotal }}</strong>
-                            </div>
-                            <div class="mt-3 d-grid">
-                                <a href="{{ route('cart.index') ?? '#' }}" class="btn btn-primary">Proceed to Checkout</a>
-                                <a href="{{ route('wishlist.index') }}" class="btn btn-outline-secondary mt-2">← Back to Wishlist</a>
-                            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Summary</h5>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span>Grand Total</span>
+                            <strong id="grand-total">₹{{ $grandTotal }}</strong>
+                        </div>
+                        <div class="mt-3 d-grid">
+                            <a href="{{ route('cart.index') ?? '#' }}" class="btn btn-primary">Proceed to Checkout</a>
+                            <a href="{{ route('wishlist.index') }}" class="btn btn-outline-secondary mt-2">← Back to Wishlist</a>
                         </div>
                     </div>
                 </div>
+            </div>
             @endif
         </div>
     </section>
