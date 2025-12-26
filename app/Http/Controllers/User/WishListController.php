@@ -26,23 +26,30 @@ class WishListController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $wishlist = WishList::where('user_id', Auth::id())
+        $userId = Auth::id();
+      
+        $wishlist = Wishlist::where('user_id', $userId)
             ->where('product_id', $request->product_id)
             ->first();
 
         if ($wishlist) {
-            // remove from wishlist
             $wishlist->delete();
-            return response()->json(['status' => 'removed']);
+            $status = 'removed';
+        } else {
+            Wishlist::create([
+                'user_id' => $userId,
+                'product_id' => $request->product_id,
+            ]);
+            $status = 'added';
         }
 
-        // add to wishlist
-        Wishlist::create([
-            'user_id' => Auth::id(),
-            'product_id' => $request->product_id,
-        ]);
+        //  IMPORTANT: updated wishlist count
+        Wishlist::where('user_id', $userId)->count();
 
-        return response()->json(['status' => 'added']);
+        return response()->json([
+            'status' => $status,
+            'count'  => Wishlist::where('user_id', Auth::id())->count()
+        ]);
     }
     public function showadmin()
     {
@@ -54,16 +61,17 @@ class WishListController extends Controller
     }
     public function deleteById($id)
     {
-         $wishlist = Wishlist::where('id', $id)
-        ->where('user_id',  auth()->id())
-        ->first();
+        $wishlist = Wishlist::where('id', $id)
+            ->where('user_id',  auth()->id())
+            ->first();
 
         if (!$wishlist) {
             return response()->json(['status' => 'error'], 404);
         }
 
         $wishlist->delete();
+        $count = Wishlist::where('user_id', auth()->id())->count();
 
-        return response()->json(['status' => 'success']);
+        return response()->json(['status' => 'success','count'=>$count]);
     }
 }

@@ -11,19 +11,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="{{ $meta['description'] }}">
     <meta property="og:description" content="{{ $meta['description'] }}">
-    
+
     <link rel="shortcut icon" href="{{ publicPath(getSetting("site_icon")) }}">
     <meta property="og:image" content="{{ publicPath(getSetting("site_icon")) }}">
     <meta name="twitter:image" content="{{ publicPath(getSetting("site_icon")) }}">
     <meta name="twitter:card" content="{{ publicPath(getSetting("site_icon")) }}">
-    
+
     @if(isset($meta['sco-allow']) && $meta['sco-allow'] == false)
-        <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     @else
-        <link rel="canonical" href="{{ url()->current() }}">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:type" content="website">
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     @endif
 
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -45,94 +45,102 @@
 </head>
 
 <body>
-<header class="ecom-header sticky-top bg-white shadow-sm">
-    <div class="container">
+    <header class="ecom-header sticky-top bg-white shadow-sm">
+        <div class="container">
 
-        <!-- TOP BAR -->
-        <div class="d-flex align-items-center justify-content-between py-3">
+            <!-- TOP BAR -->
+            <div class="d-flex align-items-center justify-content-between py-3">
 
-            <!-- LOGO -->
-            <a href="/" class="ecom-logo text-decoration-none">
-                <img src="{{ publicPath(getSetting('site_logo')) }}"
-                     alt="Logo"
-                     height="40">
-            </a>
+                <!-- LOGO -->
+                <a href="/" class="ecom-logo text-decoration-none">
+                    <img src="{{ publicPath(getSetting('site_logo')) }}"
+                        alt="Logo"
+                        height="40">
+                </a>
 
-            <!-- SEARCH -->
-            <form action="#"
-                  method="GET"
-                  class="ecom-search d-none d-lg-flex">
-                <input type="text"
-                       name="q"
-                       class="form-control"
-                       placeholder="Search for products...">
-                <button class="btn btn-dark">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
+                <!-- SEARCH -->
+                <form action="#"
+                    method="GET"
+                    class="ecom-search d-none d-lg-flex">
+                    <input type="text"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search for products...">
+                    <button class="btn btn-dark">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
 
-            <!-- ACTIONS -->
-            <div class="ecom-actions d-flex align-items-center gap-3">
+                <!-- ACTIONS -->
+                <div class="ecom-actions d-flex align-items-center gap-3">
 
-                <!-- Wishlist -->
-                <a href="{{ route('wishlist.index') }}" class="icon-btn">
+                    <!-- Wishlist -->
+                    <!-- <a href="{{ route('wishlist.index') }}" class="icon-btn">
                     <i class="bi bi-heart"></i>
                     <span class="count">{{ auth()->check() ? auth()->user()->wishlist_count ?? 0 : 0 }}</span>
-                </a>
+                </a> -->
+                    <a  href="{{ route('wishlist.index') }}" class="icon-btn">
+                        <i class="bi bi-heart"></i>
+                        <span class="count" id="wishlist-count">
+                            {{auth()->check() ? auth()->user()->wishlists()->count() : 0  }}
+                        </span>
+                    </a>
 
-                <!-- Cart -->
-                <a href="{{ route('cart.index') }}" class="icon-btn">
-                    <i class="bi bi-cart3"></i>
-                    <span class="count cart-count">0</span>
-                </a>
+                    <!-- Cart -->
+                    <a href="{{ route('cart.index') }}" class="icon-btn">
+                        <i class="bi bi-cart3"></i>
+                        <span class="count cart-count">0</span>
+                    </a>
 
-                <!-- Account -->
-                @auth
+                    <!-- Account -->
+                    @auth
                     <div class="dropdown">
                         <a class="icon-btn dropdown-toggle"
-                           data-bs-toggle="dropdown">
+                            data-bs-toggle="dropdown">
                             <i class="bi bi-person"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">My Account</a></li>
                             <li><a class="dropdown-item" href="#">My Orders</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <a class="dropdown-item text-danger"
-                                   href="{{ route('auth.logout') }}">
+                                    href="{{ route('auth.logout') }}">
                                     Logout
                                 </a>
                             </li>
                         </ul>
                     </div>
-                @else
+                    @else
                     <a href="{{ route('login') }}" class="btn btn-outline-dark btn-sm">
                         Login
                     </a>
-                @endauth
+                    @endauth
+                </div>
             </div>
-        </div>
 
-        <!-- CATEGORY NAV -->
-        @php
+            <!-- CATEGORY NAV -->
+            @php
             $categories = \App\Models\Category::orderBy('name')->get();
-        @endphp
-        <nav class="ecom-nav border-top">
-            <ul class="nav gap-3 py-2">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('user.home') }}">All Products</a>
-                </li>
+            @endphp
+            <nav class="ecom-nav border-top">
+                <ul class="nav gap-3 py-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('user.home') }}">All Products</a>
+                    </li>
 
-                @foreach($categories ?? [] as $category)
+                    @foreach($categories ?? [] as $category)
                     <li class="nav-item">
                         <a class="nav-link"
-                           href="#">
+                            href="#">
                             {{ $category->name }}
                         </a>
                     </li>
-                @endforeach
-            </ul>
-        </nav>
+                    @endforeach
+                </ul>
+            </nav>
 
-    </div>
-</header>
+        </div>
+    </header>

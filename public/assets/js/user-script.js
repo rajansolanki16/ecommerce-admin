@@ -41,22 +41,24 @@ $(document).on('click', '.wishlist-btn', function (e) {
             product_id: productId,
             _token: $('meta[name="csrf-token"]').attr('content')
         },
-        success: function (response) {
+        success: function (res) {
+            console.log('Wishlist response:', res);
 
-            if (response.status === 'added') {
+            //  Icon toggle
+            if (res.status === 'added') {
                 $btn.addClass('added');
-                $icon
-                    .removeClass('bi-heart')
-                    .addClass('bi-heart-fill text-danger');
-            }
-
-            if (response.status === 'removed') {
+                $icon.removeClass('bi-heart')
+                     .addClass('bi-heart-fill text-danger');
+            } else {
                 $btn.removeClass('added');
-                $icon
-                    .removeClass('bi-heart-fill text-danger')
-                    .addClass('bi-heart');
+                $icon.removeClass('bi-heart-fill text-danger')
+                     .addClass('bi-heart');
             }
 
+            //  Header wishlist count update
+            if ($('#wishlist-count').length) {
+                $('#wishlist-count').text(res.count);
+            }
         },
         error: function () {
             alert('Something went wrong!');
@@ -65,29 +67,37 @@ $(document).on('click', '.wishlist-btn', function (e) {
 });
 
 
+
 //delete wishlist product
-$(document).on('click', '.vec_wishlist_remove', function () {
+$(document).on('click', '.vec_wishlist_remove', function (e) {
+    e.preventDefault();
 
     let wishlistId = $(this).data('id');
     let row = $(this).closest('tr');
 
     $.ajax({
-        url: '/wishlist/delete/' + wishlistId,   // ID based API
+        url: '/wishlist/delete/' + wishlistId,
         type: 'DELETE',
         data: {
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function (res) {
+
             if (res.status === 'success') {
+
+                //  remove row
                 row.fadeOut(300, function () {
                     $(this).remove();
                 });
+
+                //  update header count
+                if ($('#wishlist-count').length) {
+                    $('#wishlist-count').text(res.count);
+                }
             }
         },
-        error: function (xhr) {
-            console.error(xhr.responseText);
-            alert('Something went wrong');
+        error: function () {
+            alert('Something went wrong!');
         }
     });
 });
-
