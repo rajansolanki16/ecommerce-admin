@@ -46,17 +46,26 @@
                     ₹{{ number_format($product->price) }}
                 </strong>
 
+                <!-- View Button -->
                 <a href="#"
                     class="btn btn-sm btn-dark">
                     View
                 </a>
+
+                <!-- Add to Cart Button -->
+                <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-success">
+                        Add to Cart
+                    </button>
+                </form>
+
             </div>
 
         </div>
     </div>
 </div>
 @endforeach
-
 
 <div class="col-12">
     <div class="d-flex justify-content-center mt-4">

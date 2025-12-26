@@ -1,5 +1,7 @@
 <x-admin.header :title="'Product'" />
+<style>
 
+</style>
     <div class="container-fluid">
         <form id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -501,355 +503,183 @@
         </form>
     </div>
     <script>
-        window.attributesData = {!! $attributesJson !!};
-        window.errors = {!! json_encode($errors->getMessages() ?? []) !!};
+    window.attributesData = {!! $attributesJson !!};
 
-        $(document).ready(function(){
-            const $attrSelect = $('#variantAttributesSelect');
-            const $containers = $('#attributeValuesContainers');
-            const $generateBtn = $('#generateVariants');
-            const $variantsList = $('#variantsList');
+    $(document).ready(function () {
 
-            function createValuesMultiSelect(attribute) {
-                const $wrapper = $('<div>').addClass('mb-3');
-                const $label = $('<label>').addClass('form-label fw-semibold').text(attribute.name + ' values');
-                $wrapper.append($label);
+        const $attrSelect    = $('#variantAttributesSelect');
+        const $containers    = $('#attributeValuesContainers');
+        const $generateBtn   = $('#generateVariants');
+        const $variantsList  = $('#variantsList');
 
-                const $select = $('<select>')
-                    .addClass('form-control')
-                    .attr('multiple', true)
-                    .data('attributeId', attribute.id);
+        /* --------------------------------------------
+         * Create multi-select for attribute values
+         * -------------------------------------------- */
+        function createValuesMultiSelect(attribute) {
+            const $wrapper = $('<div class="mb-3">');
 
-                attribute.values.forEach(v => {
-                    $('<option>').val(v.id).text(v.value).appendTo($select);
-                });
+            $('<label class="form-label fw-semibold">')
+                .text(attribute.name + ' values')
+                .appendTo($wrapper);
 
-                $wrapper.append($select);
+            const $select = $('<select class="form-control" multiple>')
+                .attr('data-attribute-id', attribute.id);
 
-                if (window.Choices) {
-                    setTimeout(() => {
-                        try {
-                            new Choices($select[0], {
-                                searchEnabled: true,
-                                removeItemButton: true,
-                                shouldSort: false,
-                                placeholderValue: 'Select values',
-                                itemSelectText: ''
-                            });
-                        } catch (e) { }
-                    }, 30);
-                }
-                return $wrapper;
-            }
-
-            function onAttributesChange() {
-                $containers.empty();
-                const selected = $attrSelect.val() || [];
-                selected.forEach(id => {
-                    const attribute = window.attributesData.find(a => String(a.id) === String(id));
-                    if (attribute) {
-                        $containers.append(createValuesMultiSelect(attribute));
-                    }
-                });
-            }
-
-            function cartesian(arrays) {
-                return arrays.reduce((a, b) => a.flatMap(d => b.map(e => d.concat([e]))), [[]]);
-            }
-
-            function getFieldError(idx, fieldName) {
-                const errorKey = `variants.${idx}.${fieldName}`;
-                return window.errors[errorKey] ? window.errors[errorKey][0] : null;
-            }
-
-            function renderFieldGroup(label, fieldClass, fieldName, inputType = 'text', colClass = 'col-md-6') {
-                let html = `<div class="${colClass} mb-3"><label class="form-label">${label}</label>`;
-                if (inputType === 'textarea') {
-                    html += `<textarea class="form-control ${fieldClass}" rows="3" data-field="${fieldName}"></textarea>`;
-                } else {
-                    const step = inputType === 'number' ? '0.01' : 'any';
-                    const accept = inputType === 'file' ? 'accept="image/*"' : '';
-                    html += `<input type="${inputType}" step="${step}" class="form-control ${fieldClass}" value="" data-field="${fieldName}" ${accept}>`;
-                }
-                html += '<div class="invalid-feedback d-block" style="display: none;"></div></div>';
-                return html;
-            }
-
-            function renderTable() {
-                $variantsList.empty();
-
-                window.variantsStore.forEach((variant, idx) => {
-                    const $card = $('<div>').addClass('card mb-3 border-start border-start-3 border-primary');
-
-                    const $header = $('<div>')
-                        .addClass('card-header bg-light d-flex justify-content-between align-items-center')
-                        .css('cursor', 'pointer')
-                        .html(`
-                            <div>
-                                <h6 class="mb-0"><strong>${variant.name}</strong></h6>
-                                <small class="text-muted">SKU: ${variant.sku || '-'} | Price: $${variant.price || '-'} | Stock: ${variant.stock || 0}</small>
-                            </div>
-                            <div><i class="ph-caret-down" style="transition: transform 0.3s;"></i></div>
-                        `);
-
-                    const $body = $('<div>').addClass('card-body').hide();
-
-                    // Basic Info
-                    const basicHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Basic Info</h6>
-                            <div class="row">
-                                ${renderFieldGroup('SKU', 'variant-sku', 'sku', 'text', 'col-md-6')}
-                                ${renderFieldGroup('Price', 'variant-price', 'price', 'number', 'col-md-6')}
-                            </div>
-                            <div class="row">
-                                ${renderFieldGroup('Stock', 'variant-stock', 'stock', 'number', 'col-md-6')}
-                                ${renderFieldGroup('Sell Price', 'variant-sell-price', 'sell_price', 'number', 'col-md-6')}
-                            </div>
-                        </div>
-                    `;
-
-                    // Shipping Info
-                    const shippingHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Shipping Info</h6>
-                            <div class="row">
-                                ${renderFieldGroup('Shipping Cost', 'variant-shipping', 'shipping', 'text', 'col-md-6')}
-                                ${renderFieldGroup('Shipping Address', 'variant-shipping-addr', 'shipping_address', 'text', 'col-md-6')}
-                            </div>
-                            <div class="row">
-                                ${renderFieldGroup('Weight', 'variant-weight', 'weight', 'number', 'col-md-4')}
-                                ${renderFieldGroup('Length', 'variant-length', 'length', 'number', 'col-md-4')}
-                                ${renderFieldGroup('Width', 'variant-width', 'width', 'number', 'col-md-4')}
-                            </div>
-                            <div class="row">
-                                ${renderFieldGroup('Height', 'variant-height', 'height', 'number', 'col-md-6')}
-                            </div>
-                        </div>
-                    `;
-
-                    // General Info
-                    const generalHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">General Info</h6>
-                            ${renderFieldGroup('', 'variant-general-info', 'general_info', 'textarea', 'col-12')}
-                        </div>
-                    `;
-
-                    // Image
-                    const imageHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Image</h6>
-                            ${renderFieldGroup('', 'variant-image', 'image', 'file', 'col-12')}
-                        </div>
-                    `;
-
-                    // Flags
-                    const flagsHtml = `
-                        <div class="mb-3">
-                            <h6 class="mb-3 fw-semibold">Options</h6>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-exchangeable" ${variant.exchangeable ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Exchangeable</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-refundable" ${variant.refundable ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Refundable</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-free-shipping" ${variant.free_shipping ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Free Shipping</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    $body.html(basicHtml + shippingHtml + generalHtml + imageHtml + flagsHtml);
-
-                    const $footer = $('<div>')
-                        .addClass('card-footer bg-light')
-                        .html(`<button type="button" class="btn btn-sm btn-danger delete-variant-btn" data-idx="${idx}"><i class="ph-trash me-1"></i>Delete Variant</button>`);
-
-                    $card.append($header, $body, $footer);
-                    $variantsList.append($card);
-
-                    // Populate field values and display errors
-                    const fieldMap = {
-                        'variant-sku': 'sku',
-                        'variant-price': 'price',
-                        'variant-stock': 'stock',
-                        'variant-sell-price': 'sell_price',
-                        'variant-shipping': 'shipping',
-                        'variant-shipping-addr': 'shipping_address',
-                        'variant-weight': 'weight',
-                        'variant-length': 'length',
-                        'variant-width': 'width',
-                        'variant-height': 'height',
-                        'variant-general-info': 'general_info'
-                    };
-
-                    Object.entries(fieldMap).forEach(([className, fieldName]) => {
-                        const $input = $body.find(`.${className}`);
-                        if ($input.length) {
-                            $input.val(variant[fieldName] || '').data('idx', idx).on('change', updateVariant);
-
-                            const error = getFieldError(idx, fieldName);
-                            if (error) {
-                                $input.addClass('is-invalid');
-                                $input.closest('div').find('.invalid-feedback').text(error).show();
-                            }
-                        }
-                    });
-
-                    // File input
-                    const $imageInput = $body.find('.variant-image');
-                    if ($imageInput.length) {
-                        $imageInput.data('idx', idx).on('change', updateVariant);
-                        const imageError = getFieldError(idx, 'image');
-                        if (imageError) {
-                            $imageInput.addClass('is-invalid');
-                            $imageInput.closest('div').find('.invalid-feedback').text(imageError).show();
-                        }
-                    }
-
-                    // Toggle expand/collapse
-                    $header.on('click', function() {
-                        const isVisible = $body.is(':visible');
-                        $body.toggle();
-                        $(this).find('i').css('transform', isVisible ? 'rotate(0deg)' : 'rotate(180deg)');
-                    });
-                });
-
-                // Attach event listeners
-                $variantsList.on('change', '.variant-exchangeable, .variant-refundable, .variant-free-shipping', updateVariantCheckbox);
-                $variantsList.on('click', '.delete-variant-btn', deleteVariant);
-            }
-
-            function updateVariant(e) {
-                const idx = $(this).data('idx');
-                const variant = window.variantsStore[idx];
-                const $this = $(this);
-
-                if ($this.hasClass('variant-sku')) variant.sku = $this.val();
-                else if ($this.hasClass('variant-price')) variant.price = $this.val();
-                else if ($this.hasClass('variant-stock')) variant.stock = $this.val();
-                else if ($this.hasClass('variant-sell-price')) variant.sell_price = $this.val();
-                else if ($this.hasClass('variant-shipping')) variant.shipping = $this.val();
-                else if ($this.hasClass('variant-shipping-addr')) variant.shipping_address = $this.val();
-                else if ($this.hasClass('variant-weight')) variant.weight = $this.val();
-                else if ($this.hasClass('variant-length')) variant.length = $this.val();
-                else if ($this.hasClass('variant-width')) variant.width = $this.val();
-                else if ($this.hasClass('variant-height')) variant.height = $this.val();
-                else if ($this.hasClass('variant-general-info')) variant.general_info = $this.val();
-                else if ($this.hasClass('variant-image')) variant.image = $this[0].files[0] || null;
-
-                // Clear error styling
-                $this.removeClass('is-invalid').closest('div').find('.invalid-feedback').hide();
-            }
-
-            function updateVariantCheckbox(e) {
-                const idx = $(this).data('idx');
-                const variant = window.variantsStore[idx];
-                const $this = $(this);
-
-                if ($this.hasClass('variant-exchangeable')) variant.exchangeable = $this.is(':checked') ? 1 : 0;
-                else if ($this.hasClass('variant-refundable')) variant.refundable = $this.is(':checked') ? 1 : 0;
-                else if ($this.hasClass('variant-free-shipping')) variant.free_shipping = $this.is(':checked') ? 1 : 0;
-            }
-
-            function deleteVariant(e) {
-                const idx = $(this).data('idx');
-                if (confirm('Delete this variant?')) {
-                    window.variantsStore.splice(idx, 1);
-                    renderTable();
-                }
-            }
-
-            function generateTable() {
-                window.variantsStore = [];
-
-                const $selects = $containers.find('select');
-                if (!$selects.length) return alert('Select attributes and values first');
-
-                const valueLists = $selects.toArray().map(s => {
-                    return Array.from($(s).find('option:selected')).map(o => ({
-                        id: o.value,
-                        text: o.textContent
-                    }));
-                });
-
-                if (valueLists.some(l => l.length === 0)) return alert('Choose at least one value for each selected attribute');
-
-                const combos = cartesian(valueLists);
-
-                combos.forEach((combo, idx) => {
-                    window.variantsStore.push({
-                        name: combo.map(c => c.text).join(' / '),
-                        values: combo.map(c => c.id),
-                        sku: '',
-                        price: '',
-                        stock: 0,
-                        sell_price: '',
-                        shipping: '',
-                        shipping_address: '',
-                        general_info: '',
-                        weight: '',
-                        length: '',
-                        width: '',
-                        height: '',
-                        exchangeable: 0,
-                        refundable: 0,
-                        free_shipping: 0,
-                        image: null
-                    });
-                });
-
-                renderTable();
-            }
-
-            $attrSelect.on('change', onAttributesChange);
-            $generateBtn.on('click', generateTable);
-
-            // On form submit, inject hidden inputs for variants
-            $('#productForm').on('submit', function(e) {
-                const $variantsContainer = $('<div>').hide();
-
-                window.variantsStore.forEach((variant, idx) => {
-                    Object.keys(variant).forEach(key => {
-                        if (key === 'name' || key === 'image') return;
-
-                        if (key === 'values') {
-                            variant.values.forEach(val => {
-                                $('<input>')
-                                    .attr({
-                                        type: 'hidden',
-                                        name: `variants[${idx}][values][]`,
-                                        value: val
-                                    })
-                                    .appendTo($variantsContainer);
-                            });
-                        } else {
-                            $('<input>')
-                                .attr({
-                                    type: 'hidden',
-                                    name: `variants[${idx}][${key}]`,
-                                    value: variant[key]
-                                })
-                                .appendTo($variantsContainer);
-                        }
-                    });
-                });
-
-                $(this).append($variantsContainer);
+            attribute.values.forEach(v => {
+                $('<option>', {
+                    value: v.id,
+                    text: v.value
+                }).appendTo($select);
             });
+
+            $wrapper.append($select);
+
+            // Choices.js (safe)
+            if (window.Choices) {
+                setTimeout(() => {
+                    try {
+                        new Choices($select[0], {
+                            searchEnabled: true,
+                            removeItemButton: true,
+                            shouldSort: false,
+                            placeholderValue: 'Select values',
+                            itemSelectText: ''
+                        });
+                    } catch (e) {}
+                }, 30);
+            }
+
+            return $wrapper;
+        }
+
+        /* --------------------------------------------
+         * When attributes change
+         * -------------------------------------------- */
+        function onAttributesChange() {
+            $containers.empty();
+
+            const selected = $attrSelect.val() || [];
+
+            selected.forEach(attrId => {
+                const attribute = window.attributesData.find(
+                    a => String(a.id) === String(attrId)
+                );
+
+                if (attribute) {
+                    $containers.append(createValuesMultiSelect(attribute));
+                }
+            });
+        }
+
+        /* --------------------------------------------
+         * Generate variants (AJAX)
+         * -------------------------------------------- */
+        function generateVariants() {
+            const attributes = [];
+            let hasError = false;
+
+            $containers.find('select').each(function () {
+                const $select = $(this);
+                const attributeId = $select.data('attribute-id');
+                const selectedValues = $select.val();
+
+                if (!selectedValues || !selectedValues.length) {
+                    alert('Select at least one value for each attribute');
+                    hasError = true;
+                    return false;
+                }
+
+                const valuesMap = {};
+                $select.find('option').each(function () {
+                    valuesMap[this.value] = this.text;
+                });
+
+                attributes.push({
+                    attribute_id: attributeId,
+                    values: selectedValues,
+                    values_map: valuesMap
+                });
+            });
+
+            if (hasError || !attributes.length) return;
+
+            $.ajax({
+                url: "{{ route('products.generate.variants') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    attributes: attributes
+                },
+                success: function (res) {
+                   $('#variantsList').html(res.html);
+                    $('#vec_variantSection').show();
+
+                },
+                error: function () {
+                    alert('Failed to generate variants');
+                }
+            });
+        }
+
+        /* --------------------------------------------
+         * Events
+         * -------------------------------------------- */
+        $attrSelect.on('change', onAttributesChange);
+        $generateBtn.on('click', generateVariants);
+        
+        
+        /* --------------------------------------------
+         * Variant UI handlers (create page only)
+         * -------------------------------------------- */
+        // Generate SKU
+        $(document).on('click', '.generate-sku', function() {
+            const $card = $(this).closest('.variant-card');
+            const $sku = $card.find('.variant-sku');
+            const base = $('input[name="title"]').val() || 'PRD';
+            const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+            const sku = base.replace(/\s+/g, '-').toUpperCase().substring(0,6) + '-' + rand;
+            $sku.val(sku);
+            $card.find('.meta-sku').text(sku);
         });
+
+        // Remove variant card
+        $(document).on('click', '.btn-remove-variant', function() {
+            if (!confirm('Remove this variant?')) return;
+            $(this).closest('.variant-card').remove();
+        });
+
+        // Image preview per variant
+        $(document).on('change', '.variant-image-input', function(e) {
+            const $input = $(this);
+            const $card = $input.closest('.variant-card');
+            const $preview = $card.find('.variant-image-preview');
+            const file = this.files && this.files[0];
+            if (!file) { $preview.hide(); return; }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                $preview.attr('src', ev.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Live update header meta
+        $(document).on('input change', '.variant-price, .variant-stock, .variant-sku', function() {
+            const $card = $(this).closest('.variant-card');
+            const price = $card.find('.variant-price').val() || '—';
+            const stock = $card.find('.variant-stock').val() || '0';
+            const sku = $card.find('.variant-sku').val() || '—';
+            $card.find('.meta-price').text(price);
+            $card.find('.meta-stock').text(stock);
+            $card.find('.meta-sku').text(sku);
+        });
+    });
+
+
+    $(document).on('click', '.variant-card .card-header', function () {
+        const $card = $(this).closest('.variant-card');
+        $card.toggleClass('open');
+        $card.find('.card-body').slideToggle();
+    });
     </script>
     <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
 <x-admin.footer />

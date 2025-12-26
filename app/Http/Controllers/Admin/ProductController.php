@@ -612,4 +612,47 @@ class ProductController extends Controller
         $product->delete(); 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
+
+    public function generateVariants(Request $request)
+    {
+        $attributes = $request->input('attributes'); 
+        // example:
+        // [
+        //   { attribute_id: 1, values: [2,3] },
+        //   { attribute_id: 2, values: [5] }
+        // ]
+
+        if (empty($attributes)) {
+            return response()->json(['html' => '']);
+        }
+
+        $lists = [];
+
+        foreach ($attributes as $attr) {
+            $lists[] = collect($attr['values'])->map(function ($valId) use ($attr) {
+                return [
+                    'attribute_id' => $attr['attribute_id'],
+                    'value_id'     => $valId,
+                    'value_name'   => $attr['values_map'][$valId] ?? ''
+                ];
+            })->toArray();
+        }
+
+        // Cartesian product
+        $variants = collect($lists)->reduce(function ($carry, $item) {
+            if (empty($carry)) return array_map(fn($i) => [$i], $item);
+
+            $result = [];
+            foreach ($carry as $c) {
+                foreach ($item as $i) {
+                    $result[] = array_merge($c, [$i]);
+                }
+            }
+            return $result;
+        }, []);
+
+        return response()->json([
+            'html' => view('admin.products.partials.variants-html', compact('variants'))->render()
+        ]);
+    }
 }
