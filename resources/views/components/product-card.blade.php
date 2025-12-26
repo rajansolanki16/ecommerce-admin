@@ -1,55 +1,55 @@
 @foreach($products as $product)
-<div class="col-lg-3 col-md-4 col-sm-6">
-    <div class="card h-100 border-0 shadow-sm product-card">
+<div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+    <div class="product-card h-100">
 
-        <!-- Product Image -->
-        <div class="position-relative">
-            <img
-                src="{{ $product->product_image
-                        ? asset('storage/'.$product->product_image)
-                        : asset('assets/images/no-image.png') }}"
-                class="card-img-top"
-                alt="{{ $product->product_title }}"
-                style="height:220px;object-fit:cover;">
+        {{-- IMAGE --}}
+        <div class="product-image">
+            <a href="{{ route('product.user.show', $product->slug ?? '#') }}">
+                <img
+                    src="{{ $product->product_image
+                            ? asset('storage/'.$product->product_image)
+                            : asset('assets/images/no-image.png') }}"
+                    alt="{{ $product->product_title }}">
+            </a>
 
-            <!-- Wishlist -->
-            <a class="wishlist-btn position-absolute top-0 end-0 m-2
-                {{ $product->is_wishlisted ? 'added' : '' }}"
+            {{-- WISHLIST --}}
+            <button
+                type="button"
+                class="wishlist-btn {{ $product->is_wishlisted ? 'active' : '' }}"
                 data-product-id="{{ $product->id }}">
 
-                <i class="bi {{ $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"
-                    style="font-size:20px;"></i>
-            </a>
+                <i class="bi {{ $product->is_wishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+            </button>
         </div>
 
-        <!-- Product Body -->
-        <div class="card-body">
-
-            <!-- Category -->
-            <span class="badge bg-light text-dark mb-2 d-inline-block">
+        <div class="product-body">
+            <div class="product-category">
                 {{ optional($product->categories)->pluck('name')->join(', ') ?: 'Uncategorized' }}
-            </span>
+            </div>
 
-            <!-- Title -->
-            <h6 class="fw-semibold mb-1">
-                {{ $product->product_title }}
+            {{-- TITLE --}}
+            <h6 class="product-title">
+                <a href="{{ route('product.user.show', $product->slug ?? '#') }}">
+                    {{ $product->product_title }}
+                </a>
             </h6>
 
-            <!-- Description -->
-            <p class="text-muted small mb-2">
-                {{ Str::limit($product->short_description, 60) }}
+            {{-- DESCRIPTION --}}
+            <p class="product-desc">
+                {{ Str::limit($product->short_description, 70) }}
             </p>
 
-            <!-- Price + CTA -->
-            <div class="d-flex justify-content-between align-items-center">
-                <strong class="text-dark">
-                    ₹{{ number_format($product->price) }}
-                </strong>
+            {{-- PRICE --}}
+            <div class="product-price">
+                ₹{{ number_format($product->price) }}
+            </div>
 
-                <!-- View Button -->
-                <a href="#"
-                    class="btn btn-sm btn-dark">
-                    View
+            {{-- ACTIONS --}}
+            <div class="product-actions">
+
+                <a href="{{ route('product.user.show', $product->slug ?? '#') }}"
+                   class="btn btn-outline-dark btn-sm w-100 mb-2">
+                    View Details
                 </a>
 
                 <!-- Add to Cart Button -->
@@ -69,9 +69,3 @@
     </div>
 </div>
 @endforeach
-
-<div class="col-12">
-    <div class="d-flex justify-content-center mt-4">
-        {!! $products->links('pagination::bootstrap-5') !!}
-    </div>
-</div>

@@ -224,4 +224,8 @@
 
     </main>
 
+<script>
+    const guestMergeUrl = "{{ route('guest.merge') }}";
+</script>
+
 <x-footer />

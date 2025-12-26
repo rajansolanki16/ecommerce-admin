@@ -46,26 +46,25 @@ Route::post('/new-password', [AuthController::class, 'new_password'])->name('aut
 Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::post('/states', [AuthController::class, 'getStates'])->name("get.states");
 
-
-
 //User
-Route::get('/', [RedirectController::class, 'login'])->name('view.home');
+Route::get('/', [HomeController::class, 'list'])->name('view.home');
+Route::get('/home', [HomeController::class, 'list'])->name('user.home');
+Route::get('/product', [HomeController::class, 'list'])->name('user.product');
 
+Route::get('/product/{slug}', [ProductController::class, 'userShow'])->name('product.user.show');
+Route::post('/guest/merge', [AuthController::class, 'mergeGuestStorage'])->middleware('auth')->name('guest.merge');
+
+Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
+Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
+Route::delete('/wishlist/delete/{id}', [WishlistController::class, 'deleteById'])->name('wishlist.delete');
+
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'list'])->name('user.home');
-    Route::get('/product', [HomeController::class, 'list'])->name('user.product');
-    Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
-    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
-    Route::delete('/wishlist/delete/{id}', [WishlistController::class, 'deleteById'])
-        ->name('wishlist.delete');
-
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/update/{id}', [CartController::class, 'update'])
-->name('cart.update');
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
         Route::resource('/blogs', BlogController::class)->names('blogs');

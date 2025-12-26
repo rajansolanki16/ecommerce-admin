@@ -16,19 +16,26 @@ class HomeController extends Controller
     }
     public function list(Request $request)
     {
-        $products = Product::with('categories')
-            ->withCount([
-                'wishlists as is_wishlisted' => function ($q) {
-                    $q->where('user_id', Auth::id());
-                }
-            ])
-             ->paginate(12);
+        if (Auth::check()) {
+            $products = Product::with('categories')
+                ->withCount([
+                    'wishlists as is_wishlisted' => function ($q) {
+                        $q->where('user_id', Auth::id());
+                    }
+                ])
+                ->paginate(4);
+        } else {
+            $products = Product::with('categories')
+                ->paginate(4);
+        }
 
         if ($request->ajax()) {
-            return view('components.product-card', compact('products'))->render();
+            return response()->json([
+                'html' => view('components.product-card', compact('products'))->render(),
+                'pagination' => $products->links('pagination::bootstrap-4')->render(), // Pagination links only
+            ]);
         }
 
         return view('user.home', compact('products'));
-
     }
 }

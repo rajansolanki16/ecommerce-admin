@@ -237,7 +237,7 @@
                                     <div class="col-sm-auto">
                                      {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
                                     </div>
-                                    </div>
+                                </div>
 
                                 <!-- end pagination-element -->
                             </div>

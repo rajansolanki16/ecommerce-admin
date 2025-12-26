@@ -594,7 +594,6 @@ class ProductController extends Controller
             ->where('product_id', $product->id)
             ->firstOrFail();
 
-        // delete image if exists
         if ($variant->image && Storage::disk('public')->exists($variant->image)) {
             Storage::disk('public')->delete($variant->image);
         }
@@ -616,11 +615,6 @@ class ProductController extends Controller
     public function generateVariants(Request $request)
     {
         $attributes = $request->input('attributes'); 
-        // example:
-        // [
-        //   { attribute_id: 1, values: [2,3] },
-        //   { attribute_id: 2, values: [5] }
-        // ]
 
         if (empty($attributes)) {
             return response()->json(['html' => '']);
@@ -654,5 +648,21 @@ class ProductController extends Controller
         return response()->json([
             'html' => view('admin.products.partials.variants-html', compact('variants'))->render()
         ]);
+    }
+
+
+    public function userShow(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('status', 1)
+            ->where('visibility', 1)
+            ->with([
+                'categories',
+                'tags',
+                'variants.attributeValues.attribute'
+            ])
+            ->firstOrFail();
+
+        return view('user.product.show', compact('product'));
     }
 }

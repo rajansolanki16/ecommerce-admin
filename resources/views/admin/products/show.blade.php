@@ -128,7 +128,7 @@
                     </div>
 
                     <div class="mt-4 d-flex gap-2">
-                        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-primary">
+                        <a href="#">
                             <i class="ph-pencil"></i> Edit Product
                         </a>
                         <a href="{{ route('products.index') }}" class="btn btn-light">

@@ -1,7 +1,4 @@
 <x-admin.header :title="'Product'" />
-<style>
-
-</style>
     <div class="container-fluid">
         <form id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -504,7 +501,6 @@
     </div>
     <script>
     window.attributesData = {!! $attributesJson !!};
-
     $(document).ready(function () {
 
         const $attrSelect    = $('#variantAttributesSelect');
@@ -665,21 +661,21 @@
         // Live update header meta
         $(document).on('input change', '.variant-price, .variant-stock, .variant-sku', function() {
             const $card = $(this).closest('.variant-card');
-            const price = $card.find('.variant-price').val() || '—';
+            const price = $card.find('.variant-price').val() || '0';
             const stock = $card.find('.variant-stock').val() || '0';
-            const sku = $card.find('.variant-sku').val() || '—';
+            const sku = $card.find('.variant-sku').val() || '';
             $card.find('.meta-price').text(price);
             $card.find('.meta-stock').text(stock);
             $card.find('.meta-sku').text(sku);
         });
-    });
+   
+        $(document).on('click', '.variant-card .card-header', function () {
+            const $card = $(this).closest('.variant-card');
+            $card.toggleClass('open');
+            $card.find('.card-body').slideToggle();
+        });
 
-
-    $(document).on('click', '.variant-card .card-header', function () {
-        const $card = $(this).closest('.variant-card');
-        $card.toggleClass('open');
-        $card.find('.card-body').slideToggle();
-    });
+     });
     </script>
     <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
 <x-admin.footer />

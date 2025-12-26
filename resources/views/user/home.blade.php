@@ -5,19 +5,19 @@
 
 <main class="bg-light">
 
-    <!-- HERO / BANNER -->
-    <section class="ko-banner py-5">
+    {{-- HERO --}}
+    <section class="ko-banner py-5 border-bottom bg-white">
         <div class="ko-container">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <h1 class="fw-bold mb-2">Shop Our Products</h1>
+                    <h1 class="fw-bold mb-1">Shop Products</h1>
                     <p class="text-muted mb-0">
-                        Discover quality products at the best prices
+                        Premium quality. Best prices. Fast delivery.
                     </p>
 
-                    <nav class="mt-3">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="">Home</a></li>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
                             <li class="breadcrumb-item active">Products</li>
                         </ol>
                     </nav>
@@ -27,63 +27,93 @@
                     <a href="{{ route('wishlist.index') }}" class="btn btn-outline-dark me-2">
                         ❤️ Wishlist
                     </a>
-                    <a href="{{ route('auth.logout') }}" class="btn btn-outline-danger">
-                        Logout
-                    </a>
+
+                    @auth
+                        <a href="{{ route('auth.logout') }}" class="btn btn-outline-danger">
+                            Logout
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
     </section>
 
-
-    <!-- FILTER + SORT BAR -->
-    <section class="py-3 border-bottom bg-white">
-        <div class="ko-container">
+    {{-- FILTER BAR --}}
+    <section class="bg-white sticky-top border-bottom z-2">
+        <div class="ko-container py-3">
             <div class="row align-items-center">
                 <div class="col-md-6 mb-2 mb-md-0">
-                    <strong>All Products</strong>
+                    <strong class="me-2">All Products</strong>
+                    <span class="text-muted small">
+                        ({{ $products->total() ?? '' }} items)
+                    </span>
                 </div>
 
                 <div class="col-md-6 text-md-end">
                     <select class="form-select d-inline-block w-auto">
-                        <option>Sort by latest</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Popularity</option>
+                        <option value="latest">Latest</option>
+                        <option value="price_asc">Price: Low → High</option>
+                        <option value="price_desc">Price: High → Low</option>
+                        <option value="popular">Popularity</option>
                     </select>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- PRODUCT GRID -->
-    <section class="ko-roomlist-section py-5">
+    {{-- PRODUCT GRID --}}
+    <section class="py-5">
         <div class="ko-container">
             <div class="row g-4"
-                id="vec_product-grid"
-          
-                data-wishlist-url="{{ route('wishlist.toggle') }}">
-              @include('components.product-card')
+                 id="vec_product-grid"
+                 data-fetch-url="{{ route('user.product') }}"
+                 data-wishlist-url="{{ route('wishlist.toggle') }}">
+
+                @include('components.product-card')
+
+            </div>
+
+            {{-- PAGINATION --}}
+           <div class="col-12">
+                <div class="d-flex justify-content-center mt-4">
+                    {!! $products->links('pagination::bootstrap-4') !!}
+                </div>
             </div>
         </div>
     </section>
 
-
-    <!-- FEATURES STRIP -->
+    {{-- TRUST STRIP --}}
     <section class="bg-white py-5 border-top">
         <div class="ko-container">
-            <div class="row text-center">
+            <div class="row text-center gy-4">
                 <div class="col-md-4">
-                    <h5 class="fw-semibold">🚚 Free Shipping</h5>
-                    <p class="text-muted small">On all orders above ₹999</p>
+                    <div class="trust-item">
+                        <span class="icon">🚚</span>
+                        <h6 class="fw-semibold mt-2">Free Shipping</h6>
+                        <p class="text-muted small mb-0">
+                            On orders above ₹999
+                        </p>
+                    </div>
                 </div>
+
                 <div class="col-md-4">
-                    <h5 class="fw-semibold">🔒 Secure Payment</h5>
-                    <p class="text-muted small">100% safe checkout</p>
+                    <div class="trust-item">
+                        <span class="icon">🔒</span>
+                        <h6 class="fw-semibold mt-2">Secure Payments</h6>
+                        <p class="text-muted small mb-0">
+                            100% protected checkout
+                        </p>
+                    </div>
                 </div>
+
                 <div class="col-md-4">
-                    <h5 class="fw-semibold">💬 24/7 Support</h5>
-                    <p class="text-muted small">We’re here to help</p>
+                    <div class="trust-item">
+                        <span class="icon">💬</span>
+                        <h6 class="fw-semibold mt-2">24/7 Support</h6>
+                        <p class="text-muted small mb-0">
+                            Always here to help
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

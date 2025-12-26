@@ -3,21 +3,25 @@ $(document).ready(function() {
     fetchProducts();
 });
 
-function fetchProducts() {
+function fetchProducts(page = 1) {
     var $grid = $('#vec_product-grid');
     if (!$grid.length) return;
 
     var url = $grid.data('fetch-url');
+    url = `${url}?page=${page}`; 
 
     $.ajax({
         url: url,
         method: 'GET',
-        success: function(html) {
-            if (!html.trim()) {
+        success: function(response) {
+            if (!response.html.trim()) {
                 $grid.html('<div class="ko-col-12">No products found</div>');
                 return;
             }
-            $grid.html(html);
+            
+            $grid.html(response.html);
+            $('.pagination').html(response.pagination);
+            window.history.pushState({}, '', `?page=${page}`);
         },
         error: function(xhr, status, error) {
             $grid.html('<div class="ko-col-12 text-danger">Error loading products</div>');
@@ -25,7 +29,11 @@ function fetchProducts() {
     });
 }
 
-//wishlist add script
+$(document).on('click', '.pagination a', function(e) {
+    e.preventDefault();  
+    var page = $(this).attr('href').split('page=')[1]; 
+    fetchProducts(page);  
+});
 $(document).on('click', '.wishlist-btn', function (e) {
     e.preventDefault();
 
@@ -44,7 +52,6 @@ $(document).on('click', '.wishlist-btn', function (e) {
         success: function (res) {
             console.log('Wishlist response:', res);
 
-            //  Icon toggle
             if (res.status === 'added') {
                 $btn.addClass('added');
                 $icon.removeClass('bi-heart')
@@ -55,18 +62,122 @@ $(document).on('click', '.wishlist-btn', function (e) {
                      .addClass('bi-heart');
             }
 
-            //  Header wishlist count update
             if ($('#wishlist-count').length) {
                 $('#wishlist-count').text(res.count);
             }
         },
-        error: function () {
-            alert('Something went wrong!');
+        error: function (xhr) {
+            if (xhr.status === 401 || xhr.status === 419 || xhr.status === 302) {
+                try {
+                    let list = getGuestWishlist();
+                    const idx = list.indexOf(productId);
+                    if (idx > -1) {
+                        list.splice(idx, 1);
+                        $btn.removeClass('added');
+                        $icon.removeClass('bi-heart-fill text-danger').addClass('bi-heart');
+                    } else {
+                        list.push(productId);
+                        $btn.addClass('added');
+                        $icon.removeClass('bi-heart').addClass('bi-heart-fill text-danger');
+                    }
+                    setGuestWishlist(list);
+                    if ($('#wishlist-count').length) {
+                        $('#wishlist-count').text(list.length);
+                    }
+                } catch (e) { console.error(e); }
+            } else {
+                alert('Something went wrong!');
+            }
         }
     });
 });
 
+// Guest storage helpers: cookie <-> localStorage
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
+function setCookie(name, value, days) {
+    try {
+        var expires = '';
+        if (days) {
+            var d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            expires = '; expires=' + d.toUTCString();
+        }
+        document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
+    } catch(e){}
+}
+function deleteCookie(name){ document.cookie = name + '=; Max-Age=-99999999; path=/'; }
 
+function getGuestWishlist(){
+    try{
+        var wl = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
+        if ((!Array.isArray(wl) || wl.length === 0) && getCookie('guest_wishlist')){
+            try{ wl = JSON.parse(decodeURIComponent(getCookie('guest_wishlist'))); } catch(e){ wl = []; }
+            if (Array.isArray(wl) && wl.length){
+                localStorage.setItem('guest_wishlist', JSON.stringify(wl));
+                deleteCookie('guest_wishlist');
+            }
+        }
+        return Array.isArray(wl) ? wl : [];
+    }catch(e){ return []; }
+}
+function setGuestWishlist(list){
+    try{ localStorage.setItem('guest_wishlist', JSON.stringify(list)); setCookie('guest_wishlist', JSON.stringify(list), 7); }catch(e){}
+}
+
+function getGuestCart(){
+    try{
+        var gc = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        if ((!Array.isArray(gc) || gc.length === 0) && getCookie('guest_cart')){
+            try{ gc = JSON.parse(decodeURIComponent(getCookie('guest_cart'))); } catch(e){ gc = []; }
+            if (Array.isArray(gc) && gc.length){
+                localStorage.setItem('guest_cart', JSON.stringify(gc));
+                deleteCookie('guest_cart');
+            }
+        }
+        return Array.isArray(gc) ? gc : [];
+    }catch(e){ return []; }
+}
+function setGuestCart(list){
+    try{ localStorage.setItem('guest_cart', JSON.stringify(list)); setCookie('guest_cart', JSON.stringify(list), 7); }catch(e){}
+}
+
+function clearGuestStorage(){
+    try{ localStorage.removeItem('guest_wishlist'); deleteCookie('guest_wishlist'); }catch(e){}
+    try{ localStorage.removeItem('guest_cart'); deleteCookie('guest_cart'); }catch(e){}
+}
+
+
+function sendGuestStorageToServer(){
+    try{
+        var wl = getGuestWishlist();
+        var gc = getGuestCart();
+        if ((!Array.isArray(wl) || wl.length === 0) && (!Array.isArray(gc) || gc.length === 0)) return;
+         
+
+
+        $.ajax({
+            //use route guest.merge
+            url: guestMergeUrl,
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ guest_wishlist: wl, guest_cart: gc }),
+            success: function(){
+                clearGuestStorage();
+            },
+            error: function(xhr){
+                if (xhr.status === 419) {
+                }
+            }
+        });
+    }catch(e){ console.error(e); }
+}
+
+window.tryMergeGuestStorage = sendGuestStorageToServer;
+$(document).ready(function(){ sendGuestStorageToServer(); });
 
 //delete wishlist product
 $(document).on('click', '.vec_wishlist_remove', function (e) {
@@ -84,13 +195,10 @@ $(document).on('click', '.vec_wishlist_remove', function (e) {
         success: function (res) {
 
             if (res.status === 'success') {
-
-                //  remove row
                 row.fadeOut(300, function () {
                     $(this).remove();
                 });
 
-                //  update header count
                 if ($('#wishlist-count').length) {
                     $('#wishlist-count').text(res.count);
                 }
@@ -122,18 +230,36 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    $('#cart-count').text(response.count); // update cart count
+                    $('#cart-count').text(response.count); 
                     console.log('Product added to cart!');
                 }
             },
              error: function(xhr) {
 
-             if (xhr.status === 422 && xhr.responseJSON) {
-
-                let res = xhr.responseJSON;
-                $('#cart-error-' + res.product_id)
-                    .text(res.message)
-                    .show();
+                if (xhr.status === 422 && xhr.responseJSON) {
+                    let res = xhr.responseJSON;
+                    $('#cart-error-' + res.product_id)
+                        .text(res.message)
+                        .show();
+                } else if (xhr.status === 401 || xhr.status === 419 || xhr.status === 302) {
+                    try {
+                        let list = getGuestCart();
+                        let found = false;
+                        for (let i = 0; i < list.length; i++) {
+                            if (list[i].id == productId) {
+                                list[i].quantity = (list[i].quantity || 0) + 1;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            list.push({ id: productId, quantity: 1 });
+                        }
+                        setGuestCart(list);
+                        let total = 0;
+                        list.forEach(i => total += i.quantity || 0);
+                        if ($('#cart-count').length) $('#cart-count').text(total);
+                    } catch (e) { console.error(e); }
                 } else {
                     alert('Something went wrong');
                 }
@@ -231,7 +357,6 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    // Update item total for this row
                     var row = input.closest('tr');
                     row.find('.item-total').text('₹' + response.itemTotal.toLocaleString());
                     $('#grand-total').text('₹' + response.grandTotal.toLocaleString());
