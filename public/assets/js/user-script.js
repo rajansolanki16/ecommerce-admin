@@ -345,7 +345,6 @@ $(document).ready(function() {
     });
     
     function updateCartQuantity(productId, quantity, input) {
-        // Disable input temporarily
         input.prop('disabled', true);
         
         $.ajax({

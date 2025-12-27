@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Product;
+use App\Models\WishList;
+use App\Models\Cart;
+use App\Models\CartItem;
+
 
 class AuthController extends Controller
 {
@@ -337,4 +342,73 @@ class AuthController extends Controller
             return redirect()->route('view.my_account');
         }
     }
+
+     public function mergeGuestStorage(Request $request)
+    {
+        $userId = Auth::id();
+
+        /** =========================
+         *  MERGE WISHLIST
+         * ========================= */
+        if ($request->filled('guest_wishlist')) {
+            foreach ($request->guest_wishlist as $productId) {
+
+                // Skip invalid products
+                if (!Product::where('id', $productId)->exists()) {
+                    continue;
+                }
+
+                Wishlist::firstOrCreate([
+                    'user_id'    => $userId,
+                    'product_id' => $productId,
+                ]);
+            }
+        }
+
+        /** =========================
+         *  MERGE CART
+         * ========================= */
+        if ($request->filled('guest_cart')) {
+
+            // One cart per user
+            $cart = Cart::firstOrCreate([
+                'user_id' => $userId
+            ]);
+
+            foreach ($request->guest_cart as $item) {
+
+                if (!isset($item['id'])) {
+                    continue;
+                }
+
+                $product = Product::find($item['id']);
+                if (!$product) {
+                    continue;
+                }
+
+                $qty = max(1, (int) ($item['quantity'] ?? 1));
+
+                $cartItem = CartItem::where('cart_id', $cart->id)
+                    ->where('product_id', $product->id)
+                    ->first();
+
+                if ($cartItem) {
+                    $cartItem->increment('quantity', $qty);
+                } else {
+                    CartItem::create([
+                        'cart_id'   => $cart->id,
+                        'product_id'=> $product->id,
+                        'quantity'  => $qty,
+                        'price'     => $product->price, // snapshot
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 'merged'
+        ]);
+    }
+
+    
 }
