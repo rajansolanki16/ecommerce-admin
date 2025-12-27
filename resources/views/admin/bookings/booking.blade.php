@@ -34,7 +34,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if( isset($bookings) && count(value: $bookings) > 0)
+                        @if( isset($bookings) && count( $bookings) > 0)
                             @foreach ( $bookings as $booking)
                                 @php
                                     $guest_name = "UNKNOWN";
