@@ -20,7 +20,7 @@ use App\Models\Product;
 use App\Models\WishList;
 use App\Models\Cart;
 use App\Models\CartItem;
-
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -355,6 +355,10 @@ class AuthController extends Controller
 
                 // Skip invalid products
                 if (!Product::where('id', $productId)->exists()) {
+                    Log::warning('Invalid product ID in guest wishlist merge', [
+                        'user_id' => $userId,
+                        'product_id' => $productId
+                    ]);
                     continue;
                 }
 
@@ -378,19 +382,21 @@ class AuthController extends Controller
             foreach ($request->guest_cart as $item) {
 
                 if (!isset($item['id'])) {
+                    Log::warning('Missing product ID in guest cart merge', ['user_id' => $userId,'item' => $item ]);
                     continue;
                 }
 
                 $product = Product::find($item['id']);
                 if (!$product) {
+                    Log::warning('Invalid product ID in guest cart merge', [
+                        'user_id' => $userId,
+                        'product_id' => $item['id']
+                    ]);
                     continue;
                 }
 
                 $qty = max(1, (int) ($item['quantity'] ?? 1));
-
-                $cartItem = CartItem::where('cart_id', $cart->id)
-                    ->where('product_id', $product->id)
-                    ->first();
+                $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();
 
                 if ($cartItem) {
                     $cartItem->increment('quantity', $qty);
@@ -399,7 +405,7 @@ class AuthController extends Controller
                         'cart_id'   => $cart->id,
                         'product_id'=> $product->id,
                         'quantity'  => $qty,
-                        'price'     => $product->price, // snapshot
+                        'price'     => $product->price,
                     ]);
                 }
             }

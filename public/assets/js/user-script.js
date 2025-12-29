@@ -1,8 +1,9 @@
-//product listing
+// Fetch and display products with pagination
 $(document).ready(function() {
     fetchProducts();
 });
 
+// Function to fetch products for a given page
 function fetchProducts(page = 1) {
     var $grid = $('#vec_product-grid');
     if (!$grid.length) return;
@@ -22,6 +23,8 @@ function fetchProducts(page = 1) {
             $grid.html(response.html);
             $('.pagination').html(response.pagination);
             window.history.pushState({}, '', `?page=${page}`);
+            applyGuestWishlistUI();
+
         },
         error: function(xhr, status, error) {
             $grid.html('<div class="ko-col-12 text-danger">Error loading products</div>');
@@ -29,11 +32,14 @@ function fetchProducts(page = 1) {
     });
 }
 
+// Handle pagination link clicks
 $(document).on('click', '.pagination a', function(e) {
     e.preventDefault();  
     var page = $(this).attr('href').split('page=')[1]; 
     fetchProducts(page);  
 });
+
+// Wishlist toggle
 $(document).on('click', '.wishlist-btn', function (e) {
     e.preventDefault();
 
@@ -50,53 +56,44 @@ $(document).on('click', '.wishlist-btn', function (e) {
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function (res) {
-            console.log('Wishlist response:', res);
-
             if (res.status === 'added') {
                 $btn.addClass('added');
-                $icon.removeClass('bi-heart')
-                     .addClass('bi-heart-fill text-danger');
+                $icon.removeClass('bi-heart').addClass('bi-heart-fill text-danger');
             } else {
                 $btn.removeClass('added');
-                $icon.removeClass('bi-heart-fill text-danger')
-                     .addClass('bi-heart');
+                $icon.removeClass('bi-heart-fill text-danger').addClass('bi-heart');
             }
 
-            if ($('#wishlist-count').length) {
-                $('#wishlist-count').text(res.count);
-            }
+            $('#wishlist-count').text(res.count);
         },
         error: function (xhr) {
-            if (xhr.status === 401 || xhr.status === 419 || xhr.status === 302) {
-                try {
-                    let list = getGuestWishlist();
-                    const idx = list.indexOf(productId);
-                    if (idx > -1) {
-                        list.splice(idx, 1);
-                        $btn.removeClass('added');
-                        $icon.removeClass('bi-heart-fill text-danger').addClass('bi-heart');
-                    } else {
-                        list.push(productId);
-                        $btn.addClass('added');
-                        $icon.removeClass('bi-heart').addClass('bi-heart-fill text-danger');
-                    }
-                    setGuestWishlist(list);
-                    if ($('#wishlist-count').length) {
-                        $('#wishlist-count').text(list.length);
-                    }
-                } catch (e) { console.error(e); }
-            } else {
-                alert('Something went wrong!');
+            if (xhr.status === 401) {
+                let list = getGuestWishlist();
+                productId = parseInt(productId);
+                if (list.includes(productId)) {
+                    list = list.filter(id => id !== productId);
+                    $btn.removeClass('added');
+                    $icon.removeClass('bi-heart-fill text-danger').addClass('bi-heart');
+                } else {
+                    list.push(productId);
+                    $btn.addClass('added');
+                    $icon.removeClass('bi-heart').addClass('bi-heart-fill text-danger');
+                }
+                setGuestWishlist(list);
+                $('#wishlist-count').text(list.length);
             }
         }
     });
 });
 
-// Guest storage helpers: cookie <-> localStorage
+
+// Cookie helpers
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : null;
 }
+
+// Set cookie with optional expiration in days
 function setCookie(name, value, days) {
     try {
         var expires = '';
@@ -108,8 +105,11 @@ function setCookie(name, value, days) {
         document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
     } catch(e){}
 }
+
+// Delete cookie
 function deleteCookie(name){ document.cookie = name + '=; Max-Age=-99999999; path=/'; }
 
+// Guest storage handlers
 function getGuestWishlist(){
     try{
         var wl = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
@@ -123,10 +123,13 @@ function getGuestWishlist(){
         return Array.isArray(wl) ? wl : [];
     }catch(e){ return []; }
 }
+
+// Store guest wishlist
 function setGuestWishlist(list){
     try{ localStorage.setItem('guest_wishlist', JSON.stringify(list)); setCookie('guest_wishlist', JSON.stringify(list), 7); }catch(e){}
 }
 
+// Guest cart handlers
 function getGuestCart(){
     try{
         var gc = JSON.parse(localStorage.getItem('guest_cart') || '[]');
@@ -140,52 +143,78 @@ function getGuestCart(){
         return Array.isArray(gc) ? gc : [];
     }catch(e){ return []; }
 }
+
+// Store guest cart
 function setGuestCart(list){
     try{ localStorage.setItem('guest_cart', JSON.stringify(list)); setCookie('guest_cart', JSON.stringify(list), 7); }catch(e){}
 }
 
+// Clear guest storage
 function clearGuestStorage(){
     try{ localStorage.removeItem('guest_wishlist'); deleteCookie('guest_wishlist'); }catch(e){}
     try{ localStorage.removeItem('guest_cart'); deleteCookie('guest_cart'); }catch(e){}
 }
 
-
+// Send guest storage to server for merging
 function sendGuestStorageToServer(){
     try{
         var wl = getGuestWishlist();
         var gc = getGuestCart();
         if ((!Array.isArray(wl) || wl.length === 0) && (!Array.isArray(gc) || gc.length === 0)) return;
-         
-
 
         $.ajax({
-            //use route guest.merge
             url: guestMergeUrl,
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({ guest_wishlist: wl, guest_cart: gc }),
-            success: function(){
+            success: function(response){
                 clearGuestStorage();
+                console.log('Guest storage merged and cleared successfully', {
+                    wishlist_items: wl.length,
+                    cart_items: gc.length,
+                    response: response
+                });
             },
             error: function(xhr){
+                console.error('Failed to merge guest storage', {
+                    status: xhr.status,
+                    error: xhr.responseJSON || xhr.statusText                    
+                });
                 if (xhr.status === 419) {
+                    console.warn('CSRF token expired, page refresh recommended');
                 }
             }
         });
     }catch(e){ console.error(e); }
 }
 
+// Attempt to merge guest storage on login
 window.tryMergeGuestStorage = sendGuestStorageToServer;
 $(document).ready(function(){ sendGuestStorageToServer(); });
 
-//delete wishlist product
+// Remove from wishlist
 $(document).on('click', '.vec_wishlist_remove', function (e) {
     e.preventDefault();
 
     let wishlistId = $(this).data('id');
     let row = $(this).closest('tr');
+    if (!window.isLoggedIn) {
+        let wishlist = getGuestWishlist();
+        wishlist = wishlist.filter(item => item.product_id != wishlistId);
 
+        setGuestWishlist(wishlist);
+
+        row.fadeOut(300, function () {
+            $(this).remove();
+        });
+
+        $('#wishlist-count').text(wishlist.length);
+
+        return;
+    }
+
+    // LOGGED-IN USER
     $.ajax({
         url: '/wishlist/delete/' + wishlistId,
         type: 'DELETE',
@@ -193,15 +222,12 @@ $(document).on('click', '.vec_wishlist_remove', function (e) {
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function (res) {
-
             if (res.status === 'success') {
                 row.fadeOut(300, function () {
                     $(this).remove();
                 });
 
-                if ($('#wishlist-count').length) {
-                    $('#wishlist-count').text(res.count);
-                }
+                $('#wishlist-count').text(res.count);
             }
         },
         error: function () {
@@ -210,169 +236,202 @@ $(document).on('click', '.vec_wishlist_remove', function (e) {
     });
 });
 
-//add to cart ajax
-$(document).ready(function() {
+// Add to cart
+$(document).on('click', '.add-to-cart', function(e) {
+    e.preventDefault();
 
-    $(document).on('click', '.add-to-cart', function(e) {
-        e.preventDefault();
-
-        var productId = $(this).data('id');
-        //error msg 
-         $('.cart-error').hide().text('');
-         console.log('.cart-error');
-       
-        $.ajax({
-            url: '/cart/add',
-            type: 'POST',
-            data: {
-                product_id: productId,
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    $('#cart-count').text(response.count); 
-                    console.log('Product added to cart!');
-                }
-            },
-             error: function(xhr) {
-
-                if (xhr.status === 422 && xhr.responseJSON) {
-                    let res = xhr.responseJSON;
-                    $('#cart-error-' + res.product_id)
-                        .text(res.message)
-                        .show();
-                } else if (xhr.status === 401 || xhr.status === 419 || xhr.status === 302) {
-                    try {
-                        let list = getGuestCart();
-                        let found = false;
-                        for (let i = 0; i < list.length; i++) {
-                            if (list[i].id == productId) {
-                                list[i].quantity = (list[i].quantity || 0) + 1;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            list.push({ id: productId, quantity: 1 });
-                        }
-                        setGuestCart(list);
-                        let total = 0;
-                        list.forEach(i => total += i.quantity || 0);
-                        if ($('#cart-count').length) $('#cart-count').text(total);
-                    } catch (e) { console.error(e); }
-                } else {
-                    alert('Something went wrong');
-                }
+    var productId = $(this).data('id');
+    //error msg 
+        $('.cart-error').hide().text('');
+        console.log('.cart-error');
+    
+    $.ajax({
+        url: '/cart/add',
+        type: 'POST',
+        data: {
+            product_id: productId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                $('#cart-count').text(response.count); 
+                console.log('Product added to cart!');
             }
-        
-        });
-
-    });
-
-});
-
-//cart product delete ajax
-$(document).ready(function() {
-
-    // Remove from cart
-    $(document).on('click', '.remove-from-cart', function(e) {
-        e.preventDefault();
-        
-        var button = $(this);
-        var productId = button.data('id');
-        var rowId = button.data('row');
-        
-        $.ajax({
-            url: '/cart/remove/' + productId,
-            type: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    $('#' + rowId).fadeOut(400, function() {
-                        $(this).remove();
-                        
-                        $('#cart-count').text(response.count);
-                        $('#grand-total').text('₹' + response.grandTotal);
-                    });
-                    
-                    console.log('Product removed from cart');
-                }
-            },
+        },
             error: function(xhr) {
-                button.prop('disabled', false).text('Remove');
-                alert(xhr.responseJSON?.message || 'Failed to remove product');
+
+            if (xhr.status === 422 && xhr.responseJSON) {
+                let res = xhr.responseJSON;
+                $('#cart-error-' + res.product_id)
+                    .text(res.message)
+                    .show();
+            } else if (xhr.status === 401 || xhr.status === 419 || xhr.status === 302) {
+                try {
+                    let list = getGuestCart();
+                    let found = false;
+                    for (let i = 0; i < list.length; i++) {
+                        if (list[i].id == productId) {
+                            list[i].quantity = (list[i].quantity || 0) + 1;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        list.push({ id: productId, quantity: 1 });
+                    }
+                    setGuestCart(list);
+                    let total = 0;
+                    list.forEach(i => total += i.quantity || 0);
+                    if ($('#cart-count').length) $('#cart-count').text(total);
+                } catch (e) { console.error(e); }
+            } else {
+                alert('Something went wrong');
             }
-        });
+        }
+    
     });
 
 });
 
-//update cart quantity
-    var updateTimeout;
+// Remove from cart
+$(document).on('click', '.remove-from-cart', function(e) {
+    e.preventDefault();
     
-    $(document).on('input', '.update-quantity', function() {
-        var input = $(this);
-        var productId = input.data('id');
-        var quantity = parseInt(input.val()) || 1;
-        
-        if (quantity < 1) {
-            quantity = 1;
-            input.val(1);
-        }
-        
-        clearTimeout(updateTimeout);
-        
-        updateTimeout = setTimeout(function() {
-            updateCartQuantity(productId, quantity, input);
-        }, 500);
-    });
+    var button = $(this);
+    var productId = button.data('id');
+    var rowId = button.data('row');
     
-    // Also handle change event (for up/down arrows)
-    $(document).on('change', '.update-quantity', function() {
-        var input = $(this);
-        var productId = input.data('id');
-        var quantity = parseInt(input.val()) || 1;
-        
-        if (quantity < 1) {
-            quantity = 1;
-            input.val(1);
-        }
-        
-        clearTimeout(updateTimeout);
-        updateCartQuantity(productId, quantity, input);
-    });
-    
-    function updateCartQuantity(productId, quantity, input) {
-        input.prop('disabled', true);
-        
-        $.ajax({
-            url: '/cart/update/' + productId,
-            type: 'POST',
-            data: {
-                quantity: quantity,
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    var row = input.closest('tr');
-                    row.find('.item-total').text('₹' + response.itemTotal.toLocaleString());
-                    $('#grand-total').text('₹' + response.grandTotal.toLocaleString());
+    $.ajax({
+        url: '/cart/remove/' + productId,
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                $('#' + rowId).fadeOut(400, function() {
+                    $(this).remove();
+                    
                     $('#cart-count').text(response.count);
-                    
-                    row.find('.item-total').addClass('text-success fw-bold');
-                    setTimeout(function() {
-                        row.find('.item-total').removeClass('text-success fw-bold');
-                    }, 800);
-                    
-                    console.log('Cart quantity updated');
-                }
-                input.prop('disabled', false);
-            },
-            error: function(xhr) {
-                alert(xhr.responseJSON?.message || 'Failed to update cart');
-                input.prop('disabled', false);
+                    $('#grand-total').text('₹' + response.grandTotal);
+                });
+                
+                console.log('Product removed from cart');
             }
-        });
+        },
+        error: function(xhr) {
+            button.prop('disabled', false).text('Remove');
+            alert(xhr.responseJSON?.message || 'Failed to remove product');
+        }
+    });
+});
+
+
+var updateTimeout;
+// Update cart quantity with debounce
+$(document).on('input', '.update-quantity', function() {
+    var input = $(this);
+    var productId = input.data('id');
+    var quantity = parseInt(input.val()) || 1;
+    
+    if (quantity < 1) {
+        quantity = 1;
+        input.val(1);
     }
+    
+    clearTimeout(updateTimeout);
+    
+    updateTimeout = setTimeout(function() {
+        updateCartQuantity(productId, quantity, input);
+    }, 500);
+});
+
+// Immediate update on change event
+$(document).on('change', '.update-quantity', function() {
+    var input = $(this);
+    var productId = input.data('id');
+    var quantity = parseInt(input.val()) || 1;
+    
+    if (quantity < 1) {
+        quantity = 1;
+        input.val(1);
+    }
+    
+    clearTimeout(updateTimeout);
+    updateCartQuantity(productId, quantity, input);
+});
+
+// Function to update cart quantity via AJAX
+function updateCartQuantity(productId, quantity, input) {
+    input.prop('disabled', true);
+    
+    $.ajax({
+        url: '/cart/update/' + productId,
+        type: 'POST',
+        data: {
+            quantity: quantity,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                var row = input.closest('tr');
+                row.find('.item-total').text('₹' + response.itemTotal.toLocaleString());
+                $('#grand-total').text('₹' + response.grandTotal.toLocaleString());
+                $('#cart-count').text(response.count);
+                
+                row.find('.item-total').addClass('text-success fw-bold');
+                setTimeout(function() {
+                    row.find('.item-total').removeClass('text-success fw-bold');
+                }, 800);
+                
+                console.log('Cart quantity updated');
+            }
+            input.prop('disabled', false);
+        },
+        error: function(xhr) {
+            alert(xhr.responseJSON?.message || 'Failed to update cart');
+            input.prop('disabled', false);
+        }
+    });
+}
+
+// Update wishlist count for guest users
+function updateWishlistCount() {
+    if (window.isLoggedIn) {
+        return;
+    }
+
+    let wishlist = getGuestWishlist();
+    let count = Array.isArray(wishlist) ? wishlist.length : 0;
+
+    if ($('#wishlist-count').length) {
+        $('#wishlist-count').text(count);
+    }
+}
+
+// Apply guest wishlist UI state
+function applyGuestWishlistUI() {
+    if (window.isLoggedIn) return;
+
+    let wishlist = getGuestWishlist(); 
+
+    $('.wishlist-btn').each(function () {
+        let $btn = $(this);
+        let productId = parseInt($btn.data('product-id'));
+        let $icon = $btn.find('i');
+
+        if (wishlist.includes(productId)) {
+            $btn.addClass('added');
+            $icon.removeClass('bi-heart')
+                .addClass('bi-heart-fill text-danger');
+        } else {
+            $btn.removeClass('added');
+            $icon.removeClass('bi-heart-fill text-danger')
+                .addClass('bi-heart');
+        }
+    });
+}
+
+// Initial UI setup
+applyGuestWishlistUI();
+updateWishlistCount();

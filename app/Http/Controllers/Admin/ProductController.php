@@ -518,7 +518,7 @@ class ProductController extends Controller
                         'height'     => $variant['height'] ?? null,
                         'status'     => $variant['status'] ?? $product->status,
                         'visibility' => $variant['visibility'] ?? $product->visibility,
-                       'exchangeable'  => (int) ($variantData['exchangeable'] ?? 0),
+                        'exchangeable'  => (int) ($variantData['exchangeable'] ?? 0),
                         'refundable'    => (int) ($variantData['refundable'] ?? 0),
                         'free_shipping' => (int) ($variantData['free_shipping'] ?? 0),
                     ];

@@ -39,7 +39,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
+    <script>
+        window.isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+    </script>
 
 
 </head>
@@ -82,8 +84,12 @@
                     <a  href="{{ route('wishlist.index') }}" class="icon-btn">
                         <i class="bi bi-heart"></i>
                         <span class="count" id="wishlist-count">
-                            {{auth()->check() ? auth()->user()->wishlists()->count() : 0  }}
-                        </span>
+                        @auth
+                            {{ auth()->user()->wishlists()->count() }}
+                        @else
+                            0
+                        @endauth
+                    </span>
                     </a>
 
                     <!-- Cart -->
