@@ -618,3 +618,12 @@ function updateHomeRoomQty(){
         $('#ko-home-room-qty').val(allow_max_qty);
     }
 }
+
+window.addEventListener('scroll', () => {
+    document.querySelector('.scrollToTopBtn').style.display =
+        window.scrollY > 300 ? 'flex' : 'none';
+});
+
+document.querySelector('.scrollToTopBtn')?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});

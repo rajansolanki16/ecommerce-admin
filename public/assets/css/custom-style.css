@@ -1357,3 +1357,307 @@ textarea.ko-form-control{ height: 178px; resize: vertical; }
     padding: 7px 12px;
 }
 }
+
+
+
+.auth-page {
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+/* Center layout */
+.auth-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Card */
+.auth-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 35px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Title */
+.auth-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: #777;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Form */
+.auth-group {
+    margin-bottom: 18px;
+}
+
+.auth-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.auth-group input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.auth-group input:focus {
+    border-color: #3b82f6;
+    outline: none;
+}
+
+/* Password eye */
+.password-group {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 36px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Errors */
+.is-invalid {
+    border-color: #ef4444;
+}
+
+.error-text {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Remember */
+.auth-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.remember {
+    font-size: 13px;
+    color: #555;
+}
+
+/* Button */
+.auth-btn {
+    width: 100%;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.auth-btn:hover {
+    background: #1e40af;
+}
+
+/* Alerts */
+.alert {
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+
+
+/* ===========================
+   BAGISTO STYLE HEADER
+=========================== */
+
+.ecom-header {
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+}
+
+/* Logo */
+.ecom-logo img {
+    max-height: 42px;
+}
+
+/* Search */
+.ecom-search {
+    max-width: 520px;
+    width: 100%;
+}
+
+.ecom-search input {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+}
+
+.ecom-search button {
+    border-radius: 0 4px 4px 0;
+}
+
+/* Actions */
+.ecom-actions .icon-btn {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    background: #fff;
+    transition: all .2s ease;
+}
+
+.ecom-actions .icon-btn:hover {
+    background: #f5f5f5;
+}
+
+/* Badge */
+.ecom-actions .count {
+    position: absolute;
+    top: -5px;
+    right: -6px;
+    background: #111;
+    color: #fff;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Login Button */
+.ecom-actions .btn-outline-dark {
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 14px;
+}
+
+/* Category Nav */
+.ecom-nav {
+    background: #fff;
+}
+
+.ecom-nav .nav-link {
+    color: #222;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+}
+
+.ecom-nav .nav-link:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+/* Sticky polish */
+.sticky-top {
+    z-index: 1030;
+}
+
+/* ===========================
+   BAGISTO STYLE FOOTER
+=========================== */
+
+.site-footer {
+    background: #111;
+    color: #bbb;
+    padding: 30px 0;
+    margin-top: 60px;
+}
+
+.site-footer a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    color: #fff;
+}
+
+/* Loader */
+.loader-wrap {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.6);
+    z-index: 9999;
+    display: none;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ddd;
+    border-top-color: #111;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Scroll To Top */
+.scrollToTopBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: #111;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    display: none;
+    z-index: 1000;
+}
+
+.scrollToTopBtn:hover {
+    background: #000;
+}

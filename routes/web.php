@@ -54,14 +54,14 @@ Route::get('/product', [HomeController::class, 'list'])->name('user.product');
 Route::get('/product/{slug}', [ProductController::class, 'userShow'])->name('product.user.show');
 Route::post('/guest/merge', [AuthController::class, 'mergeGuestStorage'])->middleware('auth')->name('guest.merge');
 
-Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
+Route::post( '/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
 Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
-Route::delete('/wishlist/delete/{id}', [WishlistController::class, 'deleteById'])->name('wishlist.delete');
+Route::post('/wishlist/delete/{id}', [WishListController::class, 'deleteById'])->name('wishlist.delete');
 
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {

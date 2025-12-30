@@ -1,18 +1,47 @@
 <?php
-
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    //
-    public function index()
+    public function index(Request $request)
     {
-        $cart = session()->get('cart', []);
-        return view('user.cart.index', compact('cart'));
+        // ---------------- GUEST
+        if (!Auth::check()) {
+            $cart = collect(
+                json_decode($request->cookie('guest_cart', '[]'), true)
+            );
+
+            $products = Product::whereIn('id', $cart->pluck('id'))->get();
+
+            $cartItems = $products->map(function ($product) use ($cart) {
+                $qty = $cart->firstWhere('id', $product->id)['quantity'] ?? 1;
+                return [
+                    'product'  => $product,
+                    'quantity' => $qty,
+                    'total'    => $product->price * $qty
+                ];
+            });
+
+            return view('user.cart.index', [
+                'cartItems' => $cartItems,
+                'isGuest'   => true
+            ]);
+        }
+
+        // ---------------- LOGGED IN
+        $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
+
+        return view('user.cart.index', [
+            'cartItems' => $cart->items,
+            'isGuest'   => false
+        ]);
     }
 
     public function add(Request $request)
@@ -20,103 +49,121 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
 
         if ($product->stock <= 0) {
+            return response()->json(['message' => 'Out of stock'], 422);
+        }
+
+        /* ---------- GUEST ---------- */
+        if (!Auth::check()) {
+
+            $cart = collect(
+                json_decode($request->cookie('guest_cart', '[]'), true)
+            );
+
+            $item = $cart->firstWhere('id', $product->id);
+
+            if ($item) {
+                $cart = $cart->map(fn ($i) =>
+                    $i['id'] == $product->id
+                        ? ['id' => $i['id'], 'quantity' => $i['quantity'] + 1]
+                        : $i
+                );
+            } else {
+                $cart->push(['id' => $product->id, 'quantity' => 1]);
+            }
+
             return response()->json([
-                'message' => '*This Product is Out Of Stock',
-                'product_id' => $product->id
-            ], 422);
+                'status' => 'added',
+                'count'  => $cart->sum('quantity')
+            ])->cookie(
+                'guest_cart',
+                json_encode($cart->values()),
+                60 * 24 * 7
+            );
         }
 
-        $cart = session()->get('cart', []);
+        /* ---------- LOGGED IN ---------- */
+        $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
 
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
-        } else {
-            $cart[$product->id] = [
-                "id" => $product->id,
-                "name" => $product->product_title,
-                "price" => $product->price,
-                "image" => $product->product_image,
-                "quantity" => 1
-            ];
-        }
-
-        session()->put('cart', $cart);
-        //  total cart count (session based)
-        $count = array_sum(array_column($cart, 'quantity'));
-
-        return response()->json([
-            'status' => 'success',
-            'count' => $count,
-            'product' => [
-                'id' => $product->id,
-                'name' => $product->product_title,
-                'price' => $product->price
-            ]
+        $item = CartItem::firstOrCreate([
+            'cart_id'   => $cart->id,
+            'product_id'=> $product->id
+        ], [
+            'quantity' => 0,
+            'price'    => $product->price
         ]);
 
-        //return redirect()->back()->with('success', 'Product added to cart');
-    }
-
-    public function remove($id)
-    {
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$id])) {
-            unset($cart[$id]);
-            session()->put('cart', $cart);
-
-            // Recalculate grand total
-            $grandTotal = array_sum(array_map(function ($item) {
-                return $item['price'] * $item['quantity'];
-            }, $cart));
-
-            // Get cart count
-            $count = array_sum(array_column($cart, 'quantity'));
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Product removed from cart',
-                'count' => $count,
-                'grandTotal' => $grandTotal,
-                'cartEmpty' => empty($cart)
-            ]);
-        }
+        $item->increment('quantity');
 
         return response()->json([
-            'status' => 'error',
-            'message' => 'Product not found in cart'
-        ], 404);
+            'status' => 'added',
+            'count'  => $cart->items()->sum('quantity')
+        ]);
     }
-    public function update(Request $request, $id)
+    public function remove(Request $request, int $productId)
     {
-        $cart = session()->get('cart', []);
+        /* ---------- GUEST ---------- */
+        if (!Auth::check()) {
 
-        if (isset($cart[$id])) {
-            $newQuantity = max(1, (int)$request->quantity);
-            $cart[$id]['quantity'] = $newQuantity;
-            session()->put('cart', $cart);
-
-            $itemTotal = $cart[$id]['price'] * $newQuantity;
-
-            $grandTotal = array_sum(array_map(function ($item) {
-                return $item['price'] * $item['quantity'];
-            }, $cart));
-
-            // Get total cart count
-            $count = array_sum(array_column($cart, 'quantity'));
+            $cart = collect(
+                json_decode($request->cookie('guest_cart', '[]'), true)
+            )->reject(fn ($i) => $i['id'] == $productId)->values();
 
             return response()->json([
-                'status' => 'success',
-                'itemTotal' => $itemTotal,
-                'grandTotal' => $grandTotal,
-                'count' => $count,
-                'quantity' => $newQuantity
-            ]);
+                'status' => 'removed',
+                'count'  => $cart->sum('quantity')
+            ])->cookie(
+                'guest_cart',
+                json_encode($cart),
+                60 * 24 * 7
+            );
         }
 
+        /* ---------- LOGGED IN ---------- */
+        $cart = Cart::where('user_id', auth()->id())->first();
+
+        CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $productId)
+            ->delete();
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Product not found in cart'
-        ], 404);
+            'status' => 'removed',
+            'count'  => $cart->items()->sum('quantity')
+        ]);
+    }
+    public function update(Request $request, int $productId)
+    {
+        $qty = max(1, (int)$request->quantity);
+
+        /* ---------- GUEST ---------- */
+        if (!Auth::check()) {
+
+            $cart = collect(
+                json_decode($request->cookie('guest_cart', '[]'), true)
+            )->map(fn ($i) =>
+                $i['id'] == $productId
+                    ? ['id' => $i['id'], 'quantity' => $qty]
+                    : $i
+            );
+
+            return response()->json([
+                'status' => 'updated',
+                'count'  => $cart->sum('quantity')
+            ])->cookie(
+                'guest_cart',
+                json_encode($cart->values()),
+                60 * 24 * 7
+            );
+        }
+
+        $cart = Cart::where('user_id', auth()->id())->first();
+
+        CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $productId)
+            ->update(['quantity' => $qty]);
+
+        return response()->json([
+            'status' => 'updated',
+            'count'  => $cart->items()->sum('quantity')
+        ]);
     }
 }

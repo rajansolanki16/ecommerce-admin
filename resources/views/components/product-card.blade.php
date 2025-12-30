@@ -13,18 +13,12 @@
             </a>
 
             {{-- WISHLIST --}}
-            <button type="button" class="wishlist-btn
-                @auth
-                    {{ $product->is_wishlisted ? 'added' : '' }}
-                @endauth 
-                " data-product-id="{{ $product->id }}">
-                <i class="bi
-                    @auth
-                        {{ $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}
-                    @else
-                        bi-heart
-                    @endauth
-                "></i>
+            <button
+                type="button"
+                class="wishlist-btn {{ auth()->check() && $product->is_wishlisted ? 'added' : '' }}"
+                data-product-id="{{ $product->id }}"
+            >
+                <i class="bi {{ auth()->check() && $product->is_wishlisted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
             </button>
         </div>
 

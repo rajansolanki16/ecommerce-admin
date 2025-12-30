@@ -41,6 +41,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script>
         window.isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+        const wishlistDeleteUrl = "{{ route('wishlist.delete', '') }}";
+        window.guestMergeUrl = "{{ route('guest.merge') }}";
+
     </script>
 
 
@@ -81,22 +84,26 @@
                     <i class="bi bi-heart"></i>
                     <span class="count">{{ auth()->check() ? auth()->user()->wishlist_count ?? 0 : 0 }}</span>
                 </a> -->
-                    <a  href="{{ route('wishlist.index') }}" class="icon-btn">
-                        <i class="bi bi-heart"></i>
-                        <span class="count" id="wishlist-count">
+                  <a href="{{ route('wishlist.index') }}" class="icon-btn">
+                    <i class="bi bi-heart"></i>
+                    <span class="count" id="wishlist-count">
                         @auth
                             {{ auth()->user()->wishlists()->count() }}
                         @else
-                            0
+                            {{ count(json_decode(request()->cookie('guest_wishlist', '[]'), true)) }}
                         @endauth
                     </span>
-                    </a>
+                </a>
 
                     <!-- Cart -->
                     <a href="{{ route('cart.index') }}" class="icon-btn">
                         <i class="bi bi-cart3"></i>
                         <!-- <span class="count cart-count" id="cart-count"> {{ array_sum(array_column(session('cart', []), 'quantity')) }}</span> -->
-                         <span class="count" id="cart-count">{{ array_sum(array_column(session('cart', []), 'quantity')) }}</span>
+                         <span class="count" id="cart-count">@auth
+                                {{ auth()->user()->cart?->items()->sum('quantity') ?? 0 }}
+                            @else
+                                {{ collect(json_decode(request()->cookie('guest_cart','[]'),true))->sum('quantity') }}
+                            @endauth</span>
                     </a>
 
                     <!-- Account -->

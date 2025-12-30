@@ -1,9 +1,9 @@
-// Fetch and display products with pagination
+// Fetch and display products 
 $(document).ready(function() {
     fetchProducts();
 });
 
-// Function to fetch products for a given page
+// Function to fetch products
 function fetchProducts(page = 1) {
     var $grid = $('#vec_product-grid');
     if (!$grid.length) return;
@@ -93,41 +93,13 @@ function getCookie(name) {
     return match ? decodeURIComponent(match[2]) : null;
 }
 
-// Set cookie with optional expiration in days
-function setCookie(name, value, days) {
-    try {
-        var expires = '';
-        if (days) {
-            var d = new Date();
-            d.setTime(d.getTime() + (days*24*60*60*1000));
-            expires = '; expires=' + d.toUTCString();
-        }
-        document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
-    } catch(e){}
-}
 
 // Delete cookie
 function deleteCookie(name){ document.cookie = name + '=; Max-Age=-99999999; path=/'; }
 
 // Guest storage handlers
-function getGuestWishlist(){
-    try{
-        var wl = JSON.parse(localStorage.getItem('guest_wishlist') || '[]');
-        if ((!Array.isArray(wl) || wl.length === 0) && getCookie('guest_wishlist')){
-            try{ wl = JSON.parse(decodeURIComponent(getCookie('guest_wishlist'))); } catch(e){ wl = []; }
-            if (Array.isArray(wl) && wl.length){
-                localStorage.setItem('guest_wishlist', JSON.stringify(wl));
-                deleteCookie('guest_wishlist');
-            }
-        }
-        return Array.isArray(wl) ? wl : [];
-    }catch(e){ return []; }
-}
 
-// Store guest wishlist
-function setGuestWishlist(list){
-    try{ localStorage.setItem('guest_wishlist', JSON.stringify(list)); setCookie('guest_wishlist', JSON.stringify(list), 7); }catch(e){}
-}
+
 
 // Guest cart handlers
 function getGuestCart(){
@@ -137,7 +109,6 @@ function getGuestCart(){
             try{ gc = JSON.parse(decodeURIComponent(getCookie('guest_cart'))); } catch(e){ gc = []; }
             if (Array.isArray(gc) && gc.length){
                 localStorage.setItem('guest_cart', JSON.stringify(gc));
-                deleteCookie('guest_cart');
             }
         }
         return Array.isArray(gc) ? gc : [];
@@ -151,42 +122,31 @@ function setGuestCart(list){
 
 // Clear guest storage
 function clearGuestStorage(){
-    try{ localStorage.removeItem('guest_wishlist'); deleteCookie('guest_wishlist'); }catch(e){}
-    try{ localStorage.removeItem('guest_cart'); deleteCookie('guest_cart'); }catch(e){}
+    try{ localStorage.removeItem('guest_wishlist'); }catch(e){}
+    try{ localStorage.removeItem('guest_cart'); }catch(e){}
 }
 
 // Send guest storage to server for merging
-function sendGuestStorageToServer(){
-    try{
-        var wl = getGuestWishlist();
-        var gc = getGuestCart();
-        if ((!Array.isArray(wl) || wl.length === 0) && (!Array.isArray(gc) || gc.length === 0)) return;
+function sendGuestStorageToServer() {
+    console.log('Attempting guest merge...');
 
-        $.ajax({
-            url: guestMergeUrl,
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({ guest_wishlist: wl, guest_cart: gc }),
-            success: function(response){
-                clearGuestStorage();
-                console.log('Guest storage merged and cleared successfully', {
-                    wishlist_items: wl.length,
-                    cart_items: gc.length,
-                    response: response
-                });
-            },
-            error: function(xhr){
-                console.error('Failed to merge guest storage', {
-                    status: xhr.status,
-                    error: xhr.responseJSON || xhr.statusText                    
-                });
-                if (xhr.status === 419) {
-                    console.warn('CSRF token expired, page refresh recommended');
-                }
-            }
-        });
-    }catch(e){ console.error(e); }
+    $.ajax({
+        url: window.guestMergeUrl,
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            console.log('Merge success:', res);
+
+            // update UI counts
+            refreshWishlistCount();
+            refreshCartCount();
+        },
+        error: function (xhr) {
+            console.error('Merge failed:', xhr.responseText);
+        }
+    });
 }
 
 // Attempt to merge guest storage on login
@@ -197,32 +157,16 @@ $(document).ready(function(){ sendGuestStorageToServer(); });
 $(document).on('click', '.vec_wishlist_remove', function (e) {
     e.preventDefault();
 
-    let wishlistId = $(this).data('id');
+    let productId = $(this).data('id');
     let row = $(this).closest('tr');
-    if (!window.isLoggedIn) {
-        let wishlist = getGuestWishlist();
-        wishlist = wishlist.filter(item => item.product_id != wishlistId);
-
-        setGuestWishlist(wishlist);
-
-        row.fadeOut(300, function () {
-            $(this).remove();
-        });
-
-        $('#wishlist-count').text(wishlist.length);
-
-        return;
-    }
-
-    // LOGGED-IN USER
     $.ajax({
-        url: '/wishlist/delete/' + wishlistId,
-        type: 'DELETE',
+        url: wishlistDeleteUrl + '/' + productId,
+        type: 'POST',
         data: {
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function (res) {
-            if (res.status === 'success') {
+            if (res.status === 'removed') {
                 row.fadeOut(300, function () {
                     $(this).remove();
                 });
@@ -230,8 +174,8 @@ $(document).on('click', '.vec_wishlist_remove', function (e) {
                 $('#wishlist-count').text(res.count);
             }
         },
-        error: function () {
-            alert('Something went wrong!');
+        error: function (xhr) {
+            console.error('Delete failed:', xhr.responseText);
         }
     });
 });

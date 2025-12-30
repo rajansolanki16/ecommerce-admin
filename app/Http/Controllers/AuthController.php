@@ -207,14 +207,39 @@ class AuthController extends Controller
             return redirect()->back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
         }
     }
-
-    public function logout()
+    public function logout(Request $request)
     {
+        $user = Auth::user();
+        $wishlistProductIds = Wishlist::where('user_id', $user->id)
+            ->pluck('product_id')
+            ->toArray();
+
+        $cartItems = [];
+
+        if ($user->cart) {
+            foreach ($user->cart->items as $item) {
+                $cartItems[] = [
+                    'id'       => $item->product_id,
+                    'quantity' => $item->quantity,
+                ];
+            }
+        }
+
         Auth::logout();
-        return redirect()->route('view.home')->with([
-            'success' => true,
-            'message' => 'Log-out successful!'
-        ]);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')
+            ->withCookie(cookie(
+                'guest_wishlist',
+                json_encode($wishlistProductIds),
+                60 * 24 * 7 // 7 days
+            ))
+            ->withCookie(cookie(
+                'guest_cart',
+                json_encode($cartItems),
+                60 * 24 * 7
+            ));
     }
 
     public function forgot_password(Request $request)
@@ -343,78 +368,72 @@ class AuthController extends Controller
         }
     }
 
-     public function mergeGuestStorage(Request $request)
-    {
-        $userId = Auth::id();
+ public function mergeGuestStorage(Request $request)
+{
+    $userId = Auth::id();
+    $guestWishlist = json_decode(
+        $request->cookie('guest_wishlist', '[]'),
+        true
+    );
 
-        /** =========================
-         *  MERGE WISHLIST
-         * ========================= */
-        if ($request->filled('guest_wishlist')) {
-            foreach ($request->guest_wishlist as $productId) {
+    if (!empty($guestWishlist)) {
+        foreach ($guestWishlist as $productId) {
 
-                // Skip invalid products
-                if (!Product::where('id', $productId)->exists()) {
-                    Log::warning('Invalid product ID in guest wishlist merge', [
-                        'user_id' => $userId,
-                        'product_id' => $productId
-                    ]);
-                    continue;
-                }
+            if (!Product::where('id', $productId)->exists()) {
+                Log::warning('Invalid product ID in guest wishlist merge', [
+                    'user_id' => $userId,
+                    'product_id' => $productId
+                ]);
+                continue;
+            }
 
-                Wishlist::firstOrCreate([
-                    'user_id'    => $userId,
-                    'product_id' => $productId,
+            Wishlist::firstOrCreate([
+                'user_id'    => $userId,
+                'product_id' => $productId,
+            ]);
+        }
+    }
+
+    $guestCart = json_decode(
+        $request->cookie('guest_cart', '[]'),
+        true
+    );
+
+    if (!empty($guestCart)) {
+
+        $cart = Cart::firstOrCreate([
+            'user_id' => $userId
+        ]);
+
+        foreach ($guestCart as $item) {
+
+            if (!isset($item['id'])) continue;
+
+            $product = Product::find($item['id']);
+            if (!$product) continue;
+
+            $qty = max(1, (int) ($item['quantity'] ?? 1));
+
+            $cartItem = CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($cartItem) {
+                $cartItem->increment('quantity', $qty);
+            } else {
+                CartItem::create([
+                    'cart_id'    => $cart->id,
+                    'product_id' => $product->id,
+                    'quantity'   => $qty,
+                    'price'      => $product->price,
                 ]);
             }
         }
-
-        /** =========================
-         *  MERGE CART
-         * ========================= */
-        if ($request->filled('guest_cart')) {
-
-            // One cart per user
-            $cart = Cart::firstOrCreate([
-                'user_id' => $userId
-            ]);
-
-            foreach ($request->guest_cart as $item) {
-
-                if (!isset($item['id'])) {
-                    Log::warning('Missing product ID in guest cart merge', ['user_id' => $userId,'item' => $item ]);
-                    continue;
-                }
-
-                $product = Product::find($item['id']);
-                if (!$product) {
-                    Log::warning('Invalid product ID in guest cart merge', [
-                        'user_id' => $userId,
-                        'product_id' => $item['id']
-                    ]);
-                    continue;
-                }
-
-                $qty = max(1, (int) ($item['quantity'] ?? 1));
-                $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();
-
-                if ($cartItem) {
-                    $cartItem->increment('quantity', $qty);
-                } else {
-                    CartItem::create([
-                        'cart_id'   => $cart->id,
-                        'product_id'=> $product->id,
-                        'quantity'  => $qty,
-                        'price'     => $product->price,
-                    ]);
-                }
-            }
-        }
-
-        return response()->json([
-            'status' => 'merged'
-        ]);
     }
 
+    return response()->json(['status' => 'merged'])
+        ->cookie('guest_wishlist', '', -1)
+        ->cookie('guest_cart', '', -1);
+}
     
 }
