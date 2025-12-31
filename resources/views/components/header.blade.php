@@ -99,11 +99,13 @@
                     <a href="{{ route('cart.index') }}" class="icon-btn">
                         <i class="bi bi-cart3"></i>
                         <!-- <span class="count cart-count" id="cart-count"> {{ array_sum(array_column(session('cart', []), 'quantity')) }}</span> -->
-                         <span class="count" id="cart-count">@auth
+                        <span class="count" id="cart-count">
+                            @auth
                                 {{ auth()->user()->cart?->items()->sum('quantity') ?? 0 }}
                             @else
-                                {{ collect(json_decode(request()->cookie('guest_cart','[]'),true))->sum('quantity') }}
-                            @endauth</span>
+                                {{ collect(json_decode(request()->cookie('guest_cart', '[]'), true))->sum('quantity') }}
+                            @endauth
+                        </span>
                     </a>
 
                     <!-- Account -->

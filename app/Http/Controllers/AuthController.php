@@ -209,7 +209,7 @@ class AuthController extends Controller
     }
     public function logout(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('cart.items');
         $wishlistProductIds = Wishlist::where('user_id', $user->id)
             ->pluck('product_id')
             ->toArray();
@@ -230,18 +230,9 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/')
-            ->withCookie(cookie(
-                'guest_wishlist',
-                json_encode($wishlistProductIds),
-                60 * 24 * 7 // 7 days
-            ))
-            ->withCookie(cookie(
-                'guest_cart',
-                json_encode($cartItems),
-                60 * 24 * 7
-            ));
+            ->withCookie(cookie('guest_wishlist', json_encode($wishlistProductIds), 60 * 24 * 7, '/'))
+            ->withCookie(cookie('guest_cart', json_encode($cartItems), 60 * 24 * 7, '/'));
     }
-
     public function forgot_password(Request $request)
     {
 
@@ -368,72 +359,58 @@ class AuthController extends Controller
         }
     }
 
- public function mergeGuestStorage(Request $request)
-{
-    $userId = Auth::id();
-    $guestWishlist = json_decode(
-        $request->cookie('guest_wishlist', '[]'),
-        true
-    );
+    public function mergeGuestStorage(Request $request)
+    {
+        $userId = Auth::id();
 
-    if (!empty($guestWishlist)) {
-        foreach ($guestWishlist as $productId) {
+        /* ================= WISHLIST ================= */
+        $guestWishlist = json_decode($request->cookie('guest_wishlist', '[]'), true);
 
-            if (!Product::where('id', $productId)->exists()) {
-                Log::warning('Invalid product ID in guest wishlist merge', [
-                    'user_id' => $userId,
-                    'product_id' => $productId
-                ]);
-                continue;
-            }
+        foreach ($guestWishlist ?? [] as $productId) {
+            if (!Product::where('id', $productId)->exists()) continue;
 
             Wishlist::firstOrCreate([
                 'user_id'    => $userId,
                 'product_id' => $productId,
             ]);
         }
-    }
 
-    $guestCart = json_decode(
-        $request->cookie('guest_cart', '[]'),
-        true
-    );
+        /* ================= CART ================= */
+        $guestCart = json_decode($request->cookie('guest_cart', '[]'), true);
 
-    if (!empty($guestCart)) {
+        if (!empty($guestCart)) {
 
-        $cart = Cart::firstOrCreate([
-            'user_id' => $userId
-        ]);
+            $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
-        foreach ($guestCart as $item) {
+            foreach ($guestCart as $item) {
 
-            if (!isset($item['id'])) continue;
+                if (!isset($item['id'])) continue;
 
-            $product = Product::find($item['id']);
-            if (!$product) continue;
+                $product = Product::find($item['id']);
+                if (!$product) continue;
 
-            $qty = max(1, (int) ($item['quantity'] ?? 1));
+                $qty = max(1, (int)($item['quantity'] ?? 1));
 
-            $cartItem = CartItem::where('cart_id', $cart->id)
-                ->where('product_id', $product->id)
-                ->first();
+                $cartItem = CartItem::firstOrCreate(
+                    [
+                        'cart_id'    => $cart->id,
+                        'product_id' => $product->id,
+                    ],
+                    [
+                        'quantity' => 0,
+                        'price'    => $product->price,
+                    ]
+                );
 
-            if ($cartItem) {
-                $cartItem->increment('quantity', $qty);
-            } else {
-                CartItem::create([
-                    'cart_id'    => $cart->id,
-                    'product_id' => $product->id,
-                    'quantity'   => $qty,
-                    'price'      => $product->price,
-                ]);
+                $cartItem->quantity += $qty;
+                $cartItem->save();
             }
         }
+
+        return response()->json(['status' => 'merged'])
+            ->cookie('guest_wishlist', '', -1, '/')
+            ->cookie('guest_cart', '', -1, '/');
     }
 
-    return response()->json(['status' => 'merged'])
-        ->cookie('guest_wishlist', '', -1)
-        ->cookie('guest_cart', '', -1);
-}
     
 }

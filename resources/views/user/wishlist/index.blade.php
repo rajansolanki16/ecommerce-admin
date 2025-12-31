@@ -101,9 +101,7 @@
                     {{-- ACTION --}}
                     <td>
                         @if($product->stock > 0)
-                            <button
-                                class="btn btn-sm btn-success add-to-cart"
-                                data-id="{{ $product->id }}">
+                            <button type="button" class="btn btn-sm btn-success add-to-cart" data-id="{{ $product->id }}">
                                 Add to Cart
                             </button>
                         @else

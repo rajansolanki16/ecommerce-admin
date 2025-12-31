@@ -12,36 +12,49 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        // ---------------- GUEST
-        if (!Auth::check()) {
-            $cart = collect(
-                json_decode($request->cookie('guest_cart', '[]'), true)
-            );
+        if (Auth::check()) {
 
-            $products = Product::whereIn('id', $cart->pluck('id'))->get();
+            $cart = [];
 
-            $cartItems = $products->map(function ($product) use ($cart) {
-                $qty = $cart->firstWhere('id', $product->id)['quantity'] ?? 1;
-                return [
-                    'product'  => $product,
-                    'quantity' => $qty,
-                    'total'    => $product->price * $qty
-                ];
-            });
+            $dbCart = Auth::user()->cart;
 
-            return view('user.cart.index', [
-                'cartItems' => $cartItems,
-                'isGuest'   => true
-            ]);
+            if ($dbCart) {
+                foreach ($dbCart->items as $item) {
+                    $cart[] = [
+                        'id'       => $item->product_id,
+                        'name'     => $item->product->name,
+                        'price'    => $item->price,
+                        'quantity' => $item->quantity,
+                        'image'    => $item->product->image,
+                    ];
+                }
+            }
+
+            return view('user.cart.index', compact('cart'));
         }
 
-        // ---------------- LOGGED IN
-        $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
+        //  Guest user (COOKIE BASED)
+        $cookieCart = json_decode($request->cookie('guest_cart', '[]'), true);
 
-        return view('user.cart.index', [
-            'cartItems' => $cart->items,
-            'isGuest'   => false
-        ]);
+        $cart = [];
+
+        foreach ($cookieCart as $item) {
+
+            if (!isset($item['id'])) continue;
+
+            $product = Product::find($item['id']);
+            if (!$product) continue;
+
+            $cart[] = [
+                'id'       => $product->id,
+                'name'     => $product->name,
+                'price'    => $product->price,
+                'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+                'image'    => $product->image,
+            ];
+        }
+
+        return view('user.cart.index', compact('cart'));
     }
 
     public function add(Request $request)
@@ -84,13 +97,10 @@ class CartController extends Controller
         /* ---------- LOGGED IN ---------- */
         $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
 
-        $item = CartItem::firstOrCreate([
-            'cart_id'   => $cart->id,
-            'product_id'=> $product->id
-        ], [
-            'quantity' => 0,
-            'price'    => $product->price
-        ]);
+        $item = CartItem::firstOrCreate(
+            ['cart_id' => $cart->id, 'product_id' => $product->id],
+            ['quantity' => 0, 'price' => $product->price]
+        );
 
         $item->increment('quantity');
 
@@ -99,6 +109,7 @@ class CartController extends Controller
             'count'  => $cart->items()->sum('quantity')
         ]);
     }
+
     public function remove(Request $request, int $productId)
     {
         /* ---------- GUEST ---------- */
@@ -106,15 +117,33 @@ class CartController extends Controller
 
             $cart = collect(
                 json_decode($request->cookie('guest_cart', '[]'), true)
-            )->reject(fn ($i) => $i['id'] == $productId)->values();
+            )->reject(fn ($i) => $i['id'] == $productId)
+            ->values();
+
+            if ($cart->isEmpty()) {
+                return response()->json([
+                    'status'     => 'success',
+                    'count'      => 0,
+                    'grandTotal' => 0
+                ])->cookie('guest_cart', json_encode([]), 60 * 24 * 7, '/');
+            }
+
+            $products = Product::whereIn('id', $cart->pluck('id'))->get();
+
+            $grandTotal = $products->sum(function ($product) use ($cart) {
+                $qty = $cart->firstWhere('id', $product->id)['quantity'] ?? 1;
+                return $product->price * $qty;
+            });
 
             return response()->json([
-                'status' => 'removed',
-                'count'  => $cart->sum('quantity')
+                'status'     => 'success',
+                'count'      => $cart->sum('quantity'),
+                'grandTotal' => $grandTotal
             ])->cookie(
                 'guest_cart',
-                json_encode($cart),
-                60 * 24 * 7
+                json_encode($cart->values()->all()),
+                60 * 24 * 7,
+                '/'
             );
         }
 
@@ -125,45 +154,12 @@ class CartController extends Controller
             ->where('product_id', $productId)
             ->delete();
 
-        return response()->json([
-            'status' => 'removed',
-            'count'  => $cart->items()->sum('quantity')
-        ]);
-    }
-    public function update(Request $request, int $productId)
-    {
-        $qty = max(1, (int)$request->quantity);
-
-        /* ---------- GUEST ---------- */
-        if (!Auth::check()) {
-
-            $cart = collect(
-                json_decode($request->cookie('guest_cart', '[]'), true)
-            )->map(fn ($i) =>
-                $i['id'] == $productId
-                    ? ['id' => $i['id'], 'quantity' => $qty]
-                    : $i
-            );
-
-            return response()->json([
-                'status' => 'updated',
-                'count'  => $cart->sum('quantity')
-            ])->cookie(
-                'guest_cart',
-                json_encode($cart->values()),
-                60 * 24 * 7
-            );
-        }
-
-        $cart = Cart::where('user_id', auth()->id())->first();
-
-        CartItem::where('cart_id', $cart->id)
-            ->where('product_id', $productId)
-            ->update(['quantity' => $qty]);
+        $cart->load('items'); 
 
         return response()->json([
-            'status' => 'updated',
-            'count'  => $cart->items()->sum('quantity')
+            'status'     => 'success',
+            'count'      => $cart->items->sum('quantity'),
+            'grandTotal' => $cart->items->sum(fn ($i) => $i->price * $i->quantity),
         ]);
     }
 }

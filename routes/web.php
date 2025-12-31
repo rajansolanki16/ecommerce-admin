@@ -61,7 +61,6 @@ Route::post('/wishlist/delete/{id}', [WishListController::class, 'deleteById'])-
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
@@ -75,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
         Route::post('/products/{product}/variants/remove', [ProductController::class, 'removeVariant'])->name('products.variants.remove');
-        Route::post('/admin/products/generate-variants',[ProductController::class, 'generateVariants'])->name('products.generate.variants');
+        Route::post('/products/generate-variants',[ProductController::class, 'generateVariants'])->name('products.generate.variants');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');

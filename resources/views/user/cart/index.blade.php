@@ -50,19 +50,6 @@
                                             </div>
                                         </td>
                                         <td>₹{{ $item['price'] }}</td>
-                                        <!-- <td style="width:110px">
-                                                <form action="{{ route('cart.update', $item['id']) }}" method="POST" class="d-flex align-items-center gap-2">
-                                                    @csrf
-                                                    <input
-                                                        type="number"
-                                                        name="quantity"
-                                                        value="{{ $item['quantity'] }}"
-                                                        min="1"
-                                                        class="form-control form-control-sm"
-                                                        style="width:70px"
-                                                        onchange="this.form.submit()">
-                                                </form>
-                                            </td> -->
                                         <td style="width:110px">
                                             <input
                                                 type="number"

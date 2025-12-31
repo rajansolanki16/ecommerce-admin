@@ -49,4 +49,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'wishlists'
         )->withTimestamps();
     }
+
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
 }

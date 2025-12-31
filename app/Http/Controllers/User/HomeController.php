@@ -32,7 +32,7 @@ class HomeController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('components.product-card', compact('products'))->render(),
-                'pagination' => $products->links('pagination::bootstrap-4')->render(), // Pagination links only
+                'pagination' => $products->links('pagination::bootstrap-4')->render(), 
             ]);
         }
 
