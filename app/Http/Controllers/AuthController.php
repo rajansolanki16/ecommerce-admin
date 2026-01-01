@@ -391,16 +391,24 @@ class AuthController extends Controller
 
                 $qty = max(1, (int)($item['quantity'] ?? 1));
 
-                $cartItem = CartItem::firstOrCreate(
-                    [
+                $cartItem = CartItem::where('cart_id', $cart->id)
+                    ->where('product_id', $product->id)
+                    ->first();
+
+                /* ---------- PRODUCT NOT IN CART ---------- */
+                if (!$cartItem) {
+                    CartItem::create([
                         'cart_id'    => $cart->id,
                         'product_id' => $product->id,
-                    ],
-                    [
-                        'quantity' => 0,
-                        'price'    => $product->price,
-                    ]
-                );
+                        'quantity'   => $qty,
+                        'price'      => $product->price,
+                    ]);
+                    continue;
+                }
+
+                if ($cartItem->quantity == $qty) {
+                    continue;
+                }
 
                 $cartItem->quantity += $qty;
                 $cartItem->save();

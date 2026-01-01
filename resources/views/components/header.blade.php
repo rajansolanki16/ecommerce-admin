@@ -50,42 +50,42 @@
 </head>
 
 <body>
-    <header class="ecom-header sticky-top bg-white shadow-sm">
-        <div class="container">
+    <header class="ecom-header sticky-top bg-white border-bottom shadow-sm">
+    <div class="container">
 
-            <!-- TOP BAR -->
-            <div class="d-flex align-items-center justify-content-between py-3">
+        {{-- TOP BAR --}}
+        <div class="d-flex align-items-center justify-content-between py-3">
 
-                <!-- LOGO -->
-                <a href="/" class="ecom-logo text-decoration-none">
-                    <img src="{{ publicPath(getSetting('site_logo')) }}"
-                        alt="Logo"
-                        height="40">
-                </a>
+            {{-- LOGO --}}
+            <a href="/" class="text-decoration-none d-flex align-items-center">
+                <img src="{{ publicPath(getSetting('site_logo')) }}"
+                     alt="Logo"
+                     height="42">
+            </a>
 
-                <!-- SEARCH -->
-                <form action="#"
-                    method="GET"
-                    class="ecom-search d-none d-lg-flex">
+            {{-- SEARCH --}}
+            <form action="#"
+                  method="GET"
+                  class="d-none d-lg-flex align-items-center mx-4 flex-grow-1"
+                  style="max-width:520px;">
+                <div class="input-group">
                     <input type="text"
-                        name="q"
-                        class="form-control"
-                        placeholder="Search for products...">
-                    <button class="btn btn-dark">
+                           name="q"
+                           class="form-control"
+                           placeholder="Search products, brands, categories…">
+                    <button class="btn btn-dark px-4">
                         <i class="bi bi-search"></i>
                     </button>
-                </form>
+                </div>
+            </form>
 
-                <!-- ACTIONS -->
-                <div class="ecom-actions d-flex align-items-center gap-3">
+            {{-- ACTIONS --}}
+            <div class="d-flex align-items-center gap-3">
 
-                    <!-- Wishlist -->
-                    <!-- <a href="{{ route('wishlist.index') }}" class="icon-btn">
-                    <i class="bi bi-heart"></i>
-                    <span class="count">{{ auth()->check() ? auth()->user()->wishlist_count ?? 0 : 0 }}</span>
-                </a> -->
-                  <a href="{{ route('wishlist.index') }}" class="icon-btn">
-                    <i class="bi bi-heart"></i>
+                {{-- Wishlist --}}
+                <a href="{{ route('wishlist.index') }}"
+                   class="icon-btn position-relative">
+                    <i class="bi bi-heart fs-5"></i>
                     <span class="count" id="wishlist-count">
                         @auth
                             {{ auth()->user()->wishlists()->count() }}
@@ -95,68 +95,74 @@
                     </span>
                 </a>
 
-                    <!-- Cart -->
-                    <a href="{{ route('cart.index') }}" class="icon-btn">
-                        <i class="bi bi-cart3"></i>
-                        <!-- <span class="count cart-count" id="cart-count"> {{ array_sum(array_column(session('cart', []), 'quantity')) }}</span> -->
-                        <span class="count" id="cart-count">
-                            @auth
-                                {{ auth()->user()->cart?->items()->sum('quantity') ?? 0 }}
-                            @else
-                                {{ collect(json_decode(request()->cookie('guest_cart', '[]'), true))->sum('quantity') }}
-                            @endauth
-                        </span>
-                    </a>
+                {{-- Cart --}}
+                <a href="{{ route('cart.index') }}"
+                   class="icon-btn position-relative">
+                    <i class="bi bi-cart3 fs-5"></i>
+                    <span class="count" id="cart-count">
+                        @auth
+                            {{ auth()->user()->cart?->items()->sum('quantity') ?? 0 }}
+                        @else
+                            {{ collect(json_decode(request()->cookie('guest_cart', '[]'), true))->sum('quantity') }}
+                        @endauth
+                    </span>
+                </a>
 
-                    <!-- Account -->
-                    @auth
-                    <div class="dropdown">
-                        <a class="icon-btn dropdown-toggle"
-                            data-bs-toggle="dropdown">
-                            <i class="bi bi-person"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">My Account</a></li>
-                            <li><a class="dropdown-item" href="#">My Orders</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-danger"
-                                    href="{{ route('auth.logout') }}">
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    @else
-                    <a href="{{ route('login') }}" class="btn btn-outline-dark btn-sm">
-                        Login
+                {{-- ACCOUNT --}}
+                @auth
+                <div class="dropdown">
+                    <a class="icon-btn dropdown-toggle"
+                       data-bs-toggle="dropdown">
+                        <i class="bi bi-person fs-5"></i>
                     </a>
-                    @endauth
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item" href="#">My Account</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">My Orders</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger"
+                               href="{{ route('auth.logout') }}">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+                @else
+                <a href="{{ route('login') }}" class="btn btn-outline-dark btn-sm px-3">
+                    Login
+                </a>
+                @endauth
             </div>
-
-            <!-- CATEGORY NAV -->
-            @php
-            $categories = \App\Models\Category::orderBy('name')->get();
-            @endphp
-            <nav class="ecom-nav border-top">
-                <ul class="nav gap-3 py-2">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('user.home') }}">All Products</a>
-                    </li>
-
-                    @foreach($categories ?? [] as $category)
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="#">
-                            {{ $category->name }}
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </nav>
-
         </div>
-    </header>
+
+        {{-- CATEGORY NAV --}}
+        @php
+            $categories = \App\Models\Category::orderBy('name')->get();
+        @endphp
+
+        <nav class="border-top">
+            <ul class="nav gap-3 py-2 align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold"
+                       href="{{ route('user.home') }}">
+                        All Products
+                    </a>
+                </li>
+
+                @foreach($categories ?? [] as $category)
+                <li class="nav-item">
+                    <a class="nav-link text-muted"
+                       href="#">
+                        {{ $category->name }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
+        </nav>
+
+    </div>
+</header>

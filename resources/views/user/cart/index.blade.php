@@ -1,4 +1,4 @@
-<x-header :meta="array('title'=> getSetting('page_rooms_meta_title'), 'description'=> getSetting('page_rooms_meta_description'))" />
+<x-header :meta="array('title' => 'Cart - E-commerce Store', 'description' => 'Your shopping cart')" />
 
 <main class="ko-container py-4">
     <section class="ko-bann">
@@ -89,7 +89,7 @@
                             <strong id="grand-total">₹{{ $grandTotal }}</strong>
                         </div>
                         <div class="mt-3 d-grid">
-                            <a href="{{ route('cart.index') ?? '#' }}" class="btn btn-primary">Proceed to Checkout</a>
+                            <a href="{{ route('checkout') ?? '#' }}" class="btn btn-primary">Proceed to Checkout</a>
                             <a href="{{ route('wishlist.index') }}" class="btn btn-outline-secondary mt-2">← Back to Wishlist</a>
                         </div>
                     </div>

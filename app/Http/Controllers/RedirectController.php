@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Validator;
 
 class RedirectController extends Controller
 {
-
     public function login()
     {
 
@@ -33,10 +32,10 @@ class RedirectController extends Controller
         }
 
         if ($user->hasRole('user')) {
-           // return view('user.home');
-           return redirect()->route('user.home');
+            // return view('user.home');
+            return redirect()->route('user.home');
         }
-       
+
 
         return redirect('/');
     }

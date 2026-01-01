@@ -79,7 +79,7 @@
                         <div class="card">
                             <div class="card-header d-flex align-items-center">
                                 <div class="flex-grow-1">
-                                    <h5 class="card-title mb-0">Products <span class="badge bg-dark-subtle text-dark ms-1">254</span></h5>
+                                    <h5 class="card-title mb-0">Products <span class="badge bg-dark-subtle text-dark ms-1">{{ $products->count() }}</span></h5>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <div class="d-flex flex-wrap align-items-start gap-2">

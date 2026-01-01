@@ -1494,3 +1494,9 @@ textarea.ko-form-control{ height: 178px; resize: vertical; }
 
 
 
+.icon-btn { width: 42px; height: 42px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #212529; position: relative; text-decoration: none;}
+.icon-btn:hover { background: #e9ecef;}
+.icon-btn .count { position: absolute; top: -4px; right: -4px; background: #dc3545; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 20px; font-weight: 600;}
+.site-footer { font-size: 14px;}.footer-title { font-size: 15px; font-weight: 600; margin-bottom: 12px;}
+.footer-links li {margin-bottom: 6px;} .footer-links a {color: #6c757d;text-decoration: none; }.footer-links a:hover {color: #000;}
+.footer-social { color: #6c757d; font-size: 18px; } .footer-social:hover { color: #000;}

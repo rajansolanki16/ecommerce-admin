@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\User\WishListController;
+use App\Http\Controllers\User\CheckoutController;
 use App\Models\Faq;
 
 //Auth
@@ -61,6 +62,11 @@ Route::post('/wishlist/delete/{id}', [WishListController::class, 'deleteById'])-
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
