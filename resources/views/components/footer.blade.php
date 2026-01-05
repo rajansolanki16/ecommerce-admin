@@ -5,10 +5,10 @@
 
             {{-- BRAND --}}
             <div class="col-lg-4 col-md-6">
-                <img src="{{ publicPath(getSetting('site_logo')) }}"
+                <img src="{{ publicPath(getSetting('site_logo_light')) }}"
                      alt="Logo"
                      height="42"
-                     class="mb-3">
+                     class="site-logo">
 
                 <p class="text-muted small">
                     Premium products, seamless shopping, and trusted service.
@@ -97,4 +97,6 @@
         passwordField.setAttribute('type', type);
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </footer>

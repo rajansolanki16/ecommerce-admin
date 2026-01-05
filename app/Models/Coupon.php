@@ -8,17 +8,10 @@ class Coupon extends Model
 {
     //
 
-    protected $table = 'coupon';
+    protected $table = 'coupons';
     protected $fillable = [
-        'code',
-        'description',
-        'type',
-        'amount',
-        'discount_amount',
-        'start_date',
-        'expiry_date',
-        'max_usage',
+        'code', 'description', 'type', 'amount',
+        'start_date', 'expiry_date', 'max_usage', 'used'
     ];
-
 
 }

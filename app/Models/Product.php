@@ -111,4 +111,16 @@ class Product extends Model
     {
         return $this->belongsToMany(ProductAttribute::class, 'attribute_product', 'product_id', 'product_attribute_id');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function avgRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    
 }

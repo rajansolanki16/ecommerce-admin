@@ -30,7 +30,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\User\WishListController;
 use App\Http\Controllers\User\CheckoutController;
-use App\Models\Faq;
+use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\User\ProductReviewController;
 
 //Auth
 Route::get('/login', [RedirectController::class, 'login'])->name('login');
@@ -55,7 +56,7 @@ Route::get('/product', [HomeController::class, 'list'])->name('user.product');
 Route::get('/product/{slug}', [ProductController::class, 'userShow'])->name('product.user.show');
 Route::post('/guest/merge', [AuthController::class, 'mergeGuestStorage'])->middleware('auth')->name('guest.merge');
 
-Route::post( '/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
 Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
 Route::post('/wishlist/delete/{id}', [WishListController::class, 'deleteById'])->name('wishlist.delete');
 
@@ -66,7 +67,13 @@ Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply.coupon');
+
+Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.remove.coupon');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+Route::post('/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');
 
 //admin panel
 Route::middleware(['auth'])->group(function () {
@@ -80,7 +87,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
         Route::post('/products/{product}/variants/remove', [ProductController::class, 'removeVariant'])->name('products.variants.remove');
-        Route::post('/products/generate-variants',[ProductController::class, 'generateVariants'])->name('products.generate.variants');
+        Route::post('/products/generate-variants', [ProductController::class, 'generateVariants'])->name('products.generate.variants');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
         Route::resource('/tags', TagsController::class)->names('tags');

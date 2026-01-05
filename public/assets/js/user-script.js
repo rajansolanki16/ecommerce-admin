@@ -86,13 +86,11 @@ $(document).on('click', '.wishlist-btn', function (e) {
     });
 });
 
-
 // Cookie helpers
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : null;
 }
-
 
 // Delete cookie
 function deleteCookie(name){ document.cookie = name + '=; Max-Age=-99999999; path=/'; }

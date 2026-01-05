@@ -3,6 +3,11 @@
     'description' => 'Secure checkout'
 )" />
 
+
+@if ($errors->any()) <div class="alert alert-danger"> {{ $errors->first() }} </div> @endif
+@if (session('error'))<div class="alert alert-danger"> {{ session('error') }} </div> @endif
+@if (session('success')) <div class="alert alert-success"> {{ session('success') }} </div> @endif
+
 <main class="ko-container py-5">
     <div class="row mb-4">
         <div class="col">
@@ -10,6 +15,26 @@
             <p class="text-muted mb-0">Complete your purchase securely</p>
         </div>
     </div>
+    @if(session('applied_coupon'))
+        <div class="alert alert-success d-flex justify-content-between align-items-center">
+            <span>
+                Coupon <strong>{{ session('applied_coupon')['code'] }}</strong> applied
+            </span>
+
+            <form method="POST" action="{{ route('checkout.remove.coupon') }}">
+                @csrf
+                <button class="btn btn-sm btn-outline-danger">Remove</button>
+            </form>
+        </div>
+    @else
+        <form method="POST" action="{{ route('checkout.apply.coupon') }}" class="mb-3">
+            @csrf
+            <div class="input-group">
+                <input type="text" name="code" class="form-control" placeholder="Enter coupon code">
+                <button class="btn btn-outline-secondary">Apply</button>
+            </div>
+        </form>
+    @endif
 
     <form method="POST" action="{{ route('checkout.place') }}">
         @csrf
@@ -98,15 +123,25 @@
 
                         <hr>
 
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Subtotal</span>
+                       <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>₹{{ number_format($subtotal) }}</span>
+                        </div>
+
+                        @if($discount > 0)
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Discount</span>
+                            <span>- ₹{{ number_format($discount) }}</span>
+                        </div>
+                        @endif
+
+                        <div class="d-flex justify-content-between fs-5 fw-bold mb-4">
+                            <span>Total</span>
                             <span>₹{{ number_format($total) }}</span>
                         </div>
 
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted">Shipping</span>
-                            <span class="text-success">Free</span>
-                        </div>
+                        {{-- COUPON --}}
+                        
 
                         <div class="d-flex justify-content-between fs-5 fw-bold mb-4">
                             <span>Total</span>
@@ -128,5 +163,23 @@
         </div>
     </form>
 </main>
+<script>
+@if ($errors->any())
+    <div class="alert alert-danger">
+        {{ $errors->first() }}
+    </div>
+@endif
 
+@if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+</script>
 <x-footer />

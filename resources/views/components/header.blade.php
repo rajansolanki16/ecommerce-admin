@@ -57,10 +57,10 @@
         <div class="d-flex align-items-center justify-content-between py-3">
 
             {{-- LOGO --}}
-            <a href="/" class="text-decoration-none d-flex align-items-center">
-                <img src="{{ publicPath(getSetting('site_logo')) }}"
-                     alt="Logo"
-                     height="42">
+            <a href="/" class="logo-link d-flex align-items-center">
+                <img src="{{ publicPath(getSetting('site_logo_light')) }}"
+                    alt="Logo"
+                    class="site-logo">
             </a>
 
             {{-- SEARCH --}}
@@ -120,7 +120,7 @@
                             <a class="dropdown-item" href="#">My Account</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">My Orders</a>
+                            <a class="dropdown-item" href="{{ route('orders.index') }}">My Orders</a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>

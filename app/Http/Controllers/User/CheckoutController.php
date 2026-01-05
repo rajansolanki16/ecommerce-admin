@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Coupon;
 
 
 class CheckoutController extends Controller
@@ -18,59 +19,79 @@ class CheckoutController extends Controller
         $cart = $this->getCart($request);
 
         if ($cart->isEmpty()) {
-            return redirect()
-                ->route('cart.index')
-                ->with('error', 'Your cart is empty');
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
-        // Fetch products safely
-        $products = Product::whereIn('id', $cart->pluck('id'))->get()->keyBy('id');
+        $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
+        $discount = 0;
 
-        $total = 0;
-
-        foreach ($cart as &$item) {
-            $product = $products->get($item['id']);
-
-            if (!$product) {
-                continue;
+        if ($coupon = session('applied_coupon')) {
+            if ($coupon['type'] === 'percentage') {
+                $discount = ($subtotal * $coupon['amount']) / 100;
+            } else {
+                $discount = min($coupon['amount'], $subtotal);
             }
-
-            // Attach price safely
-            $item['price'] = $product->sell_price ?? $product->price;
-            $item['name']  = $product->product_title;
-
-            $total += $item['price'] * $item['quantity'];
         }
 
-        return view('user.checkout.index', compact('cart', 'total'));
+        $total = max(0, $subtotal - $discount);
+
+        return view('user.checkout.index', compact(
+            'cart', 'subtotal', 'discount', 'total'
+        ));
     }
+    
     public function placeOrder(Request $request)
     {
         $request->validate([
             'name'    => 'required|string|max:255',
             'email'   => 'required|email',
-            'phone'   => 'required',
+            'phone'   => 'required|string|max:20',
             'address' => 'required|string',
         ]);
 
         $cart = $this->getCart($request);
 
         if ($cart->isEmpty()) {
-            return back()->with('error', 'Cart is empty');
+            return back()->with('error', 'Your cart is empty');
         }
 
         DB::transaction(function () use ($request, $cart) {
 
+            /* ---------------- CALCULATE TOTAL ---------------- */
+            $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
+            $discount = 0;
+            $couponId = null;
+
+            if ($coupon = session('applied_coupon')) {
+                $couponId = $coupon['id'];
+
+                if ($coupon['type'] === 'percentage') {
+                    $discount = ($subtotal * $coupon['amount']) / 100;
+                } else {
+                    $discount = min($coupon['amount'], $subtotal);
+                }
+
+                // Increase coupon usage
+                \App\Models\Coupon::where('id', $couponId)->increment('used');
+            }
+
+            $total = max(0, $subtotal - $discount);
+
+            /* ---------------- CREATE ORDER ---------------- */
             $order = Order::create([
-                'user_id' => Auth::id(),
-                'name'    => $request->name,
-                'email'   => $request->email,
-                'phone'   => $request->phone,
-                'address' => $request->address,
-                'total'   => $cart->sum(fn ($i) => $i['price'] * $i['quantity']),
-                'status'  => 'pending',
+                'user_id'   => Auth::id(), 
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'phone'     => $request->phone,
+                'address'   => $request->address,
+                'subtotal'  => $subtotal,
+                'discount'  => $discount,
+                'total'     => $total,
+                'coupon_id' => $couponId,
+                'status'    => 'pending',
             ]);
 
+            /* ---------------- CREATE ORDER ITEMS ---------------- */
             foreach ($cart as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -80,29 +101,93 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // Clear cart
-            if (Auth::check()) {
+            /* ---------------- CLEAR CART ---------------- */
+            if (Auth::check() && auth()->user()->cart) {
                 auth()->user()->cart->items()->delete();
             }
+
+            session()->forget('applied_coupon');
         });
 
-
-        return redirect()->route('checkout.success')->withCookie(cookie()->forget('guest_cart'));
+        return redirect()
+            ->route('checkout.success')
+            ->withCookie(cookie()->forget('guest_cart'));
     }
+
 
     private function getCart(Request $request)
     {
+        // STEP 1: Get raw cart
         if (Auth::check()) {
-            return collect(auth()->user()->cart->items->map(fn ($i) => [
+            $cart = auth()->user()->cart->items->map(fn ($i) => [
                 'id'       => $i->product_id,
-                'name'     => $i->product->name,
-                'price'    => $i->price,
                 'quantity' => $i->quantity,
-                'image'    => $i->product->image,
-            ]));
+            ]);
+        } else {
+            $cart = collect(json_decode($request->cookie('guest_cart', '[]'), true));
         }
 
-        return collect(json_decode($request->cookie('guest_cart', '[]'), true));
+        if ($cart->isEmpty()) {
+            return collect();
+        }
+
+        // STEP 2: Fetch products safely
+        $products = Product::whereIn('id', $cart->pluck('id'))
+            ->get()
+            ->keyBy('id');
+
+        // STEP 3: Normalize cart (🔥 IMPORTANT)
+        return $cart->map(function ($item) use ($products) {
+
+            $product = $products->get($item['id']);
+
+            if (!$product) return null;
+
+            $price = $product->sell_price ?? $product->price;
+
+            return [
+                'id'       => $product->id,
+                'name'     => $product->product_title,
+                'price'    => $price,
+                'quantity' => $item['quantity'],
+                'image'    => $product->product_image,
+            ];
+        })->filter()->values();
+    }
+
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string'
+        ]);
+
+        $coupon = Coupon::where('code', strtoupper($request->code))
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('expiry_date', '>=', now())
+            ->first();
+
+        if (!$coupon) {
+            return back()->with('error', 'Invalid or expired coupon');
+        }
+
+        if ($coupon->max_usage && $coupon->used >= $coupon->max_usage) {
+            return back()->with('error', 'Coupon usage limit reached');
+        }
+
+        session()->put('applied_coupon', [
+            'id'     => $coupon->id,
+            'code'   => $coupon->code,
+            'type'   => $coupon->type,
+            'amount' => $coupon->amount,
+        ]);
+
+        return back()->with('success', 'Coupon applied successfully');
+    }
+
+    public function removeCoupon()
+    {
+        session()->forget('applied_coupon');
+        return back()->with('success', 'Coupon removed');
     }
 
     public function success()

@@ -21,7 +21,7 @@
     {{-- BODY --}}
     <div class="card-body" style="display:none;">
 
-        {{-- Variant Name --}}
+        {{-- Varia  nt Name --}}
         <input type="hidden" name="variants[{{ $index }}][name]" value="{{ $name }}">
 
         {{-- Variant Values --}}
