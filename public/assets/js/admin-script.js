@@ -766,3 +766,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+//order status update
+$(document).ready(function() {
+    $('.order-status').change(function() {
+        console.log('script changed detected');
+        
+        var orderId = $(this).data('id');
+        var status = $(this).val();
+        
+        $.ajax({
+            url: '/admin/orders/' + orderId + '/status',  
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'), 
+                status: status
+            },
+            success: function(response) {
+                if(response.success) {
+                    console.log('Order status updated to ' + response.status);
+                }
+            },
+            error: function(xhr) {
+                console.log('Error Response:', xhr); 
+                
+                if(xhr.responseJSON && xhr.responseJSON.errors) {
+                    console.log('Error: ' + Object.values(xhr.responseJSON.errors).join(', '));
+                } else {
+                    console.log('Something went wrong! Status: ' + xhr.status);
+                }
+            }
+        });
+    });
+});

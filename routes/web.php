@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\MediaController;
+// use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentOptionsController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\RoomController;
@@ -97,6 +98,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/attribute-values', AttributeValueController::class)->names('attribute_values');
 
         Route::get('/wishlist/show', [WishListController::class, 'showadmin'])->name('wishlist.show');
+
+        //order routes
+        Route::get('/orders', [OrderController::class, 'indexshow'])->name('orders.show');
+         Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 
         Route::prefix('settings')->group(function () {
 

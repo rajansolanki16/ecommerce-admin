@@ -197,7 +197,7 @@
                         </div>
                     </li>
 
-                     <!-- Wishlists Show -->
+                    <!-- Wishlists Show -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarwishlist"
                             data-bs-toggle="collapse" role="button"
@@ -210,6 +210,24 @@
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
                                     <a href="{{ route('wishlist.show') }}" class="nav-link">Show</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- Order Show -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarorder"
+                            data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarorder">
+                            <i class="ri-folder-2-line"></i>
+                            <span>Order</span>
+                        </a>
+
+                        <div class="collapse menu-dropdown" id="sidebarorder">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('orders.show') }}" class="nav-link">Show</a>
                                 </li>
                             </ul>
                         </div>
