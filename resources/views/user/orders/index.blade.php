@@ -127,7 +127,7 @@
                 <p class="text-muted mb-4">
                     Looks like you haven’t placed any orders.
                 </p>
-                <a href="{{ route('shop.index') }}" class="btn btn-dark px-4">
+                <a href="#" class="btn btn-dark px-4">
                     Start Shopping
                 </a>
             </div>

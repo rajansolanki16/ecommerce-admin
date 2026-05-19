@@ -72,7 +72,7 @@ class CheckoutController extends Controller
                 }
 
                 // Increase coupon usage
-                \App\Models\Coupon::where('id', $couponId)->increment('used');
+                Coupon::where('id', $couponId)->increment('used');
             }
 
             $total = max(0, $subtotal - $discount);

@@ -28,32 +28,6 @@
                         </a>
                     </li>
 
-                    <!-- BLOGS -->
-                    <!-- <li class="nav-item">
-                        @if(Route::is('blogs.*') || Route::is('blog_categories.*'))
-                            <a href="#sidebarBlogs" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBlogs">
-                                <i class="ri-profile-line"></i><span>Blogs</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarBlogs">
-                        @else
-                            <a href="#sidebarBlogs" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBlogs">
-                                <i class="ri-profile-line"></i><span>Blogs</span>
-                            </a>
-                            <div class="collapse menu-dropdown" id="sidebarBlogs">
-                        @endif
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('blogs.create') }}" class="nav-link">Add Blogs</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('blogs.index') }}" class="nav-link">All Blogs</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('blog_categories.index') }}" class="nav-link">Categories</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>  -->
 
 
                     <!-- PRODUCT -->

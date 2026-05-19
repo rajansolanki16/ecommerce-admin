@@ -184,23 +184,6 @@ class ProductController extends Controller
         }
 
         /* ===============================
-        Upload Images
-        =============================== */
-
-        $mainImagePath = null;
-        if ($request->hasFile('product_image')) {
-            $mainImagePath = $request->file('product_image')
-                ->store('products/main', 'public');
-        }
-
-        $galleryImages = [];
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $image) {
-                $galleryImages[] = $image->store('products/gallery', 'public');
-            }
-        }
-
-        /* ===============================
         Create Product
         =============================== */
 
@@ -211,7 +194,6 @@ class ProductController extends Controller
         $product->product_title        = $validated['title'];
         $product->slug                 = Str::slug($validated['title']);
         $product->sku_number           = $validated['sku_number'] ?? null;
-
         $product->product_type         = $validated['product_type'];
         $product->short_description    = $validated['short_description'];
         $product->product_decscription = $request->product_decscription;
@@ -250,9 +232,20 @@ class ProductController extends Controller
         $product->status               = $request->status ?? 1;
         $product->visibility           = $request->visibility ?? 1;
 
-        $product->product_image        = $mainImagePath;
-        $product->gallery_images       = $galleryImages;
+        if ($request->hasFile('product_image')) {
+                $product
+                    ->addMedia($request->file('product_image'))
+                    ->toMediaCollection('main_image');
+            }
 
+            // Gallery images (multiple)
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $image) {
+                    $product
+                        ->addMedia($image)
+                        ->toMediaCollection('gallery');
+                }
+            }
         try {
             $product->save();
             Log::info('=== PRODUCT SAVED SUCCESSFULLY ===', ['product_id' => $product->id]);

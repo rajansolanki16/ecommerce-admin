@@ -26,7 +26,7 @@
                         @foreach ($orders as $order)
                         <tr>
                             <td>{{ $order->id }}</td>
-                            <td>{{ $order->user->name }}</td>
+                            <td>{{ $order->user->name ?? $order->name }}</td>
                             <td>{{ $order->name }}</td>
                             <td>{{ $order->email }}</td>
                             <td>{{ $order->phone }}</td>

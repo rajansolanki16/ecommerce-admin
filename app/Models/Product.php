@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\ProductVariant;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
+
+   use InteractsWithMedia;  
     protected $fillable = [
         'product_title',
         'slug',
@@ -61,6 +65,8 @@ class Product extends Model
         'width'                   => 'decimal:2',
         'height'                  => 'decimal:2',
     ];
+
+    
 
     /**
      * Auto-generate SKU if not provided
