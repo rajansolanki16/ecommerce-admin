@@ -80,11 +80,6 @@ Route::post('/reviews', [ProductReviewController::class, 'store'])->name('review
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
-        Route::resource('/blogs', BlogController::class)->names('blogs');
-        Route::resource('/blog-categories', BlogCategoriesController::class)->names('blog_categories');
-        Route::resource('/room-services', ServiceController::class)->names('services');
-        Route::resource('/room-amenities', AmenityController::class)->names('amenities');
-        Route::resource('/rooms', RoomController::class)->names('rooms');
 
         Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
         Route::post('/products/{product}/variants/remove', [ProductController::class, 'removeVariant'])->name('products.variants.remove');
@@ -126,18 +121,6 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/ecommerce/store', [SettingController::class, 'store_ecommerce'])->name('settings.ecommerce.store');
         });
 
-        Route::get('/offline-booking', [BookingController::class, 'show_offline_booking'])->name('view.offline_booking');
-        Route::post('/offline-booking', [BookingController::class, 'store_offline_booking'])->name('offline_booking.save');
-
-        Route::get('/transactions', [BookingController::class, 'show_transactions'])->name('view.transactions');
-        Route::get('/bookings', [BookingController::class, 'show_bookings'])->name('view.bookings');
-
-        Route::get('/booking/{id}', [BookingController::class, 'show_single_booking'])->name('view.booking');
-        // Route::get('/booking/{id}/edit', [BookingController::class, 'edit_booking'])->name('view.edit_booking');
-        // Route::post('/booking/{id}/edit', [BookingController::class, 'save_edit_booking'])->name('edit_booking.save');
-        Route::post('/booking/pay-status/{bid}', [BookingController::class, 'change_pay_status'])->name('booking_payment.change.save');
         Route::get('/users', [AdminController::class, 'show_users'])->name('view.users');
-        Route::post('/remove-room-media', [RoomController::class, 'remove_room_media'])->name('rooms.media.remove');
-        Route::post('/room-wise-services', [RoomController::class, 'room_wise_services'])->name('rooms.services');
     });
 });
