@@ -306,7 +306,7 @@
 
         <!-- Users -->
         <li class="nav-item">
-            <a href="{{ route('view.users') }}/" class="nav-link menu-link collapsed">
+            <a href="{{ route('users.index') }}/" class="nav-link menu-link collapsed">
                 <i class="ph-user-circle"></i><span>Users</span>
             </a>
         </li>

@@ -20,14 +20,13 @@ use App\Http\Controllers\Admin\MediaController;
 // use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentOptionsController;
 use App\Http\Controllers\Admin\ProductAttributeController;
-use App\Http\Controllers\Admin\RoomController;
-use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\User\WishListController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\User\ProductReviewController;
 
 //Auth
@@ -92,7 +91,7 @@ Route::middleware(['auth'])->group(function () {
 
         //order routes
         Route::get('/orders', [OrderController::class, 'indexshow'])->name('orders.show');
-         Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+        Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 
         Route::prefix('settings')->group(function () {
 
@@ -117,6 +116,13 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/ecommerce/store', [SettingController::class, 'store_ecommerce'])->name('settings.ecommerce.store');
         });
 
-        Route::get('/users', [AdminController::class, 'show_users'])->name('view.users');
+        Route::prefix('users')->group(function() {
+            Route::get('/', [UserController::class, 'index'])->name('users.index');
+            Route::get('/create', [UserController::class, 'create'])->name('users.create');
+            Route::post('/', [UserController::class, 'store'])->name('users.store');
+            Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+            Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+            Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.delete');
+        });
     });
 });

@@ -114,7 +114,7 @@ class CouponController extends Controller
         $coupon->code = $request->code;
         $coupon->type = $request->type;
         $coupon->amount = $request->amount;
-        $coupon->discount_amount = $request->discount_amount;
+      //  $coupon->discount_amount = $request->discount_amount;
         $coupon->description = $request->description;
         $coupon->start_date = $request->start_date;
         $coupon->expiry_date = $request->expiry_date;

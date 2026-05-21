@@ -31,9 +31,92 @@
 
 
 <!-- DataTables -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
 <script src="{{ asset('admin/js/pages/datatables.init.js') }}"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#categoryTable').DataTable({
+
+            responsive: true,
+
+            pageLength: 10,
+
+            lengthMenu: [
+                [10, 25, 50, 100],
+                [10, 25, 50, 100]
+            ],
+
+            dom:
+                "<'row align-items-center mb-3'<'col-md-6'B><'col-md-6'f>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row align-items-center mt-3'<'col-md-5'i><'col-md-7'p>>",
+
+            buttons: [
+
+                {
+                    extend: 'copy',
+                    className: 'btn btn-light btn-sm'
+                },
+
+                {
+                    extend: 'excel',
+                    className: 'btn btn-success btn-sm'
+                },
+
+                {
+                    extend: 'pdf',
+                    className: 'btn btn-danger btn-sm'
+                },
+
+                {
+                    extend: 'print',
+                    className: 'btn btn-primary btn-sm'
+                }
+
+            ],
+
+            language: {
+
+                search: "",
+                searchPlaceholder: "Search categories...",
+
+                paginate: {
+                    previous: "<i class='ri-arrow-left-s-line'></i>",
+                    next: "<i class='ri-arrow-right-s-line'></i>"
+                }
+
+            }
+
+        });
+
+    });
+
+</script>
 
 
 @stack('scripts')

@@ -422,7 +422,7 @@ function previewMultipleImages(event) {
 // product type hide/show
 function toggleSections() {
     const type = $('#productType').val();
-    console.log('Product Type:', type); 
+    //console.log('Product Type:', type); 
 
     if (type == 1) {
         $('#vec_shipping_section').hide();

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('expiry_date');
             $table->integer('max_usage')->nullable();
+
+            $table->decimal('discount_amount', 8 , 2)->nullable();
             $table->integer('used')->default(0);
 
             $table->timestamps();

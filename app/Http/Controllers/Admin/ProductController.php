@@ -70,10 +70,10 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info('=== STORE METHOD STARTED ===', [
-            'all_inputs' => $request->except(['product_image', 'gallery_images']),
-            'has_files' => count($request->files->all()) > 0,
-        ]);
+        // Log::info('=== STORE METHOD STARTED ===', [
+        //     'all_inputs' => $request->except(['product_image', 'gallery_images']),
+        //     'has_files' => count($request->files->all()) > 0,
+        // ]);
 
         try {
             $validated = $request->validate([
