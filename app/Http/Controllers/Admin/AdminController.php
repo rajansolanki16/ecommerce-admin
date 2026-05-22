@@ -16,11 +16,7 @@ class AdminController extends Controller
     public function show_admin(){
         $user = Auth::user();
 
-        return view('admin.dashboard')
-                ->with([
-                    "user"=>$user,
-                  
-                ]);
+        return view('admin.dashboard')->with(["user"=>$user,]);
     }
 
     public function show_users(){
