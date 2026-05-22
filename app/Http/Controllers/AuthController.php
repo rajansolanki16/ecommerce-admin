@@ -301,24 +301,7 @@ class AuthController extends Controller
         return response()->json($states);
     }
 
-    public function my_account()
-    {
-        $user = Auth::user();
-
-        if ($user->id) {
-            $bookings = Booking::where("user_id", '=', $user->id)->get();
-            $transactions = Transaction::where("user_id", '=', $user->id)->get();
-            $countries = Country::select('c_code', 'c_name')->distinct('c_name')->get()->sortBy(function ($country) {
-                return (int) filter_var($country->c_code, FILTER_SANITIZE_NUMBER_INT);
-            });
-            $sid = Country::where('s_name', '=', $user->state)->where('c_name', '=', $user->country)->first();
-
-            return view('account')->with(['bookings' => $bookings, 'transactions' => $transactions, 'countries' => $countries, 'user' => $user, 'sid' => $sid]);
-        } else {
-            return redirect()->back();
-        }
-    }
-
+  
     public function profile_update(Request $request)
     {
         $rules = [

@@ -45,19 +45,21 @@ class ProductController extends Controller
      */
     public function create()
     {
-       $attributes = ProductAttribute::with('values')->get();
-       $attributesJson = $attributes->map(function($a){
-           return [
-               'id' => $a->id,
-               'name' => $a->name,
-               'values' => $a->values->map(function($v){ return ['id'=>$v->id,'value'=>$v->value]; }),
-           ];
-       })->toJson();
+        $attributes = ProductAttribute::with('values')->get();
+        $attributesJson = $attributes->map(function ($a) {
+            return [
+                'id' => $a->id,
+                'name' => $a->name,
+                'values' => $a->values->map(function ($v) {
+                    return ['id' => $v->id, 'value' => $v->value];
+                }),
+            ];
+        })->toJson();
 
-       return view('admin.products.create', [
+        return view('admin.products.create', [
             'productTypes'       => ProductType::cases(),
             'productStatuses'    => ProductStatus::cases(),
-            'productVisibilities'=> ProductVisibility::cases(),
+            'productVisibilities' => ProductVisibility::cases(),
             'categories'         => Category::orderBy('name')->get(),
             'allTags'            => Tag::orderBy('name')->get(),
             'attributes'         => $attributes,
@@ -107,12 +109,12 @@ class ProductController extends Controller
             ]);
 
             Log::info('=== INITIAL VALIDATION PASSED ===', ['validated' => $validated]);
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                Log::error('=== INITIAL VALIDATION FAILED ===', [
-                    'errors' => $e->errors(),
-                ]);
-                throw $e;
-            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('=== INITIAL VALIDATION FAILED ===', [
+                'errors' => $e->errors(),
+            ]);
+            throw $e;
+        }
 
         $productType = $validated['product_type'] ?? $request->input('product_type');
         Log::info('=== PRODUCT TYPE CHECK ===', ['product_type' => $productType, 'is_simple' => $productType == ProductType::SIMPLE->value]);
@@ -209,7 +211,7 @@ class ProductController extends Controller
             $product->discount             = $validated['discount'] ?? 0;
 
             $product->sell_price           = $validated['sell_price'] ?? null;
-            $product->sell_price_start_date= $validated['sell_price_start_date'] ?? null;
+            $product->sell_price_start_date = $validated['sell_price_start_date'] ?? null;
             $product->sell_price_end_date  = $validated['sell_price_end_date'] ?? null;
 
             $product->weight               = $validated['weight'] ?? null;
@@ -221,7 +223,7 @@ class ProductController extends Controller
             $product->price                = $validated['price'];
             $product->discount             = 0;
             $product->sell_price           = null;
-            $product->sell_price_start_date= null;
+            $product->sell_price_start_date = null;
             $product->sell_price_end_date  = null;
             $product->weight               = null;
             $product->length               = null;
@@ -232,20 +234,6 @@ class ProductController extends Controller
         $product->status               = $request->status ?? 1;
         $product->visibility           = $request->visibility ?? 1;
 
-        if ($request->hasFile('product_image')) {
-                $product
-                    ->addMedia($request->file('product_image'))
-                    ->toMediaCollection('main_image');
-            }
-
-            // Gallery images (multiple)
-            if ($request->hasFile('gallery_images')) {
-                foreach ($request->file('gallery_images') as $image) {
-                    $product
-                        ->addMedia($image)
-                        ->toMediaCollection('gallery');
-                }
-            }
         try {
             $product->save();
             Log::info('=== PRODUCT SAVED SUCCESSFULLY ===', ['product_id' => $product->id]);
@@ -257,6 +245,20 @@ class ProductController extends Controller
             throw $e;
         }
 
+        if ($request->hasFile('product_image')) {
+            $product
+                ->addMedia($request->file('product_image'))
+                ->toMediaCollection('main_image');
+        }
+
+        // Gallery images (multiple)
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $product
+                    ->addMedia($image)
+                    ->toMediaCollection('gallery');
+            }
+        }
         /* ===============================
         Sync Relations
         =============================== */
@@ -298,9 +300,9 @@ class ProductController extends Controller
                         'height'     => $variant['height'] ?? null,
                         'status'     => $variant['status'] ?? $product->status,
                         'visibility' => $variant['visibility'] ?? $product->visibility,
-                        'exchangeable'=> $variant['exchangeable'] ?? $product->exchangeable,
+                        'exchangeable' => $variant['exchangeable'] ?? $product->exchangeable,
                         'refundable' => $variant['refundable'] ?? $product->refundable,
-                        'free_shipping'=> $variant['free_shipping'] ?? $product->free_shipping,
+                        'free_shipping' => $variant['free_shipping'] ?? $product->free_shipping,
                         'shipping_address' => $variant['shipping_address'] ?? null,
                         'general_info' => $variant['general_info'] ?? null,
                     ];
@@ -351,24 +353,26 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-   public function edit(Product $product)
+    public function edit(Product $product)
     {
 
-       $attributes = ProductAttribute::with('values')->get();
+        $attributes = ProductAttribute::with('values')->get();
 
-       $attributesJson = $attributes->map(function($a){
-           return [
-               'id' => $a->id,
-               'name' => $a->name,
-               'values' => $a->values->map(function($v){ return ['id'=>$v->id,'value'=>$v->value]; }),
-           ];
-       })->toJson();
+        $attributesJson = $attributes->map(function ($a) {
+            return [
+                'id' => $a->id,
+                'name' => $a->name,
+                'values' => $a->values->map(function ($v) {
+                    return ['id' => $v->id, 'value' => $v->value];
+                }),
+            ];
+        })->toJson();
 
-        $product->load(['variants' => function($query) {
+        $product->load(['variants' => function ($query) {
             $query->with('attributeValues');
         }]);
 
-        $variantsData = $product->variants->map(function($variant) {
+        $variantsData = $product->variants->map(function ($variant) {
             return [
                 'id' => $variant->id,
                 'name' => $variant->attributeValues->pluck('value')->join(' / ') ?: 'Variant #' . $variant->id,
@@ -398,7 +402,7 @@ class ProductController extends Controller
             'categories'         => Category::all(),
             'productTypes'       => ProductType::cases(),
             'productStatuses'    => ProductStatus::cases(),
-            'productVisibilities'=> ProductVisibility::cases(),
+            'productVisibilities' => ProductVisibility::cases(),
             'allTags'            => Tag::orderBy('name')->get(),
             'attributes'         => $attributes,
             'attributesJson'     => $attributesJson,
@@ -425,27 +429,9 @@ class ProductController extends Controller
         $prodType = $validated['product_type'] ?? $request->input('product_type');
         if ($prodType == ProductType::SIMPLE->value || $prodType == ProductType::SIMPLE) {
             $request->validate([
-                'price' => 'required|numeric',
+                'price' => 'nullable|numeric|min:0', 
                 'stock' => 'required|integer',
             ]);
-        }
-
-        /* ---------- MAIN IMAGE ---------- */
-        if ($request->hasFile('product_image')) {
-            $product->product_image = $request
-                ->file('product_image')
-                ->store('products/main', 'public');
-        }
-
-        /* ---------- GALLERY IMAGES ---------- */
-        if ($request->hasFile('gallery_images')) {
-            $galleryImages = $product->gallery_images ?? [];
-
-            foreach ($request->file('gallery_images') as $image) {
-                $galleryImages[] = $image->store('products/gallery', 'public');
-            }
-
-            $product->gallery_images = $galleryImages;
         }
 
         /* ---------- PRODUCT DATA ---------- */
@@ -454,44 +440,53 @@ class ProductController extends Controller
         $product->product_type         = $validated['product_type'];
         $product->short_description    = $validated['short_description'];
         $product->product_decscription = $request->product_decscription ?? $product->product_decscription;
-
         $product->exchangeable         = $request->boolean('exchangeable');
         $product->refundable           = $request->boolean('refundable');
         $product->free_shipping        = $request->boolean('free_shipping');
 
-        if ($product->product_type == ProductType::SIMPLE->value || $product->product_type == ProductType::SIMPLE) {
-            $product->stock                = $validated['stock']; 
-            $product->price                = $validated['price'] ?? 0 ;
-            $product->discount             = $request->discount ?? $product->discount;
+        if ($prodType == ProductType::SIMPLE->value || $prodType == ProductType::SIMPLE) {
+            $product->stock    = $validated['stock'];
+            $product->price    = $validated['price'] ?? 0;
+            $product->discount = $request->discount ?? $product->discount;
         } else {
-            $product->stock = 0;
-            $product->price = 0;
+            $product->stock    = 0;
+            $product->price    = 0;
             $product->discount = 0;
         }
         $product->status               = $request->status ?? $product->status;
         $product->visibility           = $request->visibility ?? $product->visibility;
-
         $product->sell_price           = $request->sell_price ?? $product->sell_price;
-        $product->sell_price_start_date= $request->sell_price_start_date ?? $product->sell_price_start_date;
+        $product->sell_price_start_date = $request->sell_price_start_date ?? $product->sell_price_start_date;
         $product->sell_price_end_date  = $request->sell_price_end_date ?? $product->sell_price_end_date;
-
         $product->weight               = $request->weight ?? $product->weight;
         $product->length               = $request->length ?? $product->length;
         $product->width                = $request->width ?? $product->width;
         $product->height               = $request->height ?? $product->height;
         $product->save();
 
+        /* ---------- IMAGES (Spatie) ---------- */
+        if ($request->hasFile('product_image')) {
+            $product->clearMediaCollection('main_image');
+            $product->addMedia($request->file('product_image'))
+                ->toMediaCollection('main_image');
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $product->addMedia($image)->toMediaCollection('gallery');
+            }
+        }
+
         /* ---------- RELATIONS ---------- */
         $product->categories()->sync($validated['categories'] ?? []);
         $product->tags()->sync($request->tags ?? []);
 
-        // Handle variants on update
-        if ($product->product_type == ProductType::VARIANTS->value || $product->product_type == ProductType::VARIANTS) {
+        /* ---------- VARIANTS ---------- */
+        if ($prodType == ProductType::VARIANTS->value || $prodType == ProductType::VARIANTS) {
             if ($request->filled('product_attributes')) {
                 $product->attributes()->sync($request->product_attributes);
             }
 
-            // remove existing and recreate
             $product->variants()->delete();
 
             if ($request->filled('variants') && is_array($request->variants)) {
@@ -511,9 +506,11 @@ class ProductController extends Controller
                         'height'     => $variant['height'] ?? null,
                         'status'     => $variant['status'] ?? $product->status,
                         'visibility' => $variant['visibility'] ?? $product->visibility,
-                        'exchangeable'  => (int) ($variantData['exchangeable'] ?? 0),
-                        'refundable'    => (int) ($variantData['refundable'] ?? 0),
-                        'free_shipping' => (int) ($variantData['free_shipping'] ?? 0),
+                        'exchangeable'  => (int) ($variant['exchangeable'] ?? 0),
+                        'refundable'    => (int) ($variant['refundable'] ?? 0),
+                        'free_shipping' => (int) ($variant['free_shipping'] ?? 0),
+                        'shipping_address' => $variant['shipping_address'] ?? null,
+                        'general_info'     => $variant['general_info'] ?? null,
                     ];
 
                     if ($request->hasFile("variants.$idx.image")) {
