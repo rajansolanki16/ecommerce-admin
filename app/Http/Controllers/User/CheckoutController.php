@@ -158,36 +158,42 @@ class CheckoutController extends Controller
     public function applyCoupon(Request $request)
     {
         $request->validate([
-            'code' => 'required|string'
+            'code'       => 'required|string',
+            'cart_total' => 'required|numeric|min:0',
         ]);
+
+        $cartTotal = (float) $request->cart_total;
 
         $coupon = Coupon::where('code', strtoupper($request->code))
-            ->whereDate('start_date', '<=', now())
-            ->whereDate('expiry_date', '>=', now())
-            ->first();
+                        ->where('is_active', true)
+                        ->first();
 
         if (!$coupon) {
-            return back()->with('error', 'Invalid or expired coupon');
+            return back()->with('coupon_error', 'Invalid coupon code.');
         }
 
-        if ($coupon->max_usage && $coupon->used >= $coupon->max_usage) {
-            return back()->with('error', 'Coupon usage limit reached');
+        $result = $coupon->isValid($cartTotal, auth()->id());
+
+        if (!$result['valid']) {
+            return back()->with('coupon_error', $result['message']);
         }
+
+        $discount = $coupon->calculateDiscount($cartTotal);
 
         session()->put('applied_coupon', [
-            'id'     => $coupon->id,
-            'code'   => $coupon->code,
-            'type'   => $coupon->type,
-            'amount' => $coupon->amount,
+            'id'       => $coupon->id,
+            'code'     => $coupon->code,
+            'type'     => $coupon->type,
+            'amount'   => $coupon->amount,
+            'discount' => round($discount, 2),
         ]);
 
-        return back()->with('success', 'Coupon applied successfully');
+        return back()->with('coupon_success', 'Coupon applied! You save ₹' . number_format($discount, 2));
     }
-
     public function removeCoupon()
     {
         session()->forget('applied_coupon');
-        return back()->with('success', 'Coupon removed');
+        return back()->with('coupon_success', 'Coupon removed.');
     }
 
     public function success()

@@ -29,7 +29,6 @@ class CategoryController extends Controller
     {
         //
         $parentCategories = Category::whereNull('parent_id')->get();
-
         return view('admin.category.create', compact('parentCategories',));
     }
 

@@ -4,138 +4,91 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use App\Models\Coupon;
 
 class CouponController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-
     public function index()
     {
-        //
-        $coupons = Coupon::all();
+        $coupons = Coupon::latest()->paginate(15);
         return view('admin.coupon.index', compact('coupons'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
         return view('admin.coupon.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $rules = [
-            'code' => 'required',
-            'type' => 'required|in:percentage,fixed',
-            'amount' => 'required',
-        ];
-        $messages = [
-            'code.required' => 'The coupon code field is required.',
-            'type.required' => 'The discount type field is required.',
-            'amount.required' => 'The amount field is required.',
-        ];
-        $validator = Validator::make($request->all(), $rules, $messages);
+        $validated = $request->validate([
+            'code'                => 'required|string|unique:coupons,code',
+            'type'                => 'required|in:percentage,fixed',
+            'amount'              => 'required|numeric|min:0',
+            'min_order_amount'    => 'nullable|numeric|min:0',
+            'max_discount_amount' => 'nullable|numeric|min:0',
+            'description'         => 'nullable|string|max:500',
+            'start_date'          => 'nullable|date',
+            'expiry_date'         => 'nullable|date|after_or_equal:start_date',
+            'max_usage'           => 'nullable|integer|min:1',
+            'max_usage_per_user'  => 'nullable|integer|min:1',
+            'is_active'           => 'boolean',
+        ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+        // For percentage type, amount should not exceed 100
+        if ($validated['type'] === 'percentage' && $validated['amount'] > 100) {
+            return back()->withErrors(['amount' => 'Percentage discount cannot exceed 100.'])->withInput();
         }
 
-        $coupon = new Coupon;
-        $coupon->code = $request->code;
-        $coupon->type = $request->type;
-        $coupon->amount = $request->amount;
-        $coupon->description = $request->description;
-        $coupon->start_date = $request->start_date;
-        $coupon->expiry_date = $request->expiry_date;
-        $coupon->max_usage = $request->max_usage;
-        $coupon->save();
-        if ($coupon) {
-            return redirect()->route('coupons.index')->with('success', 'Coupon created successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Failed to create coupon. Please try again.');
-        }
+        Coupon::create($validated);
+
+        return redirect()->route('coupons.index')->with('success', 'Coupon created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        //
         $coupon = Coupon::findOrFail($id);
         return view('admin.coupon.edit', compact('coupon'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        //
-        $rules = [
-            'code' => 'required',
-            'type' => 'required|in:percentage,fixed',
-            'amount' => 'required',
-        ];
-        $messages = [
-            'code.required' => 'The coupon code field is required.',
-            'type.required' => 'The discount type field is required.',
-            'amount.required' => 'The amount field is required.',
-        ];
-        $validator = Validator::make($request->all(), $rules, $messages);
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
         $coupon = Coupon::findOrFail($id);
-        $coupon->code = $request->code;
-        $coupon->type = $request->type;
-        $coupon->amount = $request->amount;
-      //  $coupon->discount_amount = $request->discount_amount;
-        $coupon->description = $request->description;
-        $coupon->start_date = $request->start_date;
-        $coupon->expiry_date = $request->expiry_date;
-        $coupon->max_usage = $request->max_usage;
-        $coupon->save();
-        if ($coupon) {
-            return redirect()->route('coupons.index')->with('success', 'Coupon updated successfully.');
-        } else {
 
-            return redirect()->back()->with('error', 'Failed to update coupon. Please try again.');
+        $validated = $request->validate([
+            'code'                => 'required|string|unique:coupons,code,' . $id,
+            'type'                => 'required|in:percentage,fixed',
+            'amount'              => 'required|numeric|min:0',
+            'min_order_amount'    => 'nullable|numeric|min:0',
+            'max_discount_amount' => 'nullable|numeric|min:0',
+            'description'         => 'nullable|string|max:500',
+            'start_date'          => 'nullable|date',
+            'expiry_date'         => 'nullable|date|after_or_equal:start_date',
+            'max_usage'           => 'nullable|integer|min:1',
+            'max_usage_per_user'  => 'nullable|integer|min:1',
+            'is_active'           => 'boolean',
+        ]);
+
+        if ($validated['type'] === 'percentage' && $validated['amount'] > 100) {
+            return back()->withErrors(['amount' => 'Percentage discount cannot exceed 100.'])->withInput();
         }
+
+        $coupon->update($validated);
+
+        return redirect()->route('coupons.index')->with('success', 'Coupon updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
-        $coupon = Coupon::findOrFail($id);
-        $coupon->delete();
+        Coupon::findOrFail($id)->delete();
         return redirect()->route('coupons.index')->with('success', 'Coupon deleted successfully.');
+    }
+
+    // Toggle active status quickly from the index table
+    public function toggleStatus(string $id)
+    {
+        $coupon = Coupon::findOrFail($id);
+        $coupon->update(['is_active' => !$coupon->is_active]);
+        return back()->with('success', 'Coupon status updated.');
     }
 }

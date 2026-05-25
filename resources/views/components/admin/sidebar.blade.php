@@ -47,7 +47,7 @@
                     <!-- Products -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarProducts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts">
-                            <i class="ri-box-3-line"></i>
+                            <i class="ri-shopping-bag-line"></i>
                             <span data-key="t-products">Products</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarProducts">

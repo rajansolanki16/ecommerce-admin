@@ -22,10 +22,10 @@ class HomeController extends Controller
                     'wishlists as is_wishlisted' => function ($q) {
                         $q->where('user_id', Auth::id());
                     }
-                ])->paginate(4);
+                ])->paginate(8);
         } else {
             $products = Product::with('categories')
-                ->paginate(4);
+                ->paginate(8);
         }
 
         if ($request->ajax()) {

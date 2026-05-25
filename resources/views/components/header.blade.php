@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{{ $meta['title'] ?? "Knoght Oasis" }}</title>
-    <meta property="og:title" content="{{ $meta['title'] ?? "Knoght Oasis" }}">
-    <meta name="twitter:title" content="{{ $meta['title'] ?? "Knoght Oasis" }}">
+    <title>{{ $meta['title'] ?? "E-commerce Admin" }}</title>
+    <meta property="og:title" content="{{ $meta['title'] ?? "E-commerce Admin" }}">
+    <meta name="twitter:title" content="{{ $meta['title'] ?? "E-commerce Admin" }}">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
