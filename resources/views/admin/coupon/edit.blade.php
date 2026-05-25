@@ -59,7 +59,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="amount" class="form-label">{{ __('coupon.amount') }} <span
-                                        class="text-danger">*</span></label>
+                                        class="text-danger">{{ __('coupon.required_mark') }}</span></label>
                                 <input type="number" name="amount" id="amount" class="form-control"
                                     placeholder="Enter amount" value="{{ old('amount', $coupon->amount) }}">
                                 @error('amount')
@@ -67,29 +67,39 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="discount_amount" class="form-label"> {{ __('coupon.discount_amount') }} <span
-                                        class="text-danger">*</span></label>
+                                <label for="discount_amount" class="form-label"> {{ __('coupon.discount_amount') }}</label>
                                 <input type="number" name="discount_amount" id="discount_amount" class="form-control"
-                                    placeholder="Enter discount amount" value="{{ old('discount_amount', $coupon->discount_amount) }}">
+                                    placeholder="Enter max discount amount" value="{{ old('discount_amount', $coupon->discount_amount) }}">
+                                @error('discount_amount')
+                                <span class="form-error-message text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                             <div class="mb-3">
                                 <label for="start_date" class="form-label">{{ __('coupon.start_date') }} <span
-                                        class="text-danger">*</span></label>
+                                        class="text-danger">{{ __('coupon.required_mark') }}</span></label>
                                 <input type="date" name="start_date" id="start_date" class="form-control"
                                     value="{{ old('start_date', $coupon->start_date) }}">
+                                @error('start_date')
+                                <span class="form-error-message text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                             <div class="mb-3">
                                 <label for="expiry_date" class="form-label">{{ __('coupon.end_date') }} <span
                                         class="text-danger">{{ __('coupon.required_mark') }}</span></label>
                                 <input type="date" name="expiry_date" id="expiry_date" class="form-control"
                                     value="{{ old('expiry_date', $coupon->expiry_date) }}">
-
+                                @error('expiry_date')
+                                <span class="form-error-message text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                             <div class="mb-3">
                                 <label for="max_usage" class="form-label">{{ __('coupon.maximum_usage') }} <span
                                         class="text-danger">{{ __('coupon.required_mark') }}</span></label>
                                 <input type="number" name="max_usage" id="max_usage" class="form-control"
                                     placeholder="Enter maximum usage" value="{{ old('max_usage', $coupon->max_usage) }}">
+                                @error('max_usage')
+                                <span class="form-error-message text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>

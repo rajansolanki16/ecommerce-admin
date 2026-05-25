@@ -28,6 +28,9 @@ class CheckoutController extends Controller
         if ($coupon = session('applied_coupon')) {
             if ($coupon['type'] === 'percentage') {
                 $discount = ($subtotal * $coupon['amount']) / 100;
+                if (!empty($coupon['discount_amount'])) {
+                    $discount = min($discount, $coupon['discount_amount']);
+                }
             } else {
                 $discount = min($coupon['amount'], $subtotal);
             }
@@ -67,6 +70,9 @@ class CheckoutController extends Controller
 
                 if ($coupon['type'] === 'percentage') {
                     $discount = ($subtotal * $coupon['amount']) / 100;
+                    if (!empty($coupon['discount_amount'])) {
+                        $discount = min($discount, $coupon['discount_amount']);
+                    }
                 } else {
                     $discount = min($coupon['amount'], $subtotal);
                 }
@@ -161,7 +167,7 @@ class CheckoutController extends Controller
             'code' => 'required|string'
         ]);
 
-        $coupon = Coupon::where('code', strtoupper($request->code))
+        $coupon = Coupon::where('code', strtoupper(trim($request->code)))
             ->whereDate('start_date', '<=', now())
             ->whereDate('expiry_date', '>=', now())
             ->first();
@@ -175,10 +181,11 @@ class CheckoutController extends Controller
         }
 
         session()->put('applied_coupon', [
-            'id'     => $coupon->id,
-            'code'   => $coupon->code,
-            'type'   => $coupon->type,
-            'amount' => $coupon->amount,
+            'id'              => $coupon->id,
+            'code'            => $coupon->code,
+            'type'            => $coupon->type,
+            'amount'          => $coupon->amount,
+            'discount_amount' => $coupon->discount_amount,
         ]);
 
         return back()->with('success', 'Coupon applied successfully');

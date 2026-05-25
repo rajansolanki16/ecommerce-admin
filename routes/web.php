@@ -74,7 +74,7 @@ Route::post('/reviews', [ProductReviewController::class, 'store'])->name('review
 //admin panel
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
+          Route::get('/dashboard', [AdminController::class, 'show_admin'])->name('view.admin.dashboard');
 
         Route::post('/products/{product}/variants/update', [ProductController::class, 'updateVariants'])->name('products.variants.update');
         Route::post('/products/{product}/variants/remove', [ProductController::class, 'removeVariant'])->name('products.variants.remove');

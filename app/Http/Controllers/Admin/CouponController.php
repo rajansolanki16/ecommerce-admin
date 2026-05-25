@@ -37,14 +37,24 @@ class CouponController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'code' => 'required',
+            'code' => 'required|unique:coupons,code',
             'type' => 'required|in:percentage,fixed',
-            'amount' => 'required',
+            'amount' => 'required|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'expiry_date' => 'required|date|after_or_equal:start_date',
+            'max_usage' => 'nullable|integer|min:1',
         ];
         $messages = [
             'code.required' => 'The coupon code field is required.',
+            'code.unique' => 'This coupon code is already in use.',
             'type.required' => 'The discount type field is required.',
             'amount.required' => 'The amount field is required.',
+            'amount.numeric' => 'The amount must be a number.',
+            'start_date.required' => 'The start date field is required.',
+            'expiry_date.required' => 'The expiry date field is required.',
+            'expiry_date.after_or_equal' => 'The expiry date must be equal to or after the start date.',
+            'max_usage.integer' => 'Maximum usage must be a whole number.',
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
 
@@ -55,19 +65,21 @@ class CouponController extends Controller
         }
 
         $coupon = new Coupon;
-        $coupon->code = $request->code;
+        $coupon->code = Str::upper(trim($request->code));
         $coupon->type = $request->type;
         $coupon->amount = $request->amount;
+        $coupon->discount_amount = $request->discount_amount;
         $coupon->description = $request->description;
         $coupon->start_date = $request->start_date;
         $coupon->expiry_date = $request->expiry_date;
         $coupon->max_usage = $request->max_usage;
         $coupon->save();
+
         if ($coupon) {
             return redirect()->route('coupons.index')->with('success', 'Coupon created successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Failed to create coupon. Please try again.');
         }
+
+        return redirect()->back()->with('error', 'Failed to create coupon. Please try again.');
     }
 
     /**
@@ -93,28 +105,38 @@ class CouponController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
         $rules = [
-            'code' => 'required',
+            'code' => "required|unique:coupons,code,{$id}",
             'type' => 'required|in:percentage,fixed',
-            'amount' => 'required',
+            'amount' => 'required|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'expiry_date' => 'required|date|after_or_equal:start_date',
+            'max_usage' => 'nullable|integer|min:1',
         ];
         $messages = [
             'code.required' => 'The coupon code field is required.',
+            'code.unique' => 'This coupon code is already in use.',
             'type.required' => 'The discount type field is required.',
             'amount.required' => 'The amount field is required.',
+            'amount.numeric' => 'The amount must be a number.',
+            'start_date.required' => 'The start date field is required.',
+            'expiry_date.required' => 'The expiry date field is required.',
+            'expiry_date.after_or_equal' => 'The expiry date must be equal to or after the start date.',
+            'max_usage.integer' => 'Maximum usage must be a whole number.',
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
+
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
         $coupon = Coupon::findOrFail($id);
-        $coupon->code = $request->code;
+        $coupon->code = Str::upper(trim($request->code));
         $coupon->type = $request->type;
         $coupon->amount = $request->amount;
-      //  $coupon->discount_amount = $request->discount_amount;
+        $coupon->discount_amount = $request->discount_amount;
         $coupon->description = $request->description;
         $coupon->start_date = $request->start_date;
         $coupon->expiry_date = $request->expiry_date;
@@ -122,10 +144,9 @@ class CouponController extends Controller
         $coupon->save();
         if ($coupon) {
             return redirect()->route('coupons.index')->with('success', 'Coupon updated successfully.');
-        } else {
-
-            return redirect()->back()->with('error', 'Failed to update coupon. Please try again.');
         }
+
+        return redirect()->back()->with('error', 'Failed to update coupon. Please try again.');
     }
 
     /**
