@@ -630,4 +630,5 @@
     });
 </script>
     <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
+    
 <x-admin.footer />

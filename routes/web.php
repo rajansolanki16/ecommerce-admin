@@ -1,12 +1,9 @@
 <?php
 
 // Libraries
-
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-
 
 // Controllers
 use App\Http\Controllers\RedirectController;
@@ -16,8 +13,6 @@ use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FaqController;
-use App\Http\Controllers\Admin\MediaController;
-// use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentOptionsController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\SettingController;

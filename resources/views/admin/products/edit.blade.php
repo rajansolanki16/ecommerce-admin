@@ -343,106 +343,60 @@
 </div>
 
 @php
-
     $variantData = $product->variants->map(function ($variant) {
-
         return [
-
             'id' => $variant->id,
-
             'name' => $variant->attributeValues
                 ->pluck('value')
                 ->implode(' / '),
-
             'values' => $variant->attributeValues
                 ->pluck('id')
                 ->toArray(),
-
             'sku' => $variant->sku,
-
             'price' => $variant->price,
-
             'stock' => $variant->stock,
-
             'sell_price' => $variant->sell_price,
-
             'shipping' => $variant->shipping,
-
             'shipping_address' => $variant->shipping_address,
-
             'general_info' => $variant->general_info,
-
             'weight' => $variant->weight,
-
             'length' => $variant->length,
-
             'width' => $variant->width,
-
             'height' => $variant->height,
-
             'image' => $variant->image,
-
             'status' => $variant->status,
-
             'visibility' => $variant->visibility,
-
             'exchangeable' => $variant->exchangeable,
-
             'refundable' => $variant->refundable,
-
             'free_shipping' => $variant->free_shipping,
-
         ];
-
     })->values();
-
 @endphp
-
 <script>
-
     window.attributesData = @json($attributesJson ?? []);
-
     let variants = @json($variantData);
-
 </script>
-
 <script>
-
     $(document).ready(function () {
-
         function toggleProductTypeSections() {
-
             let type = $('input[name="product_type"]:checked').val();
-
             if (type == "{{ \App\Enums\ProductType::SIMPLE->value }}") {
-
                 $('#simpleProductSection').removeClass('d-none');
                 $('#variantSection').addClass('d-none');
-
             } else {
-
                 $('#simpleProductSection').addClass('d-none');
                 $('#variantSection').removeClass('d-none');
-
             }
         }
 
         $('.productTypeRadio').on('change', function () {
-
             toggleProductTypeSections();
-
         });
-
         toggleProductTypeSections();
-
     });
-
 </script>
-
 <script>
-
     $(document).ready(function () {
-
         /*
         |--------------------------------------------------------------------------
         | TOGGLE PRODUCT TYPE
@@ -513,9 +467,7 @@
                 `;
 
                 $('#attributeValuesContainers').append(html);
-
             });
-
         });
 
         /*
@@ -692,7 +644,6 @@
     });
 </script>
 @push('scripts')
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
     ClassicEditor
         .create(document.querySelector('#productDescription'))
