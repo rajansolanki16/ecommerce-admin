@@ -51,10 +51,10 @@ class ProductController extends Controller
                 'id' => $a->id,
                 'name' => $a->name,
                 'values' => $a->values->map(function ($v) {
-                    return ['id' => $v->id, 'value' => $v->value];
-                }),
+                    return ['id' => $v->id, 'value' => $v->value,];
+                })->values(),
             ];
-        })->toJson();
+        })->values();
 
         return view('admin.products.create', [
             'productTypes'       => ProductType::cases(),
@@ -80,7 +80,7 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             // Core
-            'title'                => 'required|string|max:255',
+            'title'                => 'required|string|max:255|unique:products,product_title',
             'sku_number'           => 'nullable|string|max:255|unique:products,sku_number',
             'product_type'         => 'required|integer',
             'short_description'    => 'required|string',
@@ -121,7 +121,7 @@ class ProductController extends Controller
 
             // Variants — required only for variant products
             'product_attributes'          => [$isVariants ? 'required' : 'nullable', 'array', 'min:1'],
-            'product_attributes.*'        => 'exists:product_attributes,id',
+            'product_attributes.*'        => 'exists:product_attribute,id',
             'variants'                    => [$isVariants ? 'required' : 'nullable', 'array', 'min:1'],
             'variants.*.values'           => 'nullable|array|min:1',
             'variants.*.values.*'         => 'exists:attribute_values,id',
@@ -301,9 +301,9 @@ class ProductController extends Controller
                 'name' => $a->name,
                 'values' => $a->values->map(function ($v) {
                     return ['id' => $v->id, 'value' => $v->value];
-                }),
+                })->values(),
             ];
-        })->toJson();
+        })->values();
 
         $product->load(['variants' => function ($query) {
             $query->with('attributeValues');
@@ -353,7 +353,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'title'             => 'required|string|max:255',
+            'title'             => 'required|string|max:255|unique:products,product_title,' . $product->id,
             'categories'        => 'nullable|array',
             'product_type'      => 'required',
             'short_description' => 'required|string',

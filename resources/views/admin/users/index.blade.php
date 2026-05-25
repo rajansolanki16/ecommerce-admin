@@ -7,33 +7,24 @@
 <x-page-title title="Users Index" :breadcrumbs="['Users', 'Index']" />
 
 <div class="row">
-
     <div class="col-12">
-
         <div class="card" id="userList">
 
             {{-- Card Header --}}
             <div class="card-header">
-
                 <div class="row align-items-center gy-3">
-
                     {{-- Search --}}
                     <div class="col-lg-4 col-md-6">
                         <div class="search-box">
                             <input type="text" class="form-control search"
                                 placeholder="Search users by name, email or role...">
-
                             <i class="ri-search-line search-icon"></i>
-
                         </div>
-
                     </div>
 
                     {{-- Right Actions --}}
                     <div class="col-md-auto ms-md-auto">
-
                         <div class="d-flex flex-wrap align-items-center gap-2">
-
                             {{-- Delete Multiple --}}
                             <button class="btn btn-subtle-danger d-none" id="remove-actions">
 
@@ -342,15 +333,10 @@
 
                                             {{-- Footer --}}
                                             <div class="modal-footer justify-content-center border-top-0 pb-4">
-
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-
                                                     Cancel
-
                                                 </button>
-
                                                 <form action="{{ route('users.delete', $user->id) }}" method="POST">
-
                                                     @csrf
                                                     @method('DELETE')
 
@@ -363,11 +349,8 @@
                                         </div>
                                     </div>
                                 </div>
-
                             @empty
-
                                 <tr>
-
                                     <td colspan="7">
                                         <div class="text-center py-4">
                                             <i class="ph-users fs-1 text-primary"></i>
@@ -388,33 +371,24 @@
 
                     {{-- No Result --}}
                     <div class="noresult" style="display: none">
-
                         <div class="text-center py-4">
-
                             <i class="ph-magnifying-glass fs-1 text-primary"></i>
-
                             <h5 class="mt-2">
                                 Sorry! No Result Found
                             </h5>
-
                             <p class="text-muted mb-0">
                                 No matching users found.
                             </p>
-
                         </div>
-
                     </div>
-
                 </div>
 
                 {{-- Pagination --}}
                 <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-
                     <div class="text-muted">
                         Showing {{ $users->firstItem() }} to {{ $users->lastItem() }}
                         of {{ $users->total() }} results
                     </div>
-
                     <div>
                         {{ $users->onEachSide(1)->links('pagination::bootstrap-5') }}
                     </div>

@@ -1,952 +1,704 @@
-<x-admin.header :title="'Product'" />
-    <div class="container-fluid">
-        <form id="productForm" action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+<x-admin.header :title="'Edit Product'" />
+<div class="container-fluid">
+    <form action="{{ route('products.update', $product->id) }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="productForm">
         @csrf
         @method('PUT')
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Product Information</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organisation about the products it produces, buys, sells or distributes.</p>
-                                </div>
-                                <div class="col-xxl-8">
-                                        <div class="mb-3">
-                                            <label for="productTitle" class="form-label">Product Title <span class="text-danger">*</span></label>
-                                           <input type="text" name="title" class="form-control" value="{{ old('title', $product->product_title) }}">  
-                                                @error('title')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror                                              
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="productType" class="form-label">Product Type <span class="text-danger">*</span></label>
-                                            <select name="product_type" id="productType" class="form-control">
-                                                @foreach ($productTypes as $type)
-                                                    <option value="{{ $type->value }}" 
-                                                        {{ old('product_type', $product->product_type) == $type->value ? 'selected' : '' }}>
-                                                        {{ $type->label() }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="productCategories" class="form-label">
-                                                    Categories 
-                                                </label>
+        {{-- Sticky Header --}}
+        <div class="card mb-4 shadow-sm border-0 sticky-top z-3">
+            <div class="card-body py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Edit Product</h4>
+                        <p class="text-muted mb-0">
+                            Update product details, pricing and variants.
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('products.index') }}"
+                           class="btn btn-light border">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="ph-floppy-disk me-1"></i>
+                            Update Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                                                <select class="form-control" name="categories[]" id="productCategories" multiple>
-                                                    @foreach ($categories as $category)
-                                                        <option value="{{ $category->id }}"
-                                                            {{ in_array($category->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                                            {{ $category->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                        </div>
-                                        <div class="row">
-                                            <label for="shortDecs" class="form-label">Short Description 
-                                            <textarea name="short_description" class="form-control" rows="3">{{ old('short_description', $product->short_description) }}</textarea>
-                                            @error('short_description')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="row">
-                                            {{-- <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label for="productBrand" class="form-label">Brand <span class="text-danger">*</span></label>
-                                                    <input type="text" name="brand" class="form-control" id="productBrand" value="{{ old('brand', $product->brand) }}">
-                                                    @error('short_description')
-                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div> --}}
-                                            <div class="col-lg-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Tags</label>
-                                                       <select class="form-control"
-                                                                name="tags[]"
-                                                                id="productTags"
-                                                                multiple>
-                                                            @foreach ($allTags as $tag)
-                                                                <option value="{{ $tag->id }}"
-                                                                    {{ isset($product) && $product->tags->contains($tag->id) ? 'selected' : '' }}>
-                                                                    {{ $tag->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('tags')
-                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                        @enderror
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <label class="form-label">SKU Number</label>
-                                                <input type="text"
-                                                    name="sku_number"
-                                                    class="form-control"
-                                                    value="{{ old('sku_number', $product->sku_number) }}"
-                                                    placeholder="SKU-ABC-001">
-                                                @error('sku_number')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <label for="productStatus" class="form-label">Status</label>
-                                                <select name="status" class="form-control" id="vec_productStatus">
-                                                    @foreach ($productStatuses as $status)
-                                                        <option value="{{ $status->value }}" 
-                                                            {{ old('status', $product->status) == $status->value ? 'selected' : '' }}>
-                                                            {{ $status->label() }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('status')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <label for="productVisibility" class="form-label">Visibility</label>
-                                                <select name="visibility" class="form-control" id="vec_visibility">
-                                                    @foreach ($productVisibilities as $visibility)
-                                                        <option value="{{ $visibility->value }}" 
-                                                            {{ old('visibility', $product->visibility) == $visibility->value ? 'selected' : '' }}>
-                                                            {{ $visibility->label() }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('visibility')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        
-                                    
-                                </div><!--end col-->
-                            </div><!--end row-->
+        <div class="row">
+
+            {{-- LEFT CONTENT --}}
+            <div class="col-lg-8">
+
+                {{-- BASIC INFO --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Basic Information
+                        </h5>
+                        <p class="text-muted mb-0">
+                            Update product title, description and organization.
+                        </p>
+                    </div>
+
+                    <div class="card-body">
+
+                        {{-- PRODUCT TITLE --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Product Name</label>
+                            <input type="text"
+                                   name="title"
+                                   class="form-control form-control-mid"
+                                   placeholder="Enter product name"
+                                   value="{{ old('title', $product->product_title) }}">
+
+                            @error('title')
+                                <div class="text-danger small mt-1">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        {{-- SHORT DESCRIPTION --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Short Description
+                            </label>
+                            <textarea name="short_description"
+                                      rows="3"
+                                      class="form-control"
+                                      placeholder="Short product summary">{{ old('short_description', $product->short_description) }}</textarea>
+                        </div>
+
+                        {{-- DESCRIPTION --}}
+                        <div>
+                            <label class="form-label fw-semibold">Product Description</label>
+                            <textarea id="productDescription" name="product_decscription"
+                                      class="ckeditor-classic"
+                                      rows="8">{{ old('product_decscription', $product->product_decscription) }}</textarea>
                         </div>
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                </div>
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Description</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organization about the products it produces, buys, sells or distributes.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
+                {{-- VARIANTS SECTION --}}
+                <div id="variantSection"
+                     class="{{ $product->product_type == \App\Enums\ProductType::VARIANTS->value ? '' : 'd-none' }}">
+                    @include('admin.products.partials.edit-variants-table') 
+                </div>
+            </div>
+
+            {{-- RIGHT SIDEBAR --}}
+            <div class="col-lg-4">
+
+                {{-- PRODUCT TYPE --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Product Type
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="product-type-selector d-grid gap-3">
+                            {{-- SIMPLE --}}
+                            <label class="border rounded-3 p-3 cursor-pointer product-type-card">
+                                <div class="d-flex">
+                                    <input type="radio"
+                                           name="product_type"
+                                           value="{{ \App\Enums\ProductType::SIMPLE->value }}"
+                                           class="me-3 productTypeRadio"
+                                           {{ old('product_type', $product->product_type) == \App\Enums\ProductType::SIMPLE->value ? 'checked' : '' }}>
                                     <div>
-                                        <label class="form-label">Product Description <span class="text-danger">*</span></label>
-                                        <textarea class="ckeditor-classic" name="product_decscription" id="productDescription" rows="5">
-                                            {!! old('product_decscription', $product->product_decscription) !!}
-                                        </textarea>
+                                        <h6 class="mb-1 fw-semibold">
+                                            Simple Product
+                                        </h6>
+                                        <p class="text-muted small mb-0">
+                                            Single inventory and pricing.
+                                        </p>
                                     </div>
                                 </div>
-                            </div><!--end row-->
-                        </div>
-                    </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                            </label>
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Images</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organization about the products it produces, buys, sells or distributes.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
-                                    <div class="mb-4">
-                                        <label class="form-label">Product Image <span class="text-danger">*</span></label>
-
-                                        <div class="border rounded p-3 text-center">
-                                           <img id="productImagePreview"
-                                                src="{{ old('product_image', $product->product_image ? asset('storage/' . $product->product_image) : asset('admin/images/new-document.png')) }}"
-                                                class="img-thumbnail mb-3" style="max-height: 180px">
-
-                                            <input type="file"
-                                                name="product_image"
-                                                class="form-control"
-                                                accept="image/*"
-                                                onchange="previewSingleImage(event)">
-                                        </div>
-
-                                        @error('product_image')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                            {{-- VARIANT --}}
+                            <label class="border rounded-3 p-3 cursor-pointer product-type-card">
+                                <div class="d-flex">
+                                    <input type="radio"
+                                           name="product_type"
+                                           value="{{ \App\Enums\ProductType::VARIANTS->value }}"
+                                           class="me-3 productTypeRadio"
+                                           {{ old('product_type', $product->product_type) == \App\Enums\ProductType::VARIANTS->value ? 'checked' : '' }}>
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold">
+                                            Variant Product
+                                        </h6>
+                                        <p class="text-muted small mb-0">
+                                            Multiple combinations and pricing.
+                                        </p>
                                     </div>
-
-                                    <div class="mb-4">
-                                        <label class="form-label fw-semibold">
-                                            Gallery Images
-                                        </label>
-
-                                        <input type="file"
-                                            name="gallery_images[]"
-                                            class="form-control"
-                                            multiple
-                                            accept="image/*"
-                                            onchange="previewMultipleImages(event)">
-
-                                        <div class="row mt-3" id="galleryPreview">
-                                            @foreach ($product->gallery_images ?? [] as $image)
-                                                <div class="col-md-3 mb-3">
-                                                    <div class="card shadow-sm">
-                                                        <img src="{{ asset('storage/' . $image) }}"
-                                                            class="card-img-top"
-                                                            style="height:150px; object-fit:cover">
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        @error('gallery_images')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
                                 </div>
-                            </div><!--end row-->
+                            </label>
                         </div>
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                </div>
 
-            <div class="row" id="vec_general_Info_Section">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">General Info</h5>
-                                    <p class="text-muted mb-0">An informational product can be a digital book (or e-book), a digital report, a white paper, a piece of software, audio or video files, a website, an e-zine or a newsletter.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
-                                    <div class="row gy-3">
-                                        <div class="col-lg-4">
-                                            <label class="form-label">
-                                                Stock <span class="text-danger">*</span>
-                                            </label>
+                {{-- ORGANIZATION --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Organization
+                        </h5>
+                    </div>
 
-                                            <select name="stock" class="form-control">
-                                                <option value="">Select Stock</option>
-                                                <option value="1" {{ old('stock', $product->stock) == 1 ? 'selected' : '' }}>
-                                                    In Stock
-                                                </option>
-                                                <option value="0" {{ old('stock', $product->stock) == 0 ? 'selected' : '' }}>
-                                                    Out of Stock
-                                                </option>
-                                            </select>
+                    <div class="card-body">
 
-                                            @error('stock')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label" for="product-price-input">Price</label>
-                                                <div class="input-group has-validation">
-                                                    <span class="input-group-text" id="product-price-addon">$</span>
-                                                    <input type="number" step="0.01" name="price" class="form-control" value="{{ old('price', $product->price) }}">
-                                                    <div class="invalid-feedback">Please Enter a product price.</div>
-                                                </div>
-                                            </div>
-                                            @error('price')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div><!--end col-->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label" for="product-discount-input">Discount</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="product-discount-addon">%</span>
-                                                    <input type="number" step="0.01" name="discount" class="form-control" value="{{ old('discount', $product->discount) }}">
-                                                </div>
-                                            </div>
-                                            @error('discount')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div><!--end col-->
-                                          <!-- Sell Price -->
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Sell Price</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">$</span>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="sell_price"
-                                                    class="form-control"
-                                                    value="{{ old('sell_price', $product->sell_price) }}">
-                                            </div>
-                                            @error('sell_price')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Sell Price Start Date</label>
-                                            <input type="date"
-                                                name="sell_price_start_date"
-                                                class="form-control"
-                                                value="{{ old('sell_price_start_date', optional($product->sell_price_start_date)->format('Y-m-d')) }}">
-                                            @error('sell_price_start_date')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <label class="form-label">Sell Price End Date</label>
-                                            <input type="date"
-                                                name="sell_price_end_date"
-                                                class="form-control"
-                                                value="{{ old('sell_price_end_date', optional($product->sell_price_end_date)->format('Y-m-d')) }}">
-                                            @error('sell_price_end_date')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="row gy-2" >
-                                            <div class="col-lg-6">
-                                                <div class="form-check form-switch mb-3">
-                                                    <input type="checkbox" name="exchangeable" value="1" class="form-check-input" {{ old('exchangeable', $product->exchangeable) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="exchangeableInput">Exchangeable</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <div class="form-check form-switch mb-3">
-                                                   <input type="checkbox" name="refundable" value="1" class="form-check-input"  {{ old('refundable', $product->refundable) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="refundableInput">Refundable</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div><!--end row-->
-                                </div>
-                            </div><!--end row-->
+                        {{-- CATEGORIES --}}
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Categories
+                            </label>
+
+                            <select class="form-control"
+                                    multiple
+                                    name="categories[]"
+                                    id="productCategories">
+
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ in_array($category->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- TAGS --}}
+                        <div>
+
+                            <label class="form-label fw-semibold">
+                                Tags
+                            </label>
+                            <select class="form-control"
+                                    multiple
+                                    name="tags[]"
+                                    id="productTags">
+
+                                @foreach($allTags as $tag)
+                                    <option value="{{ $tag->id }}"
+                                        {{ in_array($tag->id, old('tags', $product->tags->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                </div>
 
-            <div class="row" class="vec_shipping_section" id="vec_shipping_section">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Shipping</h5>
-                                    <p class="text-muted">
-                                        Define product shipping details like weight, dimensions and free shipping option.
-                                    </p>
-                                </div><!--end col-->
+                {{-- MEDIA --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Product Media
+                        </h5>
+                    </div>
+                    <div class="card-body">
 
-                                <div class="col-xxl-8">
-                                    <div class="row gy-3">
+                        {{-- FEATURED IMAGE --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Featured Image
+                            </label>
 
-                                        <!-- Weight -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Weight</label>
-                                                <input type="number" step="0.01" name="weight" value="{{ old('weight', $product->weight) }}" class="form-control">
-                                                @error('weight')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                            <div class="border rounded-3 p-3 text-center">
+
+                                <img id="productImagePreview"
+                                     src="{{ $product->product_image ? asset('storage/' . $product->product_image) : asset('admin/images/new-document.png') }}"
+                                     class="img-fluid rounded mb-3"
+                                     style="max-height:220px">
+
+                                <input type="file"
+                                       name="product_image"
+                                       class="form-control"
+                                       accept="image/*">
+                            </div>
+                        </div>
+
+                        {{-- GALLERY --}}
+                        <div>
+                            <label class="form-label fw-semibold">
+                                Gallery Images
+                            </label>
+
+                            <input type="file"
+                                   multiple
+                                   name="gallery_images[]"
+                                   class="form-control"
+                                   accept="image/*">
+
+                            @if(!empty($product->gallery_images))
+                                <div class="row mt-3">
+                                    @foreach($product->gallery_images as $image)
+                                        <div class="col-4 mb-3">
+                                            <img src="{{ asset('storage/' . $image) }}"
+                                                 class="img-fluid rounded border shadow-sm">
                                         </div>
-
-                                        <!-- Length -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Length</label>
-                                                <input type="number" step="0.01" name="length" value="{{ old('length', $product->length) }}" class="form-control">
-                                                @error('length')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <!-- Width -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Width</label>
-                                                <input type="number" step="0.01" name="width" value="{{ old('width', $product->width) }}" class="form-control">
-                                                @error('width')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <!-- Height -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Height</label>
-                                                <input type="number" step="0.01" name="height" value="{{ old('height', $product->height) }}" class="form-control">
-                                                @error('height')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <!-- Free Shipping -->
-                                        <div class="col-lg-8 d-flex align-items-center">
-                                            <div class="form-check form-switch mt-4">
-                                                <input class="form-check-input" type="checkbox" name="free_shipping" value="1"
-                                                   {{ old('free_shipping', $product->free_shipping) ? 'checked' : '0' }}>
-                                                <label class="form-check-label">
-                                                    Free Shipping
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                    </div><!--end row-->
-                                </div><!--end col-->
-                            </div><!--end row-->
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                </div>
 
-            <!-- Variants Section (Only for product_type=VARIANTS) -->
-            <div id="variantsSection" class="row" style="display: none;">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Product Variants</h5>
-                                    <p class="text-muted">Manage product variants with different attribute values.</p>
+                {{-- SIMPLE PRODUCT --}}
+                <div id="simpleProductSection"
+                     class="card border-0 shadow-sm mb-4 {{ $product->product_type == \App\Enums\ProductType::SIMPLE->value ? '' : 'd-none' }}">
+
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Pricing & Inventory
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                SKU
+                            </label>
+                            <input type="text"
+                                   name="sku_number"
+                                   class="form-control"
+                                   value="{{ old('sku_number', $product->sku_number) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Price
+                            </label>
+                            <input type="number"
+                                   step="0.01"
+                                   name="price"
+                                   class="form-control"
+                                   value="{{ old('price', $product->price) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Sale Price
+                            </label>
+                            <input type="number"
+                                   step="0.01"
+                                   name="sell_price"
+                                   class="form-control"
+                                   value="{{ old('sell_price', $product->sell_price) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"> Stock</label>
+                            <input type="number"
+                                   name="stock"
+                                   class="form-control"
+                                   value="{{ old('stock', $product->stock) }}">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox"
+                                           name="exchangeable"
+                                           value="1"
+                                           class="form-check-input"
+                                           {{ old('exchangeable', $product->exchangeable) ? 'checked' : '' }}>
+
+                                    <label class="form-check-label">
+                                        Exchangeable
+                                    </label>
                                 </div>
-                                <div class="col-xxl-8">
-                                    <!-- Attribute Selection -->
-                                    <div class="mb-4">
-                                        <label class="form-label fw-semibold">Select Attributes</label>
-                                        <select id="variantAttributesSelect" class="form-control" multiple>
-                                            @foreach ($attributes as $attr)
-                                                <option value="{{ $attr->id }}">{{ $attr->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
 
-                                    <!-- Attribute Values Selection -->
-                                    <div id="attributeValuesContainers" class="mb-4"></div>
-
-                                    <!-- Generate Button -->
-                                    <button type="button" id="generateVariants" class="btn btn-secondary mb-4">
-                                        <i class="ph-plus me-2"></i>Generate Variants
-                                    </button>
-
-                                    <!-- Variants List -->
-                                    <div id="variantsList"></div>
+                            <div class="col-6">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox"
+                                           name="refundable"
+                                           value="1"
+                                           class="form-check-input"
+                                           {{ old('refundable', $product->refundable) ? 'checked' : '' }}>
+                                    <label class="form-check-label">
+                                        Refundable
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div><!--end row-->
-
-            <div class="hstack gap-2 justify-content-end mb-3">
-                <a href="{{ route('products.index') }}" class="btn btn-danger">
-                    <i class="ph-x align-middle"></i> Cancel
-                </a>
-                <button class="btn btn-primary">Submit</button>
             </div>
-        </form>
-    </div>
-    <script>
-        window.attributesData = {!! $attributesJson ?? '[]' !!};
-        window.errors = {!! json_encode($errors->getMessages() ?? []) !!};
-        window.variantsStore = {!! $variantsJson ?? '[]' !!};
-
-        $(document).ready(function(){
-            const $attrSelect = $('#variantAttributesSelect');
-            const $containers = $('#attributeValuesContainers');
-            const $generateBtn = $('#generateVariants');
-            const $variantsList = $('#variantsList');
-            const $variantsSection = $('#variantsSection');
-            const $productTypeSelect = $('#productType');
-
-            function createValuesMultiSelect(attribute) {
-                const $wrapper = $('<div>').addClass('mb-3');
-                const $label = $('<label>').addClass('form-label fw-semibold').text(attribute.name + ' values');
-                $wrapper.append($label);
-
-                const $select = $('<select>')
-                    .addClass('form-control')
-                    .attr('multiple', true)
-                    .data('attributeId', attribute.id);
-
-                attribute.values.forEach(v => {
-                    $('<option>').val(v.id).text(v.value).appendTo($select);
-                });
-
-                $wrapper.append($select);
-
-                if (window.Choices) {
-                    setTimeout(() => {
-                        try {
-                            new Choices($select[0], {
-                                searchEnabled: true,
-                                removeItemButton: true,
-                                shouldSort: false,
-                                placeholderValue: 'Select values',
-                                itemSelectText: ''
-                            });
-                        } catch (e) { /* ignore */ }
-                    }, 30);
-                }
-                return $wrapper;
-            }
-
-            function getExistingAttributesFromVariants() {
-                const attrs = new Set();
-                window.variantsStore.forEach(v => {
-                    (v.values || []).forEach(val => attrs.add(val));
-                });
-                return Array.from(attrs);
-            }
-
-            function onAttributesChange() {
-                $containers.empty();
-                const selected = $attrSelect.val() || [];
-                selected.forEach(id => {
-                    const attribute = window.attributesData.find(a => String(a.id) === String(id));
-                    if (attribute) {
-                        $containers.append(createValuesMultiSelect(attribute));
-                    }
-                });
-            }
-
-            function cartesian(arrays) {
-                return arrays.reduce((a, b) => a.flatMap(d => b.map(e => d.concat([e]))), [[]]);
-            }
-
-            function getFieldError(idx, fieldName) {
-                const errorKey = `variants.${idx}.${fieldName}`;
-                return window.errors[errorKey] ? window.errors[errorKey][0] : null;
-            }
-
-            function renderFieldGroup(label, fieldClass, fieldName, inputType = 'text', colClass = 'col-md-6') {
-                let html = `<div class="${colClass} mb-3"><label class="form-label">${label}</label>`;
-                if (inputType === 'textarea') {
-                    html += `<textarea class="form-control ${fieldClass}" rows="3" data-field="${fieldName}"></textarea>`;
-                } else {
-                    const step = inputType === 'number' ? '0.01' : 'any';
-                    const accept = inputType === 'file' ? 'accept="image/*"' : '';
-                    html += `<input type="${inputType}" step="${step}" class="form-control ${fieldClass}" value="" data-field="${fieldName}" ${accept}>`;
-                }
-                html += '<div class="invalid-feedback d-block" style="display: none;"></div></div>';
-                return html;
-            }
-
-            function renderTable() {
-                $variantsList.empty();
-
-                window.variantsStore.forEach((variant, idx) => {
-                    const $card = $('<div>').addClass('card mb-3 border-start border-start-3 border-primary');
-
-                    const $header = $('<div>')
-                        .addClass('card-header bg-light d-flex justify-content-between align-items-center')
-                        .css('cursor', 'pointer')
-                        .html(`
-                            <div>
-                                <h6 class="mb-0"><strong>${variant.name}</strong></h6>
-                                <small class="text-muted">SKU: ${variant.sku || '-'} | Price: $${variant.price || '-'} | Stock: ${variant.stock || 0}</small>
-                            </div>
-                            <div><i class="ph-caret-down" style="transition: transform 0.3s;"></i></div>
-                        `);
-
-                    const $body = $('<div>').addClass('card-body').hide();
-
-                    // Basic Info
-                    const basicHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Basic Info</h6>
-                            <div class="row">
-                                ${renderFieldGroup('SKU', 'variant-sku', 'sku', 'text', 'col-md-6')}
-                                ${renderFieldGroup('Price', 'variant-price', 'price', 'number', 'col-md-6')}
-                            </div>
-                            <div class="row">
-                                ${renderFieldGroup('Stock', 'variant-stock', 'stock', 'number', 'col-md-6')}
-                                ${renderFieldGroup('Sell Price', 'variant-sell-price', 'sell_price', 'number', 'col-md-6')}
-                            </div>
-                        </div>
-                    `;
-
-                    // Shipping Info
-                    const shippingHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Shipping Info</h6>
-                            <div class="row">
-                                ${renderFieldGroup('Shipping Cost', 'variant-shipping', 'shipping', 'text', 'col-md-6')}
-                                ${renderFieldGroup('Shipping Address', 'variant-shipping-addr', 'shipping_address', 'text', 'col-md-6')}
-                            </div>
-                            <div class="row">
-                                ${renderFieldGroup('Weight', 'variant-weight', 'weight', 'number', 'col-md-3')}
-                                ${renderFieldGroup('Length', 'variant-length', 'length', 'number', 'col-md-3')}
-                                ${renderFieldGroup('Width', 'variant-width', 'width', 'number', 'col-md-3')}
-                                ${renderFieldGroup('Height', 'variant-height', 'height', 'number', 'col-md-3')}
-                            </div>
-                           
-                        </div>
-                    `;
-
-                    // General Info
-                    const generalHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">General Info</h6>
-                            ${renderFieldGroup('', 'variant-general-info', 'general_info', 'textarea', 'col-12')}
-                        </div>
-                    `;
-
-                    // Image
-                    const imageHtml = `
-                        <div class="mb-4 pb-4 border-bottom">
-                            <h6 class="mb-3 fw-semibold">Image</h6>
-                            ${renderFieldGroup('', 'variant-image', 'image', 'file', 'col-12')}
-                        </div>
-                    `;
-
-                    // Flags
-                    const flagsHtml = `
-                        <div class="mb-3">
-                            <h6 class="mb-3 fw-semibold">Options</h6>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-exchangeable" ${variant.exchangeable ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Exchangeable</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-refundable" ${variant.refundable ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Refundable</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input variant-free-shipping" ${variant.free_shipping ? 'checked' : ''} data-idx="${idx}">
-                                        <label class="form-check-label">Free Shipping</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    $body.html(basicHtml + shippingHtml + generalHtml + imageHtml + flagsHtml);
-
-                    const $footer = $('<div>')
-                        .addClass('card-footer bg-light')
-                        .html(`
-                            <button type="button" class="btn btn-sm btn-success me-2 save-variants-btn">
-                                Save Variants
-                            </button>
-
-                            <button type="button" class="btn btn-sm btn-danger delete-variant-btn"  data-product-id="{{ $product->id }}" data-id="${variant.id ?? ''}" data-idx="${idx}">
-                                <i class="ph-trash me-1"></i> Delete Variant
-                            </button>
-                        `);
-
-                    $card.append($header, $body, $footer);
-                    $variantsList.append($card);
-
-                    // Populate field values and display errors
-                    const fieldMap = {
-                        'variant-sku': 'sku',
-                        'variant-price': 'price',
-                        'variant-stock': 'stock',
-                        'variant-sell-price': 'sell_price',
-                        'variant-shipping': 'shipping',
-                        'variant-shipping-addr': 'shipping_address',
-                        'variant-weight': 'weight',
-                        'variant-length': 'length',
-                        'variant-width': 'width',
-                        'variant-height': 'height',
-                        'variant-general-info': 'general_info'
-                    };
-
-                    Object.entries(fieldMap).forEach(([className, fieldName]) => {
-                        const $input = $body.find(`.${className}`);
-                        if ($input.length) {
-                            $input.val(variant[fieldName] || '').data('idx', idx).on('change', updateVariant);
-
-                            const error = getFieldError(idx, fieldName);
-                            if (error) {
-                                $input.addClass('is-invalid');
-                                $input.closest('div').find('.invalid-feedback').text(error).show();
-                            }
-                        }
-                    });
-
-                    // File input
-                    const $imageInput = $body.find('.variant-image');
-                    if ($imageInput.length) {
-                        $imageInput.data('idx', idx).on('change', updateVariant);
-                        const imageError = getFieldError(idx, 'image');
-                        if (imageError) {
-                            $imageInput.addClass('is-invalid');
-                            $imageInput.closest('div').find('.invalid-feedback').text(imageError).show();
-                        }
-                    }
-
-                    // Toggle expand/collapse
-                    $header.on('click', function() {
-                        const isVisible = $body.is(':visible');
-                        $body.toggle();
-                        $(this).find('i').css('transform', isVisible ? 'rotate(0deg)' : 'rotate(180deg)');
-                    });
-                });
-
-                // Attach event listeners
-                $variantsList.on('change', '.variant-exchangeable, .variant-refundable, .variant-free-shipping', updateVariantCheckbox);
-                $variantsList.on('click', '.delete-variant-btn', deleteVariant);
-            }
-
-            function updateVariant(e) {
-                const idx = $(this).data('idx');
-                const variant = window.variantsStore[idx];
-                const $this = $(this);
-
-                if ($this.hasClass('variant-sku')) variant.sku = $this.val();
-                else if ($this.hasClass('variant-price')) variant.price = $this.val();
-                else if ($this.hasClass('variant-stock')) variant.stock = $this.val();
-                else if ($this.hasClass('variant-sell-price')) variant.sell_price = $this.val();
-                else if ($this.hasClass('variant-shipping')) variant.shipping = $this.val();
-                else if ($this.hasClass('variant-shipping-addr')) variant.shipping_address = $this.val();
-                else if ($this.hasClass('variant-weight')) variant.weight = $this.val();
-                else if ($this.hasClass('variant-length')) variant.length = $this.val();
-                else if ($this.hasClass('variant-width')) variant.width = $this.val();
-                else if ($this.hasClass('variant-height')) variant.height = $this.val();
-                else if ($this.hasClass('variant-general-info')) variant.general_info = $this.val();
-                else if ($this.hasClass('variant-image')) variant.image = $this[0].files[0] || null;
-
-                // Clear error styling
-                $this.removeClass('is-invalid').closest('div').find('.invalid-feedback').hide();
-            }
-
-            function updateVariantCheckbox(e) {
-                const idx = $(this).data('idx');
-                const variant = window.variantsStore[idx];
-                const $this = $(this);
-
-                if ($this.hasClass('variant-exchangeable')) variant.exchangeable = $this.is(':checked') ? 1 : 0;
-                else if ($this.hasClass('variant-refundable')) variant.refundable = $this.is(':checked') ? 1 : 0;
-                else if ($this.hasClass('variant-free-shipping')) variant.free_shipping = $this.is(':checked') ? 1 : 0;
-            }
-
-            function deleteVariant() {
-                const $btn = $(this);
-                const idx = $btn.data('idx');
-                const variantId = $btn.data('id');
-                const productId = $btn.data('product-id');
-
-                // Variant exists in DB
-                if (variantId) {
-                    $.ajax({
-                        url: "{{ route('products.variants.remove', $product->id) }}",
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            variant_id: variantId
-                        },
-                        beforeSend() {
-                            $btn.prop('disabled', true);
-                        },
-                        success() {
-                            window.variantsStore.splice(idx, 1);
-                            renderTable();
-
-                            // optional toast (no alert)
-                            if (window.Toastify) {
-                                Toastify({
-                                    text: "Variant deleted",
-                                    duration: 2000,
-                                    gravity: "top",
-                                    position: "right",
-                                    backgroundColor: "#dc3545"
-                                }).showToast();
-                            }
-                        },
-                        error() {
-                            $btn.prop('disabled', false);
-                        }
-                    });
-                }
-                // Not saved yet → frontend only
-                else {
-                    window.variantsStore.splice(idx, 1);
-                    renderTable();
-                }
-            }
-
-           function generateTable() {
-                const $selects = $containers.find('select');
-                if (!$selects.length) return alert('Select attributes and values first');
-
-                const valueLists = $selects.toArray().map(s => {
-                    return Array.from($(s).find('option:selected')).map(o => ({
-                        id: o.value,
-                        text: o.textContent
-                    }));
-                });
-
-                if (valueLists.some(l => l.length === 0)) {
-                    return alert('Choose at least one value for each attribute');
-                }
-
-                const combos = cartesian(valueLists);
-
-                const existingVariants = window.variantsStore;
-                const newVariants = [];
-
-                combos.forEach(combo => {
-                    const comboIds = combo.map(c => c.id).sort().join('-');
-
-                    const found = existingVariants.find(v =>
-                        v.values.slice().sort().join('-') === comboIds
-                    );
-
-                    if (found) {
-                        newVariants.push(found); // keep existing
-                    } else {
-                        newVariants.push({
-                            name: combo.map(c => c.text).join(' / '),
-                            values: combo.map(c => c.id),
-                            sku: '',
-                            price: '',
-                            stock: 0,
-                            sell_price: '',
-                            shipping: '',
-                            shipping_address: '',
-                            general_info: '',
-                            weight: '',
-                            length: '',
-                            width: '',
-                            height: '',
-                            exchangeable: 0,
-                            refundable: 0,
-                            free_shipping: 0,
-                            image: null
-                        });
-                    }
-                });
-
-                window.variantsStore = newVariants;
-                renderTable();
-            }
-            // Show/hide variants section based on product type
-            if ($productTypeSelect.length) {
-                function toggleVariantsSection() {
-                    const isVariants = $productTypeSelect.val() === '1' || $productTypeSelect.val() == 1;
-                    $variantsSection.toggle(isVariants);
-                    
-                    // If editing a variants product and variantsStore has data, render existing variants
-                    if (isVariants && window.variantsStore && window.variantsStore.length > 0 && $variantsList.is(':empty')) {
-                        renderTable();
-                    }
-                }
-
-                $productTypeSelect.on('change', toggleVariantsSection);
-                toggleVariantsSection();
-            } else if (window.variantsStore && window.variantsStore.length > 0) {
-                renderTable();
-            }
-
-            $attrSelect.on('change', onAttributesChange);
-            $generateBtn.on('click', generateTable);
-            $('#productForm').on('submit', function(e) {
-                if (window.variantsStore && window.variantsStore.length > 0) {
-                    const $variantsContainer = $('<div>').hide();
-
-                    window.variantsStore.forEach((variant, idx) => {
-                        Object.keys(variant).forEach(key => {
-                            if (key === 'name' || key === 'image') return;
-
-                            if (key === 'values') {
-                                variant.values.forEach(val => {
-                                    $('<input>')
-                                        .attr({
-                                            type: 'hidden',
-                                            name: `variants[${idx}][values][]`,
-                                            value: val
-                                        })
-                                        .appendTo($variantsContainer);
-                                });
-                            } else {
-                                $('<input>')
-                                    .attr({
-                                        type: 'hidden',
-                                        name: `variants[${idx}][${key}]`,
-                                        value: variant[key]
-                                    })
-                                    .appendTo($variantsContainer);
-                            }
-                        });
-                    });
-
-                    $(this).append($variantsContainer);
-                }
-            });
-        });
-
-        $(document).on('click', '.save-variants-btn', function () {
-
-            let formData = new FormData();
-            formData.append('_token', "{{ csrf_token() }}");
-
-            window.variantsStore.forEach((variant, idx) => {
-                Object.keys(variant).forEach(key => {
-                    if (key === 'image' && variant.image) {
-                        formData.append(`variants[${idx}][image]`, variant.image);
-                    } else if (Array.isArray(variant[key])) {
-                        variant[key].forEach(v =>
-                            formData.append(`variants[${idx}][${key}][]`, v)
-                        );
-                    } else {
-                        formData.append(`variants[${idx}][${key}]`, variant[key]);
-                    }
-                });
-            });
-
-            $.ajax({
-                url: "{{ route('products.variants.update', $product->id) }}",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-
-                success: function (res) {
-                    Toastify({
-                        text: res.message,
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: res.success ? "#16a34a" : "#dc2626",
-                    }).showToast();
-                },
-
-                error: function () {
-                    Toastify({
-                        text: "Failed to save variants",
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "#dc2626",
-                    }).showToast();
-                }
-            });
-        });
-
-    </script>
+        </div>
     </form>
-    </div>
+</div>
 
-    <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
-    @stack('scripts')
+@php
+
+    $variantData = $product->variants->map(function ($variant) {
+
+        return [
+
+            'id' => $variant->id,
+
+            'name' => $variant->attributeValues
+                ->pluck('value')
+                ->implode(' / '),
+
+            'values' => $variant->attributeValues
+                ->pluck('id')
+                ->toArray(),
+
+            'sku' => $variant->sku,
+
+            'price' => $variant->price,
+
+            'stock' => $variant->stock,
+
+            'sell_price' => $variant->sell_price,
+
+            'shipping' => $variant->shipping,
+
+            'shipping_address' => $variant->shipping_address,
+
+            'general_info' => $variant->general_info,
+
+            'weight' => $variant->weight,
+
+            'length' => $variant->length,
+
+            'width' => $variant->width,
+
+            'height' => $variant->height,
+
+            'image' => $variant->image,
+
+            'status' => $variant->status,
+
+            'visibility' => $variant->visibility,
+
+            'exchangeable' => $variant->exchangeable,
+
+            'refundable' => $variant->refundable,
+
+            'free_shipping' => $variant->free_shipping,
+
+        ];
+
+    })->values();
+
+@endphp
+
+<script>
+
+    window.attributesData = @json($attributesJson ?? []);
+
+    let variants = @json($variantData);
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        function toggleProductTypeSections() {
+
+            let type = $('input[name="product_type"]:checked').val();
+
+            if (type == "{{ \App\Enums\ProductType::SIMPLE->value }}") {
+
+                $('#simpleProductSection').removeClass('d-none');
+                $('#variantSection').addClass('d-none');
+
+            } else {
+
+                $('#simpleProductSection').addClass('d-none');
+                $('#variantSection').removeClass('d-none');
+
+            }
+        }
+
+        $('.productTypeRadio').on('change', function () {
+
+            toggleProductTypeSections();
+
+        });
+
+        toggleProductTypeSections();
+
+    });
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOGGLE PRODUCT TYPE
+        |--------------------------------------------------------------------------
+        */
+        function toggleProductTypeSections() {
+            let type = $('input[name="product_type"]:checked').val();
+            if (type == "{{ \App\Enums\ProductType::SIMPLE->value }}") {
+                $('#simpleProductSection').removeClass('d-none');
+                $('#variantSection').addClass('d-none');
+            } else {
+                $('#simpleProductSection').addClass('d-none');
+                $('#variantSection').removeClass('d-none');
+            }
+        }
+
+        $('.productTypeRadio').on('change', function () {
+            toggleProductTypeSections();
+        });
+
+        toggleProductTypeSections();
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD EXISTING VARIANTS
+        |--------------------------------------------------------------------------
+        */
+
+        renderVariants();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ATTRIBUTE SELECT
+        |--------------------------------------------------------------------------
+        */
+
+        $('#variantAttributesSelect').on('change', function () {
+            let selected = $(this).val() || [];
+            $('#attributeValuesContainers').html('');
+            selected.forEach(attrId => {
+                let attribute = window.attributesData.find(
+                    a => a.id == attrId
+                );
+                if (!attribute) return;
+                let html = `
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body">
+                            <label class="form-label fw-semibold mb-3">
+                                ${attribute.name} Values
+                            </label>
+                            <div class="d-flex flex-wrap gap-2">
+                `;
+                attribute.values.forEach(value => {
+                    html += `
+                        <label class="border rounded-pill px-3 py-2 cursor-pointer">
+                            <input type="checkbox"
+                                   class="variant-value-checkbox me-1"
+                                   data-attribute="${attribute.id}"
+                                   value="${value.id}"
+                                   data-label="${value.value}">
+                            ${value.value}
+                        </label>
+                    `;
+                });
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#attributeValuesContainers').append(html);
+
+            });
+
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE VARIANTS
+        |--------------------------------------------------------------------------
+        */
+
+        $('#generateVariants').on('click', function () {
+            let groups = [];
+            $('#attributeValuesContainers .card').each(function () {
+                let values = [];
+                $(this).find('.variant-value-checkbox:checked').each(function () {
+                    values.push({
+                        id: $(this).val(),
+                        label: $(this).data('label')
+                    });
+                });
+
+                if (values.length) {
+                    groups.push(values);
+                }
+            });
+
+            if (!groups.length) {
+                alert('Select attribute values first.');
+                return;
+            }
+
+            let combinations = cartesian(groups);
+            variants = combinations.map((combo, index) => {
+                return {
+                    id: '',
+                    name: combo.map(c => c.label).join(' / '),
+                    values: combo.map(c => c.id),
+                    sku: '',
+                    price: '',
+                    sale_price: '',
+                    stock: '',
+                    image: '',
+                    status: 1
+                };
+
+            });
+            renderVariants();
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | CARTESIAN
+        |--------------------------------------------------------------------------
+        */
+        function cartesian(arr) {
+            return arr.reduce((a, b) => {
+                return a.flatMap(d => {
+                    return b.map(e => {
+                        return d.concat([e]);
+                    });
+                });
+            }, [[]]);
+
+        }
+        /*
+        |--------------------------------------------------------------------------
+        | RENDER VARIANTS
+        |--------------------------------------------------------------------------
+        */
+
+        function renderVariants() {
+            let html = '';
+            variants.forEach((variant, index) => {
+                let imagePreview = '';
+                if (variant.image) {
+                    imagePreview = `
+                        <div class="mb-2">
+                            <img src="/storage/${variant.image}"
+                                 class="rounded border"
+                                 width="50">
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <tr>
+                        <td>
+                            <strong>
+                                ${variant.name}
+                            </strong>
+
+                            <input type="hidden"
+                                   name="variants[${index}][id]"
+                                   value="${variant.id ?? ''}">
+
+                            ${variant.values.map(value => `
+                                <input type="hidden"
+                                       name="variants[${index}][values][]"
+                                       value="${value}">
+                            `).join('')}
+
+                        </td>
+                        <td>
+                            <input type="text"
+                                   name="variants[${index}][sku]"
+                                   class="form-control"
+                                   value="${variant.sku ?? ''}">
+
+                        </td>
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   name="variants[${index}][price]"
+                                   class="form-control"
+                                   value="${variant.price ?? ''}">
+                        </td>
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   name="variants[${index}][sell_price]"
+                                   class="form-control"
+                                   value="${variant.sell_price ?? ''}">
+
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="variants[${index}][stock]"
+                                   class="form-control"
+                                   value="${variant.stock ?? ''}">
+
+                        </td>
+                        <td>
+                            ${imagePreview}
+
+                            <input type="file"
+                                   name="variants[${index}][image]"
+                                   class="form-control">
+                        </td>
+                        <td>
+                            <select name="variants[${index}][status]"
+                                    class="form-select">
+
+                                <option value="1"
+                                    ${variant.status == 1 ? 'selected' : ''}>
+                                    Active
+                                </option>
+
+                                <option value="0"
+                                    ${variant.status == 0 ? 'selected' : ''}>
+                                    Inactive
+                                </option>
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger removeVariant"
+                                    data-index="${index}">
+                                <i class="ph-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            $('#variantsTableBody').html(html);
+        }
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE VARIANT
+        |--------------------------------------------------------------------------
+        */
+        $(document).on('click', '.removeVariant', function () {
+            let index = $(this).data('index');
+            variants.splice(index, 1);
+            renderVariants();
+        });
+    });
+</script>
+@push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#productDescription'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+@endpush
 <x-admin.footer />

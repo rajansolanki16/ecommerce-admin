@@ -16,7 +16,6 @@
                     @csrf
                     <div class="mb-3">
                         <label for="category" class="form-label">{{ __('category.Category_Title') }}<span class="text-danger">{{ __('category.required_mark') }}</span></label>
-                        
                         <input type="text" name="name" id="category" class="form-control @error('name') is-invalid @enderror" placeholder="Enter category title">
 
                         @error('name')
@@ -26,7 +25,6 @@
 
                     <div class="mb-3">
                         <label for="subcategory" class="form-label">{{ __('category.Parent_Category') }} <span class="text-danger">{{ __('category.required_mark') }}</span></label>
-
                         <select name="parent_id" id="subcategory" class="form-control">
                             <option value="">Select parent Category</option>
                             @foreach($parentCategories as $parent)
@@ -35,8 +33,6 @@
                             </option>
                             @endforeach
                         </select>
-
-
                     </div>
 
                     <div class="mb-1 text-end">

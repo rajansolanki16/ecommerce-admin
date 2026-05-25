@@ -1,681 +1,633 @@
 <x-admin.header :title="'Product'" />
-    <div class="container-fluid">
-        <form id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+   
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Product Information</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organisation about the products it produces, buys, sells or distributes.</p>
-                                </div>
-                                <div class="col-xxl-8">
-                                        <div class="mb-3">
-                                            <label for="productTitle" class="form-label">Product Title <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="title" id="productTitle"
-                                                value="{{ old('title') }}" placeholder="Enter product title">  
-                                                @error('title')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror                                              
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="productType" class="form-label">Product Type <span class="text-danger">*</span></label>
-                                            <select class="form-control"
-                                                name="product_type"
-                                                id="productType">
-                                                <option value="">Select Type</option>
-                                                @foreach ($productTypes as $type)
-                                                    <option value="{{ $type->value }}">{{ $type->label() }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('product_type')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror    
-                                        </div>
+<div class="container-fluid">
 
-                                        <div class="mb-3">
-                                        <label for="productCategories" class="form-label">
-                                                Categories 
-                                            </label>
+    <form action="{{ route('products.store') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="productForm">
 
-                                            <select class="form-control"
-                                                    name="categories[]"
-                                                    id="productCategories"
-                                                    multiple>
-                                                @forelse ($categories as $category)
-                                                    <option value="{{ $category->id }}"
-                                                        {{ collect(old('categories'))->contains($category->id) ? 'selected' : '' }}>
-                                                        {{ $category->name }}
-                                                    </option>
-                                                @empty
-                                                    <option disabled>No categories found</option>
-                                                @endforelse
-                                            </select>
-                                        </div>
-                                       
-                                        <div class="mb-3">
-                                            <label for="shortDecs" class="form-label">Short Description </label>
-                                            <textarea class="form-control" name="short_description" id="shortDecs" rows="3">
-                                                {{ old('short_description') }}
-                                            </textarea>
-                                            @error('short_description')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="row">
-                                            <!-- SKU -->
-                                            <div class="col-lg-6">
-                                                <div>
-                                                    <label class="form-label">SKU Number</label>
-                                                    <input type="text"
-                                                        name="sku_number"
-                                                        value="{{ old('sku_number') }}"
-                                                        class="form-control"
-                                                        placeholder="SKU-ABC-001">
-                                                    @error('sku_number')
-                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
+        @csrf
 
-                                            <div class="col-lg-6">
-                                                <div>
-                                                    <label class="form-label" for="product-price-input">Price</label>
-                                                    <div class="input-group has-validation">
-                                                        <span class="input-group-text" id="product-price-addon">$</span>
-                                                        <input type="number" step="0.01" name="price" class="form-control">
-                                                        <div class="invalid-feedback">Please Enter a product price.</div>
-                                                    </div>
-                                                </div>
-                                                @error('price')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div><!--end col-->
+        {{-- Sticky Header --}}
+        <div class="card mb-4 shadow-sm border-0 sticky-top z-3">
+            <div class="card-body py-3">
+                <div class="d-flex justify-content-between align-items-center">
 
-                                            <div class="mb-3">
-                                                <label class="form-label">Tags</label>
-                                                <select id="productTags" name="tags[]" class="form-control" multiple>
-                                                    @foreach ($allTags as $tag)
-                                                        <option value="{{ $tag->id }}" {{ (collect(old('tags'))->contains($tag->id) || (isset($product) && $product->tags->contains($tag->id))) ? 'selected' : '' }}>{{ $tag->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        <br>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <label for="productStatus" class="form-label">Status</label>
-                                                <select class="form-control"
-                                                        name="status"
-                                                        id="productStatus">
-                                                    <option value="">Select Status</option>
-
-                                                    @foreach ($productStatuses as $status)
-                                                        <option value="{{ $status->value }}"
-                                                            {{ old('status') === $status->value ? 'selected' : '' }}>
-                                                            {{ $status->label() }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('status')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <div>
-                                                    <label for="productVisibility" class="form-label">Visibility</label>
-                                                    <select class="form-control" name="visibility" id="productVisibility">
-                                                        <option value="">Select Visibility</option>
-
-                                                        @foreach ($productVisibilities as $visibility)
-                                                            <option value="{{ $visibility->value }}"
-                                                                {{ old('visibility') === $visibility->value ? 'selected' : '' }}>
-                                                                {{ $visibility->label() }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error('visibility')
-                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div><!--end col-->
-                                        </div>
-                                    
-                                </div><!--end col-->
-                            </div><!--end row-->
-                        </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold">Create Product</h4>
+                        <p class="text-muted mb-0">
+                            Create simple or variant products professionally.
+                        </p>
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Description</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organization about the products it produces, buys, sells or distributes.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
+                    <div class="d-flex gap-2">
+
+                        <a href="{{ route('products.index') }}"
+                           class="btn btn-light border">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="ph-floppy-disk me-1"></i>
+                            Save Product
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            {{-- LEFT CONTENT --}}
+            <div class="col-lg-8">
+
+                {{-- BASIC INFO --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">Basic Information</h5>
+                        <p class="text-muted mb-0">
+                            Product title, descriptions and organization.
+                        </p>
+                    </div>
+
+                    <div class="card-body">
+
+                        {{-- Product Title --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Product Name
+                            </label>
+
+                            <input type="text"
+                                   name="title"
+                                   class="form-control form-control-mid"
+                                   placeholder="Enter product name"
+                                   value="{{ old('title') }}">
+
+                            @error('title')
+                                <div class="text-danger small mt-1">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        {{-- Short Description --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Short Description
+                            </label>
+
+                            <textarea name="short_description"
+                                      rows="3"
+                                      class="form-control"
+                                      placeholder="Short product summary">{{ old('short_description') }}</textarea>
+                        </div>
+
+                        {{-- Full Description --}}
+                        <div class="mb-0">
+                            <label class="form-label fw-semibold">
+                                Product Description
+                            </label>
+
+                            <textarea name="product_decscription"
+                                      class="ckeditor-classic"
+                                      rows="8">{{ old('product_decscription') }}</textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- VARIANT SECTION --}}
+                <div id="variantSection" class="d-none">
+                  @include('admin.products.partials.variants-table')
+            </div>
+
+            </div>
+
+            {{-- RIGHT SIDEBAR --}}
+            <div class="col-lg-4">
+
+                {{-- PRODUCT TYPE --}}
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Product Type
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="product-type-selector d-grid gap-3">
+
+                            {{-- SIMPLE --}}
+                            <label class="border rounded-3 p-3 cursor-pointer product-type-card">
+
+                                <div class="d-flex">
+
+                                    <input type="radio"
+                                           name="product_type"
+                                           value="{{ \App\Enums\ProductType::SIMPLE->value }}"
+                                           class="me-3 productTypeRadio">
+
                                     <div>
-                                        <label class="form-label">Product Description <span class="text-danger">*</span></label>
-                                        <textarea class="ckeditor-classic" name="product_decscription" id="productDescription" rows="5">{{ old('product_decscription') }}</textarea>
-                                    </div>
-                                </div>
-                            </div><!--end row-->
-                        </div>
-                    </div>
-                </div><!--end col-->
-            </div><!--end row-->
+                                        <h6 class="mb-1 fw-semibold">
+                                            Simple Product
+                                        </h6>
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Images</h5>
-                                    <p class="text-muted">Product Information refers to any information held by an organization about the products it produces, buys, sells or distributes.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
-                                    <div class="mb-4">
-                                        <label class="form-label">Product Image <span class="text-danger">*</span></label>
-
-                                        <div class="border rounded p-3 text-center">
-                                            <img id="productImagePreview"
-                                                src="{{ asset('admin/images/new-document.png') }}"
-                                                class="img-thumbnail mb-3"
-                                                style="max-height: 180px">
-
-                                            <input type="file"
-                                                name="product_image"
-                                                class="form-control"
-                                                accept="image/*"
-                                                onchange="previewSingleImage(event)">
-                                        </div>
-
-                                        @error('product_image')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                                        <p class="text-muted small mb-0">
+                                            Single inventory and pricing.
+                                        </p>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Gallery Images </label>
+                                </div>
 
-                                        <input type="file"
-                                            name="gallery_images[]"
-                                            class="form-control"
-                                            multiple
-                                            accept="image/*"
-                                            onchange="previewMultipleImages(event)">
+                            </label>
 
-                                        <div class="row mt-3" id="galleryPreview"></div>
+                            {{-- VARIANT --}}
+                            <label class="border rounded-3 p-3 cursor-pointer product-type-card">
 
-                                        @error('gallery_images')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                                <div class="d-flex">
+
+                                    <input type="radio"
+                                           name="product_type"
+                                           value="{{ \App\Enums\ProductType::VARIANTS->value }}"
+                                           class="me-3 productTypeRadio">
+
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold">
+                                            Variant Product
+                                        </h6>
+
+                                        <p class="text-muted small mb-0">
+                                            Multiple combinations and pricing.
+                                        </p>
                                     </div>
+
                                 </div>
-                            </div><!--end row-->
+
+                            </label>
+
                         </div>
+
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
 
-            <div class="row"  id="vec_general_Info_Section" style="display: none">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">General Info</h5>
-                                    <p class="text-muted mb-0">An informational product can be a digital book (or e-book), a digital report, a white paper, a piece of software, audio or video files, a website, an e-zine or a newsletter.</p>
-                                </div><!--end col-->
-                                <div class="col-xxl-8">
-                                    <div class="row gy-3">
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Stock Status <span class="text-danger">*</span></label>
-                                                <select name="stock_status"
-                                                        class="form-control">
-                                                    <option value="">Select Status</option>
-                                                    <option value="instock" {{ old('stock_status') === 'instock' ? 'selected' : '' }}>
-                                                        In Stock
-                                                    </option>
-                                                    <option value="outstock" {{ old('stock_status') === 'outstock' ? 'selected' : '' }}>
-                                                        Out of Stock
-                                                    </option>
-                                                </select>
+                </div>
 
-                                                @error('stock_status')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label" for="product-discount-input">Discount</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="product-discount-addon">%</span>
-                                                    <input type="number" step="0.01" name="discount" class="form-control">
-                                                </div>
-                                            </div>
-                                            @error('discount')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div><!--end col--> 
-                                        
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Sell Price</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">$</span>
-                                                    <input type="number"
-                                                        step="0.01"
-                                                        name="sell_price"
-                                                        value="{{ old('sell_price') }}"
-                                                        class="form-control"
-                                                        placeholder="Special price">
-                                                </div>
-                                                @error('sell_price')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                {{-- ORGANIZATION --}}
+                <div class="card border-0 shadow-sm mb-4">
 
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Organization
+                        </h5>
+                    </div>
 
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Sell Price Start Date</label>
-                                                <input type="date"
-                                                    name="sell_price_start_date"
-                                                    value="{{ old('sell_price_start_date') }}"
-                                                    class="form-control">
-                                                @error('sell_price_start_date')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                    <div class="card-body">
 
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Sell Price End Date</label>
-                                                <input type="date"
-                                                    name="sell_price_end_date"
-                                                    value="{{ old('sell_price_end_date') }}"
-                                                    class="form-control">
-                                                @error('sell_price_end_date')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                        {{-- Categories --}}
+                        <div class="mb-4">
 
-                                        <!-- Info Note -->
-                                        <div class="col-lg-12">
-                                            <div class="alert alert-info mb-0">
-                                                <i class="ph-info me-1"></i>
-                                                Sell price will override the regular price during the selected date range.
-                                            </div>
-                                        </div>    
-                                        <div class="col-lg-6">
-                                            <div class="form-check form-switch mb-3">
-                                                <input type="checkbox" name="exchangeable" value="1" class="form-check-input">
-                                                <label class="form-check-label" for="exchangeableInput">Exchangeable</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-check form-switch mb-3">
-                                                <input type="checkbox" name="refundable" value="1" class="form-check-input">
-                                                <label class="form-check-label" for="refundableInput">Refundable</label>
-                                            </div>
-                                        </div>
-                                        
-                                    </div><!--end row-->
-                                </div>
-                            </div><!--end row-->
+                            <label class="form-label fw-semibold">
+                                Categories
+                            </label>
+
+                            <select class="form-control"
+                                    multiple
+                                    name="categories[]"
+                                    id="productCategories">
+
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+
+                            </select>
+
                         </div>
-                    </div>
-                </div><!--end col-->
-            </div><!--end row-->
 
-            <!-- Shipping Info -->
-            <div class="row" id="vec_shipping_section">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Shipping</h5>
-                                    <p class="text-muted">
-                                        Define product shipping details like weight, dimensions and free shipping option.
-                                    </p>
-                                </div><!--end col-->
+                        {{-- Tags --}}
+                        <div>
 
-                                <div class="col-xxl-8">
-                                    <div class="row gy-3">
+                            <label class="form-label fw-semibold">
+                                Tags
+                            </label>
 
-                                        <!-- Weight -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Weight</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="weight"
-                                                    value="{{ old('weight') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 1.5">
-                                                @error('weight')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                            <select class="form-control"
+                                    multiple
+                                    name="tags[]"
+                                    id="productTags">
 
-                                        <!-- Length -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Length</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="length"
-                                                    value="{{ old('length') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 30">
-                                                @error('length')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                                @foreach($allTags as $tag)
+                                    <option value="{{ $tag->id }}">
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
 
-                                        <!-- Width -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Width</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="width"
-                                                    value="{{ old('width') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 20">
-                                                @error('width')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                            </select>
 
-                                        <!-- Height -->
-                                        <div class="col-lg-4">
-                                            <div>
-                                                <label class="form-label">Height</label>
-                                                <input type="number"
-                                                    step="0.01"
-                                                    name="height"
-                                                    value="{{ old('height') }}"
-                                                    class="form-control"
-                                                    placeholder="e.g. 10">
-                                                @error('height')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <!-- Free Shipping -->
-                                        <div class="col-lg-8 d-flex align-items-center">
-                                            <div class="form-check form-switch mt-4">
-                                                <input class="form-check-input"
-                                                    type="checkbox"
-                                                    name="free_shipping"
-                                                    value="1"
-                                                    {{ old('free_shipping') ? 'checked' : '' }}>
-                                                <label class="form-check-label">
-                                                    Free Shipping
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                    </div><!--end row-->
-                                </div><!--end col-->
-                            </div><!--end row-->
                         </div>
+
                     </div>
-                </div><!--end col-->
-            </div><!--end row-->
-            
-            {{-- Variant Section --}}
-            <div class="row" id="vec_variantSection" style="display:none;">
-                <div class="col-lg-12">
-                    <div class="card">
+
+                </div>
+
+                {{-- MEDIA --}}
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Product Media
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        {{-- Main Image --}}
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Featured Image
+                            </label>
+
+                            <div class="border rounded-3 p-3 text-center">
+
+                                <img id="productImagePreview"
+                                     src="{{ asset('admin/images/new-document.png') }}"
+                                     class="img-fluid rounded mb-3"
+                                     style="max-height: 220px">
+
+                                <input type="file"
+                                       name="product_image"
+                                       class="form-control"
+                                       accept="image/*">
+
+                            </div>
+
+                        </div>
+
+                        {{-- Gallery --}}
+                        <div>
+
+                            <label class="form-label fw-semibold">
+                                Gallery Images
+                            </label>
+
+                            <input type="file"
+                                   multiple
+                                   name="gallery_images[]"
+                                   class="form-control"
+                                   accept="image/*">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {{-- SIMPLE PRODUCT INFO --}}
+                <div id="simpleProductSection"
+                     class="card border-0 shadow-sm mb-4 d-none">
+
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="fw-semibold mb-1">
+                            Pricing & Inventory
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                SKU
+                            </label>
+
+                            <input type="text"
+                                   name="sku_number"
+                                   class="form-control">
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Price
+                            </label>
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="price"
+                                   class="form-control">
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Sale Price
+                            </label>
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="sell_price"
+                                   class="form-control">
+
+                        </div>
+
+                        <div>
+
+                            <label class="form-label fw-semibold">
+                                Stock
+                            </label>
+
+                            <input type="number"
+                                   name="stock"
+                                   class="form-control">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+</div>
+   <script>
+    $(document).ready(function () {
+
+        function toggleProductTypeSections() {
+            let type = $('input[name="product_type"]:checked').val();
+            if (type == "{{ \App\Enums\ProductType::SIMPLE->value }}") {
+                $('#simpleProductSection').removeClass('d-none');
+                $('#variantSection').addClass('d-none');
+            } else {
+                $('#simpleProductSection').addClass('d-none');
+                $('#variantSection').removeClass('d-none');
+            }
+        }
+
+        $('.productTypeRadio').on('change', function () {
+            toggleProductTypeSections();
+        });
+
+        toggleProductTypeSections();
+    });
+
+</script>
+<script>
+    window.attributesData = {!! json_encode($attributesJson) !!};
+    $(document).ready(function () {
+        let variants = [];
+        /*
+        |--------------------------------------------------------------------------
+        | ATTRIBUTE VALUE SELECTORS
+        |--------------------------------------------------------------------------
+        */
+
+        $('#variantAttributesSelect').on('change', function () {
+            let selected = $(this).val() || [];
+            $('#attributeValuesContainers').html('');
+            selected.forEach(function(attrId) {
+                let attribute = window.attributesData.find(function(item) {
+                    return String(item.id) === String(attrId);
+                });
+                if (!attribute) {
+                    return;
+                }
+                let html = `
+                    <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body">
 
-                            <div class="row">
-                                <div class="col-xxl-4">
-                                    <h5 class="card-title mb-3">Product Variants</h5>
-                                    <p class="text-muted">
-                                        Select one or more attributes and create variants (combinations of chosen values).
-                                    </p>
-                                </div>
-
-                                <div class="col-xxl-8">
-                                    {{-- Attribute Type --}}
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Variant Attributes</label>
-                                        <select class="form-control" id="variantAttributesSelect" name="product_attributes[]" multiple>
-                                            @forelse($attributes as $attribute)
-                                                <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
-                                            @empty
-                                                <option disabled>No attributes found</option>
-                                            @endforelse
-                                        </select>
-                                    </div>
-
-                                    <div id="attributeValuesContainers" class="mb-3"></div>
-
-                                    <button type="button" class="btn btn-outline-primary mb-4" id="generateVariants">
-                                        <i class="ph-plus"></i> Generate Variants
-                                    </button>
-
-                                    <div id="variantsList" class="mt-4">
-                                        <!-- Variants will be rendered here -->
-                                    </div>
-
-                                    </div>
-                                </div>
-
+                            <label class="form-label fw-semibold mb-3">
+                                ${attribute.name} Values
+                            </label>
+                            <div class="d-flex flex-wrap gap-2">
+                `;
+                attribute.values.forEach(function(value) {
+                    html += `
+                        <label class="border rounded-pill px-3 py-2 cursor-pointer">
+                            <input type="checkbox"
+                                class="variant-value-checkbox me-1"
+                                data-attribute="${attribute.id}"
+                                value="${value.id}"
+                                data-label="${value.value}">
+                            ${value.value}
+                        </label>
+                    `;
+                });
+                html += `
                             </div>
                         </div>
                     </div>
-                </div>
-                {{-- End Variant Section --}}
+                `;
+                $('#attributeValuesContainers').append(html);
+            });
+        });
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE VARIANTS
+        |--------------------------------------------------------------------------
+        */
 
-            <div class="hstack gap-2 justify-content-end mb-3">
-               <a href="{{ route('products.index') }}" class="btn btn-danger">
-                    <i class="ph-x align-middle"></i> Cancel
-                </a>
-                <button class="btn btn-primary">Submit</button>
-            </div>
+        $('#generateVariants').on('click', function () {
 
-        </form>
-    </div>
-    <script>
-    window.attributesData = {!! $attributesJson !!};
-    $(document).ready(function () {
+            let groups = [];
 
-        const $attrSelect    = $('#variantAttributesSelect');
-        const $containers    = $('#attributeValuesContainers');
-        const $generateBtn   = $('#generateVariants');
-        const $variantsList  = $('#variantsList');
+            $('#attributeValuesContainers .card').each(function () {
 
-        /* --------------------------------------------
-         * Create multi-select for attribute values
-         * -------------------------------------------- */
-        function createValuesMultiSelect(attribute) {
-            const $wrapper = $('<div class="mb-3">');
+                let values = [];
 
-            $('<label class="form-label fw-semibold">')
-                .text(attribute.name + ' values')
-                .appendTo($wrapper);
+                $(this).find('.variant-value-checkbox:checked').each(function () {
 
-            const $select = $('<select class="form-control" multiple>')
-                .attr('data-attribute-id', attribute.id);
+                    values.push({
+                        id: $(this).val(),
+                        label: $(this).data('label')
+                    });
 
-            attribute.values.forEach(v => {
-                $('<option>', {
-                    value: v.id,
-                    text: v.value
-                }).appendTo($select);
+                });
+
+                if (values.length) {
+                    groups.push(values);
+                }
+
             });
 
-            $wrapper.append($select);
-
-            // Choices.js (safe)
-            if (window.Choices) {
-                setTimeout(() => {
-                    try {
-                        new Choices($select[0], {
-                            searchEnabled: true,
-                            removeItemButton: true,
-                            shouldSort: false,
-                            placeholderValue: 'Select values',
-                            itemSelectText: ''
-                        });
-                    } catch (e) {}
-                }, 30);
+            if (!groups.length) {
+                alert('Select attribute values first.');
+                return;
             }
 
-            return $wrapper;
-        }
+            let combinations = cartesian(groups);
 
-        /* --------------------------------------------
-         * When attributes change
-         * -------------------------------------------- */
-        function onAttributesChange() {
-            $containers.empty();
+            variants = combinations.map((combo, index) => {
 
-            const selected = $attrSelect.val() || [];
+                return {
+                    name: combo.map(c => c.label).join(' / '),
+                    values: combo.map(c => c.id),
+                    sku: '',
+                    price: '',
+                    sale_price: '',
+                    stock: '',
+                    status: 1
+                };
 
-            selected.forEach(attrId => {
-                const attribute = window.attributesData.find(
-                    a => String(a.id) === String(attrId)
-                );
-
-                if (attribute) {
-                    $containers.append(createValuesMultiSelect(attribute));
-                }
             });
-        }
+            renderVariants();
+        });
 
-        /* --------------------------------------------
-         * Generate variants (AJAX)
-         * -------------------------------------------- */
-        function generateVariants() {
-            const attributes = [];
-            let hasError = false;
+        /*
+        |--------------------------------------------------------------------------
+        | CARTESIAN
+        |--------------------------------------------------------------------------
+        */
 
-            $containers.find('select').each(function () {
-                const $select = $(this);
-                const attributeId = $select.data('attribute-id');
-                const selectedValues = $select.val();
-
-                if (!selectedValues || !selectedValues.length) {
-                    alert('Select at least one value for each attribute');
-                    hasError = true;
-                    return false;
-                }
-
-                const valuesMap = {};
-                $select.find('option').each(function () {
-                    valuesMap[this.value] = this.text;
+        function cartesian(arr) {
+            return arr.reduce((a, b) => {
+                return a.flatMap(d => {
+                   return b.map(e => {
+                        return d.concat([e]);
+                    });
                 });
-
-                attributes.push({
-                    attribute_id: attributeId,
-                    values: selectedValues,
-                    values_map: valuesMap
-                });
-            });
-
-            if (hasError || !attributes.length) return;
-
-            $.ajax({
-                url: "{{ route('products.generate.variants') }}",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    attributes: attributes
-                },
-                success: function (res) {
-                   $('#variantsList').html(res.html);
-                    $('#vec_variantSection').show();
-
-                },
-                error: function () {
-                    alert('Failed to generate variants');
-                }
-            });
+            }, [[]]);
         }
 
-        /* --------------------------------------------
-         * Events
-         * -------------------------------------------- */
-        $attrSelect.on('change', onAttributesChange);
-        $generateBtn.on('click', generateVariants);
-        
-        
-        /* --------------------------------------------
-         * Variant UI handlers (create page only)
-         * -------------------------------------------- */
-        // Generate SKU
-        $(document).on('click', '.generate-sku', function() {
-            const $card = $(this).closest('.variant-card');
-            const $sku = $card.find('.variant-sku');
-            const base = $('input[name="title"]').val() || 'PRD';
-            const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const sku = base.replace(/\s+/g, '-').toUpperCase().substring(0,6) + '-' + rand;
-            $sku.val(sku);
-            $card.find('.meta-sku').text(sku);
+        /*
+        |--------------------------------------------------------------------------
+        | RENDER VARIANTS
+        |--------------------------------------------------------------------------
+        */
+
+        function renderVariants() {
+            let html = '';
+            variants.forEach((variant, index) => {
+                html += `
+                    <tr>
+                        <td>
+                            <strong>
+                                ${variant.name}
+                            </strong>
+                            ${variant.values.map(value => `
+                                <input type="hidden"
+                                       name="variants[${index}][values][]"
+                                       value="${value}">
+                            `).join('')}
+                            <input type="hidden"
+                                   name="variants[${index}][name]"
+                                   value="${variant.name}">
+
+                        </td>
+                        <td>
+                            <input type="text"
+                                   name="variants[${index}][sku]"
+                                   class="form-control"
+                                   value="${variant.sku}">
+
+                        </td>
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   name="variants[${index}][price]"
+                                   class="form-control">
+
+                        </td>
+                        <td>
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="variants[${index}][sell_price]"
+                                   class="form-control">
+
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="variants[${index}][stock]"
+                                   class="form-control">
+
+                        </td>
+                        <td>
+                            <input type="file"
+                                   name="variants[${index}][image]"
+                                   class="form-control">
+
+                        </td>
+                        <td>
+                            <select name="variants[${index}][status]"
+                                    class="form-select">
+
+                                <option value="1">
+                                    Active
+                                </option>
+
+                                <option value="0">
+                                    Inactive
+                                </option>
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger removeVariant"
+                                    data-index="${index}">
+
+                                <i class="ph-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $('#variantsTableBody').html(html);
+            if (variants.length) {
+                $('#bulkVariantActions').removeClass('d-none');
+            }
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REMOVE VARIANT
+        |--------------------------------------------------------------------------
+        */
+
+        $(document).on('click', '.removeVariant', function () {
+            let index = $(this).data('index');
+            variants.splice(index, 1);
+            renderVariants();
         });
 
-        // Remove variant card
-        $(document).on('click', '.btn-remove-variant', function() {
-            if (!confirm('Remove this variant?')) return;
-            $(this).closest('.variant-card').remove();
-        });
+        /*
+        |--------------------------------------------------------------------------
+        | BULK APPLY
+        |--------------------------------------------------------------------------
+        */
 
-        // Image preview per variant
-        $(document).on('change', '.variant-image-input', function(e) {
-            const $input = $(this);
-            const $card = $input.closest('.variant-card');
-            const $preview = $card.find('.variant-image-preview');
-            const file = this.files && this.files[0];
-            if (!file) { $preview.hide(); return; }
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                $preview.attr('src', ev.target.result).show();
-            };
-            reader.readAsDataURL(file);
-        });
+        $('#applyBulkAction').on('click', function () {
+            let price = $('#bulkPrice').val();
+            let salePrice = $('#bulkSalePrice').val();
+            let stock = $('#bulkStock').val();
 
-        // Live update header meta
-        $(document).on('input change', '.variant-price, .variant-stock, .variant-sku', function() {
-            const $card = $(this).closest('.variant-card');
-            const price = $card.find('.variant-price').val() || '0';
-            const stock = $card.find('.variant-stock').val() || '0';
-            const sku = $card.find('.variant-sku').val() || '';
-            $card.find('.meta-price').text(price);
-            $card.find('.meta-stock').text(stock);
-            $card.find('.meta-sku').text(sku);
+            $('#variantsTableBody tr').each(function () {
+                if (price) {
+                    $(this).find('input[name*="[price]"]').val(price);
+                }
+                if (salePrice) {
+                    $(this).find('input[name*="[sell_price]"]').val(salePrice);
+                }
+                if (stock) {
+                    $(this).find('input[name*="[stock]"]').val(stock);
+                }
+            });
         });
-   
-        $(document).on('click', '.variant-card .card-header', function () {
-            const $card = $(this).closest('.variant-card');
-            $card.toggleClass('open');
-            $card.find('.card-body').slideToggle();
-        });
-
-     });
-    </script>
+    });
+</script>
     <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
 <x-admin.footer />

@@ -249,12 +249,9 @@
             passwordIcon.classList.add('ri-eye-off-line');
 
         } else {
-
             passwordInput.type = 'password';
-
             passwordIcon.classList.remove('ri-eye-off-line');
             passwordIcon.classList.add('ri-eye-line');
-
         }
 
     }

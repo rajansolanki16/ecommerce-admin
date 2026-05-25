@@ -185,7 +185,6 @@
                         </div>
                     </li>
 
-
                     <!-- ADMINISTRATION -->
                     <li class="menu-title"><span data-key="t-administration">Administration</span></li>
 

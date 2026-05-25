@@ -24,8 +24,7 @@ class HomeController extends Controller
                     }
                 ])->paginate(8);
         } else {
-            $products = Product::with('categories')
-                ->paginate(8);
+            $products = Product::with('categories')->paginate(8);
         }
 
         if ($request->ajax()) {

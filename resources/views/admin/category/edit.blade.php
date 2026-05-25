@@ -28,15 +28,12 @@
 
             <div class="card-body">
                 <p class="text-muted">{{ __('category.Edit_Description') }}</p>
-
                 <form action="{{ route('categories.update', $category->id) }}" method="post">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
                         <label for="category" class="form-label">{{ __('category.Category_Title') }} <span class="text-danger">{{ __('category.required_mark') }}</span></label>
-
                         <input type="text" name="name" id="category" class="form-control @error('name') is-invalid @enderror" placeholder="Enter category title" value="{{ old('name', isset($category) ? $category->name : '') }}">
-
                         @error('name')
                         <div class="invalid-response" style="display:flex">{{ $message }}</div>
                         @enderror
@@ -44,8 +41,6 @@
 
                     <div class="mb-3">
                         <label for="subcategory" class="form-label">{{ __('category.Parent_Category') }} <span class="text-danger">{{ __('category.required_mark') }}</span></label>
-
-                        
                         <select name="parent_id" id="subcategory" class="form-control">
                             <option value="">Select parent Category</option>
                             @foreach($parentCategories as $parent)
@@ -54,8 +49,6 @@
                             </option>
                             @endforeach
                         </select>
-
-
                     </div>
 
                     <div class="gap-2 mb-3 hstack justify-content-end">

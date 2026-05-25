@@ -19,7 +19,6 @@
     </div>
 </div>
 
-
 <div class="row">
     <div class="col-xl-6">
         <div class="card">
@@ -33,14 +32,11 @@
                     @csrf
                     <div class="mb-3">
                         <label for="payment_type" class="form-label">Payment Type<span class="text-danger">*</span></label>
-
                         <input type="text" name="payment_type" id="payment_type" class="form-control @error('payment_type') is-invalid @enderror" placeholder="Enter payment type">
-
                         @error('payment_type')
                         <div class="invalid-response" style="display:flex">{{ $message }}</div>
                         @enderror
                     </div>
-
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-check form-switch mb-3">
@@ -49,9 +45,6 @@
                             </div>
                         </div>
                     </div>
-
-
-
                     <div class="mb-1 text-end">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
