@@ -19,302 +19,228 @@
                 <div id="two-column-menu">
                 </div>
                 <ul class="navbar-nav" id="navbar-nav">
-                    <li class="menu-title"><span>Admin Panel</span></li>
+                    <!-- MAIN -->
+                    <li class="menu-title"><span data-key="t-main">Main</span></li>
 
                     <!-- DASHBOARD -->
                     <li class="nav-item">
-                        <a href="{{ route('view.admin.dashboard') }}/" class="nav-link menu-link collapsed">
-                            <i class="ri-home-line"></i><span>Dashboard</span>
+                        <a href="{{ route('view.admin.dashboard') }}" class="nav-link menu-link">
+                            <i class="ri-dashboard-line"></i><span data-key="t-dashboard">Dashboard</span>
                         </a>
                     </li>
 
+                    <!-- SALES & ORDERS -->
+                    <li class="menu-title"><span data-key="t-sales">Sales & Orders</span></li>
 
-
-                    <!-- PRODUCT -->
+                    <!-- Orders -->
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarProduct"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarProduct">
-                            <i class="ri-shopping-bag-3-line"></i>
-                            <span>Product</span>
+                        <a href="{{ route('orders.show') }}" class="nav-link menu-link">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span data-key="t-orders">Orders</span>
+                            <span class="badge badge-pill bg-danger float-end">3</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarProduct">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('products.create') }}" class="nav-link">Create</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('products.index') }}" class="nav-link">Show</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('categories.index') }}" class="nav-link">Categories</a>
-                                </li>
-                            </ul>
-                        </div>
                     </li>
-                    <!-- END PRODUCT -->
 
-                    <!-- Product Attribute -->
+                    <!-- CATALOG & PRODUCTS -->
+                    <li class="menu-title"><span data-key="t-catalog">Catalog & Products</span></li>
+
+                    <!-- Products -->
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarProductAttribute"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarProductAttribute">
-                            <i class="ri-list-settings-line"></i>
-                            <span>Product Attribute</span>
+                        <a class="nav-link menu-link" href="#sidebarProducts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts">
+                            <i class="ri-box-3-line"></i>
+                            <span data-key="t-products">Products</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarProductAttribute">
+                        <div class="collapse menu-dropdown" id="sidebarProducts">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('product_attributes.create') }}" class="nav-link">Create</a>
+                                    <a href="{{ route('products.create') }}" class="nav-link">Add Product</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('product_attributes.index') }}" class="nav-link">Show</a>
+                                    <a href="{{ route('products.index') }}" class="nav-link">All Products</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
 
-
-
-                    <!-- Category -->
+                    <!-- Categories -->
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarCategory"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarCategory">
-                            <i class="ri-folder-2-line"></i>
-                            <span>Category</span>
+                        <a class="nav-link menu-link" href="#sidebarCategories" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCategories">
+                            <i class="ri-folder-3-line"></i>
+                            <span data-key="t-categories">Categories</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarCategory">
+                        <div class="collapse menu-dropdown" id="sidebarCategories">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('categories.create') }}" class="nav-link">Create</a>
+                                    <a href="{{ route('categories.create') }}" class="nav-link">Add Category</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('categories.index') }}" class="nav-link">Show</a>
+                                    <a href="{{ route('categories.index') }}" class="nav-link">All Categories</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
 
-
-                    <!-- tags -->
+                    <!-- Attributes -->
                     <li class="nav-item">
-                        <a href="#sidebarproduct_tags"
-                            class="nav-link menu-link"
-                            data-bs-toggle="collapse"
-                            role="button"
-                            aria-expanded="false"
-                            aria-controls="sidebarproduct_tags">
-                            <i class="ri-price-tag-3-line"></i>
-                            <span>Tags</span>
+                        <a class="nav-link menu-link" href="#sidebarAttributes" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAttributes">
+                            <i class="ri-settings-3-line"></i>
+                            <span data-key="t-attributes">Attributes</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarproduct_tags">
+                        <div class="collapse menu-dropdown" id="sidebarAttributes">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.create') }}" class="nav-link">Create</a>
+                                    <a href="{{ route('product_attributes.create') }}" class="nav-link">Add Attribute</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.index') }}" class="nav-link">Show</a>
+                                    <a href="{{ route('product_attributes.index') }}" class="nav-link">All Attributes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('attribute_values.index') }}" class="nav-link">Attribute Values</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-                    <!-- Coupon -->
+
+                    <!-- Tags -->
                     <li class="nav-item">
-                        <a href="#sidebarCoupon"
-                        class="nav-link menu-link"
-                        data-bs-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="sidebarCoupon">
+                        <a class="nav-link menu-link" href="#sidebarTags" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTags">
+                            <i class="ri-price-tag-line"></i>
+                            <span data-key="t-tags">Tags</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarTags">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.create') }}" class="nav-link">Add Tag</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.index') }}" class="nav-link">All Tags</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- MARKETING & PROMOTIONS -->
+                    <li class="menu-title"><span data-key="t-marketing">Marketing & Promotions</span></li>
+
+                    <!-- Coupons -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarCoupons" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCoupons">
                             <i class="ri-coupon-3-line"></i>
-                            <span>Coupon</span>
+                            <span data-key="t-coupons">Coupons</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarCoupon">
+                        <div class="collapse menu-dropdown" id="sidebarCoupons">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('coupons.create') }}" class="nav-link">Create</a>
+                                    <a href="{{ route('coupons.create') }}" class="nav-link">Create Coupon</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('coupons.index') }}" class="nav-link">Show</a>
+                                    <a href="{{ route('coupons.index') }}" class="nav-link">All Coupons</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
+
+                    <!-- CUSTOMER & COMMUNITY -->
+                    <li class="menu-title"><span data-key="t-customer">Customers & Community</span></li>
+
+                    <!-- Users -->
+                    <li class="nav-item">
+                        <a href="{{ route('users.index') }}" class="nav-link menu-link">
+                            <i class="ri-user-3-line"></i><span data-key="t-users">Users</span>
+                        </a>
+                    </li>
+
+                    <!-- Wishlist -->
+                    <li class="nav-item">
+                        <a href="{{ route('wishlist.show') }}" class="nav-link menu-link">
+                            <i class="ri-heart-line"></i><span data-key="t-wishlist">Wishlists</span>
+                        </a>
+                    </li>
+
+                    <!-- Reviews -->
+                    <li class="nav-item">
+                        <a href="{{ route('wishlist.show') }}" class="nav-link menu-link">
+                            <i class="ri-star-line"></i><span data-key="t-reviews">Reviews & Ratings</span>
+                        </a>
+                    </li>
+
+                    <!-- PAYMENTS & CHECKOUT -->
+                    <li class="menu-title"><span data-key="t-payments">Payments & Checkout</span></li>
 
                     <!-- Payment Options -->
                     <li class="nav-item">
-                        <a href="#sidebarPaymentOptions"
-                        class="nav-link menu-link"
-                        data-bs-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="sidebarPaymentOptions">
+                        <a class="nav-link menu-link" href="#sidebarPayment" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPayment">
                             <i class="ri-bank-card-line"></i>
-                            <span>Payment Options</span>
+                            <span data-key="t-payment-options">Payment Methods</span>
                         </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarPaymentOptions">
+                        <div class="collapse menu-dropdown" id="sidebarPayment">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('paymentoptions.create') }}" class="nav-link">Create</a>
+                                    <a href="{{ route('paymentoptions.create') }}" class="nav-link">Add Method</a>
                                 </li>
-                                 <li class="nav-item">
-                                    <a href="{{ route('paymentoptions.index') }}" class="nav-link">Show</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <!-- Wishlists Show -->
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarwishlist"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarwishlist">
-                            <i class="ri-folder-2-line"></i>
-                            <span>WishList</span>
-                        </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarwishlist">
-                            <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('wishlist.show') }}" class="nav-link">Show</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <!-- Order Show -->
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarorder"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarorder">
-                            <i class="ri-folder-2-line"></i>
-                            <span>Order</span>
-                        </a>
-
-                        <div class="collapse menu-dropdown" id="sidebarorder">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('orders.show') }}" class="nav-link">Show</a>
+                                    <a href="{{ route('paymentoptions.index') }}" class="nav-link">All Methods</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
 
 
-                    <!-- ROOMS -->
-                    {{-- <li class="nav-item">
-                        @if(Route::is('rooms.*') || Route::is('amenities.*') || Route::is('services.*'))
-                            <a href="#sidebarRooms" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarRooms">
-                                <i class=" ri-home-8-line"></i><span>Rooms</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarRooms">
-                        @else
-                            <a href="#sidebarRooms" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarRooms">
-                                <i class=" ri-home-8-line"></i><span>Rooms</span>
-                            </a>
-                            <div class="collapse menu-dropdown" id="sidebarRooms">
-                        @endif
+                    <!-- ADMINISTRATION -->
+                    <li class="menu-title"><span data-key="t-administration">Administration</span></li>
+
+                    <!-- Settings -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarSettings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSettings">
+                            <i class="ri-settings-2-line"></i>
+                            <span data-key="t-settings">Settings</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarSettings">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('rooms.create') }}" class="nav-link">Add Rooms</a>
+                                    <a href="{{ route('view.settings.general') }}" class="nav-link">General Settings</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('view.settings.ecommerce') }}" class="nav-link">E-Commerce</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('view.settings.about') }}" class="nav-link">About Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('view.settings.home') }}" class="nav-link">Home Page</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('view.settings.pages') }}" class="nav-link">Pages</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('view.settings.env') }}" class="nav-link">Environment</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
+
+                    <!-- Support & Help -->
                     <li class="nav-item">
-                        <a href="{{ route('rooms.index') }}" class="nav-link">All Rooms</a>
+                        <a class="nav-link menu-link" href="#sidebarSupport" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSupport">
+                            <i class="ri-question-line"></i>
+                            <span data-key="t-support">Support & Help</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarSupport">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('faqs.create') }}" class="nav-link">Add FAQ</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('faqs.index') }}" class="nav-link">All FAQs</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('amenities.index') }}" class="nav-link">Amenities</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('services.index') }}" class="nav-link">Services</a>
-                    </li>
+
                 </ul>
             </div>
-            </li> --}}
-
-            <!-- BOOKINGS -->
-            {{-- <li class="nav-item">
-                        @if(Route::is('view.offline_booking') || Route::is('view.bookings') || Route::is('view.transactions') || Route::is('view.booking') || Route::is('view.edit_booking') )
-                            <a href="#sidebarBookings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarBookings">
-                                <i class=" ri-calendar-check-fill"></i><span>Bookings</span>
-                            </a>
-                            <div class="menu-dropdown" id="sidebarBookings">
-                        @else
-                            <a href="#sidebarBookings" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBookings">
-                                <i class=" ri-calendar-check-fill"></i><span>Bookings</span>
-                            </a>
-                            <div class="collapse menu-dropdown" id="sidebarBookings">
-                        @endif
-                                <ul class="nav nav-sm flex-column">
-                                    <li class="nav-item">
-                                        <a href="{{ route('view.offline_booking') }}" class="nav-link">Offline Booking</a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('view.bookings') }}" class="nav-link">Bookings</a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('view.transactions') }}" class="nav-link">Transactions</a>
-            </li>
-            </ul>
         </div>
-        </li> --}}
-
-        <!-- SETTINGS -->
-        <li class="nav-item">
-            @if(Route::is('view.settings.*') || Route::is('faqs.*') )
-            <a href="#sidebarSettings" class="nav-link menu-link" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="sidebarSettings">
-                <i class="ri-home-gear-line"></i><span>Settings</span>
-            </a>
-            <div class="menu-dropdown" id="sidebarSettings">
-                @else
-                <a href="#sidebarSettings" class="nav-link menu-link collapsed" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSettings">
-                    <i class="ri-home-gear-line"></i><span>Settings</span>
-                </a>
-                <div class="collapse menu-dropdown" id="sidebarSettings">
-                    @endif
-                    <ul class="nav nav-sm flex-column">
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.about') }}/" class="nav-link">About Us</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.env') }}/" class="nav-link">ENV</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('faqs.index') }}/" class="nav-link">FAQs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.general') }}/" class="nav-link">General</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.home') }}/" class="nav-link">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.pages') }}/" class="nav-link">Pages</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('view.settings.ecommerce') }}/" class="nav-link">E-Commerce</a>
-                        </li>
-                    </ul>
-                </div>
-        </li>
-
-        <!-- Users -->
-        <li class="nav-item">
-            <a href="{{ route('users.index') }}/" class="nav-link menu-link collapsed">
-                <i class="ph-user-circle"></i><span>Users</span>
-            </a>
-        </li>
-
-        </ul>
-    </div>
-    </div>
-    <div class="sidebar-background"></div>
+        <div class="sidebar-background"></div>
     </div>
 
     <div class="vertical-overlay"></div>
