@@ -82,27 +82,14 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <p class="fw-medium text-muted mb-0">
-                            Customers
-                        </p>
-
-                        <h2 class="mt-4 ff-secondary fw-semibold">
-                            1,245
-                        </h2>
-
+                        <p class="fw-medium text-muted mb-0"> Customers</p>
+                        <h2 class="mt-4 ff-secondary fw-semibold">1,245 </h2>
                         <p class="mb-0 text-muted">
-
                             <span class="badge bg-info-subtle text-info mb-0">
-
-                                <i class="ri-arrow-up-line align-middle"></i>
-                                5.4 %
-
+                                <i class="ri-arrow-up-line align-middle"></i> 5.4 %
                             </span>
-
                             vs previous month
-
                         </p>
-
                     </div>
 
                     <div>
@@ -426,29 +413,13 @@
                             </tr>
 
                             <tr>
+ </td>
 
+                                <td> Priya Mehta </td>
+                                <td> Office Chair</td>
+                                <td>₹15,000</td>
                                 <td>
-                                    #ORD003
-                                </td>
-
-                                <td>
-                                    Priya Mehta
-                                </td>
-
-                                <td>
-                                    Office Chair
-                                </td>
-
-                                <td>
-                                    ₹15,000
-                                </td>
-
-                                <td>
-
-                                    <span class="badge bg-info-subtle text-info">
-                                        Processing
-                                    </span>
-
+                                    <span class="badge bg-info-subtle text-info"> Processing </span>
                                 </td>
                                 <td>
                                     20 May 2026

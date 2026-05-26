@@ -37,14 +37,10 @@ class CartController extends Controller
         $cookieCart = json_decode($request->cookie('guest_cart', '[]'), true);
 
         $cart = [];
-
         foreach ($cookieCart as $item) {
-
             if (!isset($item['id'])) continue;
-
             $product = Product::find($item['id']);
-            if (!$product) continue;
-
+            if (!$product) continue; 
             $cart[] = [
                 'id'       => $product->id,
                 'name'     => $product->name,
@@ -96,14 +92,12 @@ class CartController extends Controller
 
         /* ---------- LOGGED IN ---------- */
         $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
-
         $item = CartItem::firstOrCreate(
             ['cart_id' => $cart->id, 'product_id' => $product->id],
             ['quantity' => 0, 'price' => $product->price]
         );
 
         $item->increment('quantity');
-
         return response()->json(['status' => 'added','count'  => $cart->items()->sum('quantity')]);
     }
 
@@ -126,7 +120,6 @@ class CartController extends Controller
             }
 
             $products = Product::whereIn('id', $cart->pluck('id'))->get();
-
             $grandTotal = $products->sum(function ($product) use ($cart) {
                 $qty = $cart->firstWhere('id', $product->id)['quantity'] ?? 1;
                 return $product->price * $qty;

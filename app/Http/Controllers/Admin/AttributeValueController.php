@@ -98,7 +98,6 @@ class AttributeValueController extends Controller
     public function update(Request $request, string $id)
     {
         $value = AttributeValue::findOrFail($id);
-
         $validator = Validator::make($request->all(), [
             'value' => 'required|unique:attribute_values,value,' . $id . ',id,product_attribute_id,' . $value->product_attribute_id
         ]);
@@ -114,7 +113,6 @@ class AttributeValueController extends Controller
 
         // Load the relationship to get attribute name
         $value->load('attribute');
-
         return response()->json([
             'id' => $value->id,
             'value' => $value->value,

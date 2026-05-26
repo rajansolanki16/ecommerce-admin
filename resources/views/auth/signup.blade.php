@@ -39,7 +39,7 @@
 
                             <div class="ko-col-6">
                                 <div class="ko-loginRegister-grp">
-                                    <label for="country">Country Code <sup>*</sup></label>
+                                    <label for="country"></label>Country Code <sup>*</sup></label>
                                     <select name="country" id="country_code" data-url="{{ route(name: "get.states") }}" class="ko-loginRegister-control">
                                         <option value="Please select country code" disabled selected>Please select country code</option>
                                         @foreach ($countries as $country)

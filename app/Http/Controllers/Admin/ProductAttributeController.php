@@ -56,7 +56,7 @@ class ProductAttributeController extends Controller
         $attribute->slug = Str::slug($request->name);
         $attribute->save();
         if ($attribute) {
-            return redirect()->route('product_attributes.index');
+            return redirect()->route('product_attributes.index')->with('success', 'Product attribute created successfully.');
         } else {
             return redirect()->back()
                 ->withErrors(['product_attributes' => 'Unable to create the product attribute.'])
@@ -108,7 +108,7 @@ class ProductAttributeController extends Controller
         $attribute->slug = Str::slug($request->name);
         $attribute->save();
         if ($attribute) {
-            return redirect()->route('product_attributes.index');
+            return redirect()->route('product_attributes.index')->with('success', 'Product attribute updated successfully.');
         } else {
             return redirect()->back()
                 ->withErrors(['product_attributes' => 'Unable to update the product attribute.'])
@@ -124,6 +124,6 @@ class ProductAttributeController extends Controller
         //
         $attribute = ProductAttribute::findOrFail($id);
         $attribute->delete();
-        return redirect()->route('product_attributes.index');
+        return redirect()->route('product_attributes.index')->with('success', 'Product attribute deleted successfully.');
     }
 }
