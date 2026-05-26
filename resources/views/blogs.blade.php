@@ -26,11 +26,11 @@
                     <div class="ko-blog-post-inner-card">
                         <div class="ko-blog-post-img">
                             <a href="{{ route('blog.list', $blog->slug) }}">
-                                <img src="{{ publicPath($blog->image) }}" alt="{{ $blog->title }}" />
+                                <img src="{{ publicPath($blog->featured_image) }}" alt="{{ $blog->title }}" />
                             </a>
-                            <a class="ko-catagory" href="{{ route('blog.list', $blog->slug) }}">@foreach ($blog->categories as $category)
-                                {{ $category->name }}@if(!$loop->last), @endif
-                            @endforeach</a>
+                            <a class="ko-catagory" href="{{ route('blog.list', $blog->slug) }}">
+                                {{ $blog->category->name ?? 'Uncategorized' }}
+                            </a>
                         </div>
                         <div class="ko-blog-post-content">
                             <a href="{{ route('blog.list', $blog->slug) }}">{{ $blog->title }}</a>
@@ -41,6 +41,9 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+            <div class="mt-4">
+                {{ $blogs->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </section>

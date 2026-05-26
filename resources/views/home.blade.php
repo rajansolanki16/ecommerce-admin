@@ -198,7 +198,7 @@
         <!-- ----------accomodation section end----------- -->
 
         <!-- --------------------facilities section start------------------- -->
-        @if (!empty($blogs) && count($blogs ?? []) > 2)
+        @if (!empty($blogs) && count($blogs ?? []) > 0)
             
             <section class="ko-facilities-section">
                 <div class="ko-facilities-row">
@@ -206,7 +206,7 @@
                     
                         <div class="ko-facilities-col">
                             <div class="ko-facilities-imgblock">
-                                <img src="{{ publicPath($blog->image) }}" alt="facilities" />
+                                <img src="{{ publicPath($blog->featured_image) }}" alt="{{ $blog->title }}" />
                                 <h4>{{ $blog->title }}</h4>
                             </div>
                             <div class="ko-facilities-content">

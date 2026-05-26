@@ -17,7 +17,11 @@ use App\Http\Controllers\Admin\PaymentOptionsController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\BlogAuthorController;
+use App\Http\Controllers\Admin\BlogPostCategoryController;
+use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\TagsController;
+use App\Http\Controllers\User\BlogController;
 use App\Http\Controllers\User\WishListController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\OrderController;
@@ -45,6 +49,8 @@ Route::get('/home', [HomeController::class, 'list'])->name('user.home');
 Route::get('/product', [HomeController::class, 'list'])->name('user.product');
 
 Route::get('/product/{slug}', [ProductController::class, 'userShow'])->name('product.user.show');
+Route::get('/blogs', [BlogController::class, 'index'])->name('blogs.index');
+Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blog.list');
 Route::post('/guest/merge', [AuthController::class, 'mergeGuestStorage'])->middleware('auth')->name('guest.merge');
 
 Route::post('/wishlist/toggle', [WishListController::class, 'toggle'])->name('wishlist.toggle');
@@ -76,6 +82,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/products/generate-variants', [ProductController::class, 'generateVariants'])->name('products.generate.variants');
         Route::resource('/products', ProductController::class)->names('products');
         Route::resource('/categories', CategoryController::class)->names('categories');
+        Route::resource('/blog-posts', BlogPostController::class)->except(['show'])->names('blog.posts');
+        Route::resource('/blog-categories', BlogPostCategoryController::class)->except(['show'])->names('blog.categories');
+        Route::resource('/blog-authors', BlogAuthorController::class)->except(['show'])->names('blog.authors');
         Route::resource('/tags', TagsController::class)->names('tags');
         Route::resource('/coupons', CouponController::class)->names('coupons');
         Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');

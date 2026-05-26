@@ -101,25 +101,38 @@
                         </div>
                     </li>
 
-                    <!-- Tags -->
+                    <!-- BLOG -->
+                    <li class="menu-title"><span data-key="t-blog">Blog</span></li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarTags" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTags">
-                            <i class="ri-price-tag-line"></i>
-                            <span data-key="t-tags">Tags</span>
+                        <a class="nav-link menu-link" href="#sidebarBlog" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBlog">
+                            <i class="ri-file-list-3-line"></i>
+                            <span data-key="t-blog">Blog</span>
                         </a>
-                        <div class="collapse menu-dropdown" id="sidebarTags">
+                        <div class="collapse menu-dropdown" id="sidebarBlog">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.create') }}" class="nav-link">Add Tag</a>
+                                    <a href="{{ route('blog.posts.create') }}" class="nav-link">Add Post</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('tags.index') }}" class="nav-link">All Tags</a>
+                                    <a href="{{ route('blog.posts.index') }}" class="nav-link">All Posts</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('blog.categories.create') }}" class="nav-link">Add Category</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('blog.categories.index') }}" class="nav-link">All Categories</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('blog.authors.create') }}" class="nav-link">Add Author</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('blog.authors.index') }}" class="nav-link">All Authors</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- MARKETING & PROMOTIONS -->
+                    <!-- Tags -->
                     <li class="menu-title"><span data-key="t-marketing">Marketing & Promotions</span></li>
 
                     <!-- Coupons -->

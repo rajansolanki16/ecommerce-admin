@@ -152,6 +152,12 @@
                         All Products
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold"
+                       href="{{ route('blogs.index') }}">
+                        Blog
+                    </a>
+                </li>
 
                 @foreach($categories ?? [] as $category)
                 <li class="nav-item">
