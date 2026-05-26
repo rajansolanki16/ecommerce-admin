@@ -436,7 +436,6 @@ class ProductController extends Controller
             }
 
             $product->variants()->delete();
-
             if ($request->filled('variants') && is_array($request->variants)) {
                 foreach ($request->variants as $idx => $variant) {
                     $values = $variant['values'] ?? [];
@@ -539,7 +538,7 @@ class ProductController extends Controller
         $variant->delete();
 
         return response()->json([
-            'success' => true,
+            'success' => 'true',
             'variant_id' => $variantId
         ]);
     }

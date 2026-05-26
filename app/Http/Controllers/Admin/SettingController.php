@@ -24,7 +24,7 @@ class SettingController extends Controller
     public function show_about_us(Request $request)
     {
         $settings = Setting::where('page', '=', 'about')->get();
-      //  $amenities = Amenity::all();
+    //  $amenities = Amenity::all();
         return view('admin.settings.about')->with(["settings" => $settings]);
     }
 

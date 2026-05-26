@@ -34,7 +34,6 @@ class CheckoutController extends Controller
         }
 
         $total = max(0, $subtotal - $discount);
-
         return view('user.checkout.index', compact(
             'cart', 'subtotal', 'discount', 'total'
         ));
@@ -56,7 +55,6 @@ class CheckoutController extends Controller
         }
 
         DB::transaction(function () use ($request, $cart) {
-
             /* ---------------- CALCULATE TOTAL ---------------- */
             $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
             $discount = 0;
@@ -163,7 +161,6 @@ class CheckoutController extends Controller
         ]);
 
         $cartTotal = (float) $request->cart_total;
-
         $coupon = Coupon::where('code', strtoupper($request->code))
                         ->where('is_active', true)
                         ->first();
@@ -173,13 +170,11 @@ class CheckoutController extends Controller
         }
 
         $result = $coupon->isValid($cartTotal, auth()->id());
-
         if (!$result['valid']) {
             return back()->with('coupon_error', $result['message']);
         }
 
         $discount = $coupon->calculateDiscount($cartTotal);
-
         session()->put('applied_coupon', [
             'id'       => $coupon->id,
             'code'     => $coupon->code,

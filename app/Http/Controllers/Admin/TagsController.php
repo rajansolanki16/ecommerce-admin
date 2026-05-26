@@ -55,7 +55,7 @@ class TagsController extends Controller
         $tags->slug = Str::slug($request->name);
         $tags->save();
         if ($tags) {
-            return redirect()->route('tags.index');
+            return redirect()->route('tags.index')->with('success', 'Tag created successfully.');
         } else {
             return redirect()->back()
                 ->withErrors(['tags' => 'Unable to create the tags.'])
@@ -105,7 +105,7 @@ class TagsController extends Controller
         $tags->slug = Str::slug($request->name);
         $tags->save();
         if ($tags) {
-            return redirect()->route('tags.index');
+            return redirect()->route('tags.index')->with('success', 'Tag updated successfully.');
         } else {
             return redirect()->back()
                 ->withErrors(['tags' => 'Unable to update the tags.'])
@@ -121,6 +121,6 @@ class TagsController extends Controller
         //
         $tag = Tag::findOrFail($id);
         $tag->delete();
-        return redirect()->route('tags.index');
+        return redirect()->route('tags.index')->with('success', 'Tag deleted successfully.');
     }
 }

@@ -23,7 +23,6 @@
 
                 {{-- ORDER HEADER --}}
                 <div class="border-bottom p-4 d-flex justify-content-between flex-wrap gap-3">
-
                     <div>
                         <div class="fw-semibold fs-5">
                             Order #{{ $order->order_number ?? $order->id }}

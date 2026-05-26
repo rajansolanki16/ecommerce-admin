@@ -319,7 +319,7 @@
                                         @else
                                             <form action="{{ route('checkout.apply.coupon') }}" method="POST">
                                                 @csrf
-                                                <input type="hidden" name="cart_total" value="{{ $ac->total_cost }}">
+                                               <input type="hidden" name="cart_total" value="{{ $ac->total_cost }}">
                                                 <div class="ko-addCoupon-wrap">
                                                     <div class="ko-addCoupon-control">
                                                         <input type="text" name="code" id="ko_add_coupon"

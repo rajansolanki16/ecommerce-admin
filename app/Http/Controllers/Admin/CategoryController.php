@@ -70,9 +70,7 @@ class CategoryController extends Controller
         if ($categories) {
             return redirect()->route('categories.index');
         } else {
-            return redirect()->back()
-                ->withErrors(['category' => 'Unable to create or update the category.'])
-                ->withInput();
+            return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
         }
     }
 
@@ -147,6 +145,6 @@ class CategoryController extends Controller
 
         $category = Category::findOrFail($id);
         $category->delete();
-        return redirect()->route('categories.index');
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }

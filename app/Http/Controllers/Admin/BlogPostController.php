@@ -38,7 +38,7 @@ class BlogPostController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|min:3',
+            'title' => 'required|string|min:3|unique:blog_posts,title',
             'excerpt' => 'nullable|string|max:500',
             'body' => 'required|string',
             'category_id' => 'required|exists:blog_post_categories,id',
@@ -60,8 +60,7 @@ class BlogPostController extends Controller
         }
 
         BlogPost::create($data);
-
-        return redirect()->route('blog.posts.index');
+        return redirect()->route('blog.posts.index')->with('success', 'Blog post created successfully.');
     }
 
     public function edit(BlogPost $blog_post)
@@ -79,7 +78,7 @@ class BlogPostController extends Controller
     public function update(Request $request, BlogPost $blog_post)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|min:3',
+            'title' => 'required|string|min:3|unique:blog_posts,title,' . $blog_post->id,
             'excerpt' => 'nullable|string|max:500',
             'body' => 'required|string',
             'category_id' => 'required|exists:blog_post_categories,id',
@@ -95,19 +94,18 @@ class BlogPostController extends Controller
 
         $data = $request->only(['title', 'excerpt', 'body', 'category_id', 'author_id', 'status', 'published_at']);
         $data['slug'] = Str::slug($request->title);
-
         if ($request->hasFile('featured_image')) {
             $data['featured_image'] = $request->file('featured_image')->store('blog', 'public');
         }
 
         $blog_post->update($data);
 
-        return redirect()->route('blog.posts.index');
+        return redirect()->route('blog.posts.index')->with('success', 'Blog post updated successfully.');
     }
 
     public function destroy(BlogPost $blog_post)
     {
         $blog_post->delete();
-        return redirect()->route('blog.posts.index');
+        return redirect()->route('blog.posts.index')->with('success', 'Blog post deleted successfully.');
     }
 }

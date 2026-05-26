@@ -51,7 +51,7 @@ class BlogAuthorController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('blog.authors.index');
+        return redirect()->route('blog.authors.index')->with('success', 'Author created successfully.');
     }
 
     public function edit(BlogAuthor $blog_author)
@@ -80,12 +80,12 @@ class BlogAuthorController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('blog.authors.index');
+        return redirect()->route('blog.authors.index')->with('success', 'Author updated successfully.');
     }
 
     public function destroy(BlogAuthor $blog_author)
     {
         $blog_author->delete();
-        return redirect()->route('blog.authors.index');
+        return redirect()->route('blog.authors.index')->with('success', 'Author deleted successfully.');
     }
 }

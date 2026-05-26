@@ -11,127 +11,77 @@
 
     {{-- Total Orders --}}
     <div class="col-xxl-3 col-sm-6">
-
         <div class="card card-animate">
-
             <div class="card-body">
-
                 <div class="d-flex justify-content-between">
-
                     <div>
-
                         <p class="fw-medium text-muted mb-0">
                             Total Orders
                         </p>
-
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             <span class="counter-value">
                                 2,450
                             </span>
                         </h2>
-
                         <p class="mb-0 text-muted">
-
                             <span class="badge bg-success-subtle text-success mb-0">
-
                                 <i class="ri-arrow-up-line align-middle"></i>
                                 12.5 %
-
                             </span>
                             vs previous month
                         </p>
-
                     </div>
 
                     <div>
-
                         <div class="avatar-sm flex-shrink-0">
-
                             <span class="avatar-title bg-primary-subtle rounded fs-3">
-
                                 <i class="ri-shopping-bag-3-line text-primary"></i>
-
                             </span>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     {{-- Revenue --}}
     <div class="col-xxl-3 col-sm-6">
-
         <div class="card card-animate">
-
             <div class="card-body">
-
                 <div class="d-flex justify-content-between">
-
                     <div>
-
                         <p class="fw-medium text-muted mb-0">
                             Revenue
                         </p>
-
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             ₹85,420
                         </h2>
-
                         <p class="mb-0 text-muted">
-
                             <span class="badge bg-success-subtle text-success mb-0">
-
                                 <i class="ri-arrow-up-line align-middle"></i>
                                 8.2 %
-
                             </span>
-
                             vs previous month
-
                         </p>
-
                     </div>
-
                     <div>
-
                         <div class="avatar-sm flex-shrink-0">
-
                             <span class="avatar-title bg-success-subtle rounded fs-3">
-
                                 <i class="ri-money-dollar-circle-line text-success"></i>
-
                             </span>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     {{-- Customers --}}
     <div class="col-xxl-3 col-sm-6">
-
         <div class="card card-animate">
-
             <div class="card-body">
-
                 <div class="d-flex justify-content-between">
-
                     <div>
-
                         <p class="fw-medium text-muted mb-0">
                             Customers
                         </p>
@@ -179,13 +129,9 @@
 
     {{-- Products --}}
     <div class="col-xxl-3 col-sm-6">
-
         <div class="card card-animate">
-
             <div class="card-body">
-
                 <div class="d-flex justify-content-between">
-
                     <div>
 
                         <p class="fw-medium text-muted mb-0">
@@ -504,33 +450,22 @@
                                     </span>
 
                                 </td>
-
                                 <td>
                                     20 May 2026
                                 </td>
-
                             </tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <script>
-
     var options = {
-
         series: [{
             name: 'Sales',
             data: [120, 210, 180, 280, 350, 400, 450]
@@ -563,16 +498,13 @@
                 'Sun'
             ]
         }
-
     };
 
     var chart = new ApexCharts(
         document.querySelector("#sales_chart"),
         options
     );
-
     chart.render();
-
 </script>
 
 <x-admin.footer />

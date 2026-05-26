@@ -47,7 +47,7 @@ class BlogPostCategoryController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->route('blog.categories.index');
+        return redirect()->route('blog.categories.index')->with('success', 'Category created successfully.');
     }
 
     public function edit(BlogPostCategory $blog_category)
@@ -72,12 +72,12 @@ class BlogPostCategoryController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->route('blog.categories.index');
+        return redirect()->route('blog.categories.index')->with('success', 'Category updated successfully.');
     }
 
     public function destroy(BlogPostCategory $blog_category)
     {
         $blog_category->delete();
-        return redirect()->route('blog.categories.index');
+        return redirect()->route('blog.categories.index')->with('success', 'Category deleted successfully.');
     }
 }

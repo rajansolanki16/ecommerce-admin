@@ -62,6 +62,23 @@
                         </div>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarTags" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTags">
+                            <i class="ri-settings-3-line"></i>
+                            <span data-key="t-tags">Tags</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarTags">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.create') }}" class="nav-link">Add Tags</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('tags.index') }}" class="nav-link">All Tags</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <!-- Categories -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarCategories" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCategories">
@@ -94,8 +111,23 @@
                                 <li class="nav-item">
                                     <a href="{{ route('product_attributes.index') }}" class="nav-link">All Attributes</a>
                                 </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- Coupons -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarCoupons" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCoupons">
+                            <i class="ri-coupon-3-line"></i>
+                            <span data-key="t-coupons">Coupons</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarCoupons">
+                            <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a href="{{ route('attribute_values.index') }}" class="nav-link">Attribute Values</a>
+                                    <a href="{{ route('coupons.create') }}" class="nav-link">Create Coupon</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('coupons.index') }}" class="nav-link">All Coupons</a>
                                 </li>
                             </ul>
                         </div>
@@ -127,27 +159,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('blog.authors.index') }}" class="nav-link">All Authors</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <!-- Tags -->
-                    <li class="menu-title"><span data-key="t-marketing">Marketing & Promotions</span></li>
-
-                    <!-- Coupons -->
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarCoupons" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCoupons">
-                            <i class="ri-coupon-3-line"></i>
-                            <span data-key="t-coupons">Coupons</span>
-                        </a>
-                        <div class="collapse menu-dropdown" id="sidebarCoupons">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('coupons.create') }}" class="nav-link">Create Coupon</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('coupons.index') }}" class="nav-link">All Coupons</a>
                                 </li>
                             </ul>
                         </div>

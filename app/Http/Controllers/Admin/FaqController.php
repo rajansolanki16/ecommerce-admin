@@ -62,7 +62,7 @@ class FaqController extends Controller
         }
 
         if ($faq) {
-            return redirect()->route('faqs.index');
+            return redirect()->route('faqs.index')->with('success', 'FAQ created/updated successfully.');
         } else {
             return redirect()->back()
                 ->withErrors(['question' => 'Unable to create or update the FAQ.'])
@@ -107,6 +107,6 @@ class FaqController extends Controller
         $faq = Faq::findOrFail($id);
         $faq->delete();
 
-        return redirect()->route('faqs.index');
+        return redirect()->route('faqs.index')->with('success', 'FAQ deleted successfully.');
     }
 }

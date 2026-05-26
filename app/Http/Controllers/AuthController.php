@@ -282,7 +282,6 @@ class AuthController extends Controller
         $user->save();
 
         Auth::login($user);
-
         return redirect()->route('view.home')->with([
             'success' => true,
             'message' => 'Password changed successfully.'
@@ -293,7 +292,6 @@ class AuthController extends Controller
     {
         $country_code = $request->country_code;
         $country_name = $request->country_name;
-
         $states = Country::where('c_code', $country_code)
             ->where('c_name', $country_name)
             ->pluck('s_name', 'id');
@@ -348,10 +346,8 @@ class AuthController extends Controller
 
         /* ================= WISHLIST ================= */
         $guestWishlist = json_decode($request->cookie('guest_wishlist', '[]'), true);
-
         foreach ($guestWishlist ?? [] as $productId) {
             if (!Product::where('id', $productId)->exists()) continue;
-
             Wishlist::firstOrCreate([
                 'user_id'    => $userId,
                 'product_id' => $productId,
