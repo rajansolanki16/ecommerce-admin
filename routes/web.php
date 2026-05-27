@@ -21,6 +21,8 @@ use App\Http\Controllers\Admin\BlogAuthorController;
 use App\Http\Controllers\Admin\BlogPostCategoryController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\TagsController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\User\BlogController;
 use App\Http\Controllers\User\WishListController;
 use App\Http\Controllers\User\CheckoutController;
@@ -86,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/blog-categories', BlogPostCategoryController::class)->except(['show'])->names('blog.categories');
         Route::resource('/blog-authors', BlogAuthorController::class)->except(['show'])->names('blog.authors');
         Route::resource('/tags', TagsController::class)->names('tags');
+        Route::resource('/brands', BrandController::class)->names('brands');
         Route::resource('/coupons', CouponController::class)->names('coupons');
         Route::resource('/payment-options', PaymentOptionsController::class)->names('paymentoptions');
         Route::resource('/product-attributes', ProductAttributeController::class)->names('product_attributes');
@@ -118,6 +121,8 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/ecommerce', [SettingController::class, 'show_ecommerce'])->name('view.settings.ecommerce');
             Route::post('/ecommerce/store', [SettingController::class, 'store_ecommerce'])->name('settings.ecommerce.store');
+            Route::get('/payment',    [PaymentSettingsController::class, 'index'])->name('view.settings.payment');
+            Route::post('/payment',   [PaymentSettingsController::class, 'update'])->name('settings.payment.update');
         });
 
         Route::prefix('users')->group(function() {

@@ -21,6 +21,7 @@ class CouponController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge(['is_active' => $request->boolean('is_active')]);
         $validated = $request->validate([
             'code'                => 'required|string|unique:coupons,code',
             'type'                => 'required|in:percentage,fixed',
@@ -35,7 +36,6 @@ class CouponController extends Controller
             'is_active'           => 'boolean',
         ]);
 
-        // For percentage type, amount should not exceed 100
         if ($validated['type'] === 'percentage' && $validated['amount'] > 100) {
             return back()->withErrors(['amount' => 'Percentage discount cannot exceed 100.'])->withInput();
         }
@@ -54,6 +54,7 @@ class CouponController extends Controller
     public function update(Request $request, string $id)
     {
         $coupon = Coupon::findOrFail($id);
+        $request->merge(['is_active' => $request->boolean('is_active')]);
 
         $validated = $request->validate([
             'code'                => 'required|string|unique:coupons,code,' . $id,

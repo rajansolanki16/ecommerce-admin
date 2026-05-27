@@ -26,11 +26,10 @@ class CheckoutController extends Controller
         $discount = 0;
 
         if ($coupon = session('applied_coupon')) {
-            if ($coupon['type'] === 'percentage') {
-                $discount = ($subtotal * $coupon['amount']) / 100;
-            } else {
-                $discount = min($coupon['amount'], $subtotal);
-            }
+            $discount = $this->calculateDiscount($coupon, $subtotal);
+
+            // Keep discount in session in sync (in case subtotal changed)
+            session()->put('applied_coupon.discount', round($discount, 2));
         }
 
         $total = max(0, $subtotal - $discount);
@@ -55,29 +54,20 @@ class CheckoutController extends Controller
         }
 
         DB::transaction(function () use ($request, $cart) {
-            /* ---------------- CALCULATE TOTAL ---------------- */
             $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
             $discount = 0;
             $couponId = null;
 
             if ($coupon = session('applied_coupon')) {
                 $couponId = $coupon['id'];
-
-                if ($coupon['type'] === 'percentage') {
-                    $discount = ($subtotal * $coupon['amount']) / 100;
-                } else {
-                    $discount = min($coupon['amount'], $subtotal);
-                }
-
-                // Increase coupon usage
+                $discount = $this->calculateDiscount($coupon, $subtotal);
                 Coupon::where('id', $couponId)->increment('used');
             }
 
             $total = max(0, $subtotal - $discount);
 
-            /* ---------------- CREATE ORDER ---------------- */
             $order = Order::create([
-                'user_id'   => Auth::id(), 
+                'user_id'   => Auth::id(),
                 'name'      => $request->name,
                 'email'     => $request->email,
                 'phone'     => $request->phone,
@@ -89,7 +79,6 @@ class CheckoutController extends Controller
                 'status'    => 'pending',
             ]);
 
-            /* ---------------- CREATE ORDER ITEMS ---------------- */
             foreach ($cart as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -99,7 +88,6 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            /* ---------------- CLEAR CART ---------------- */
             if (Auth::check() && auth()->user()->cart) {
                 auth()->user()->cart->items()->delete();
             }
@@ -112,66 +100,29 @@ class CheckoutController extends Controller
             ->withCookie(cookie()->forget('guest_cart'));
     }
 
-
-    private function getCart(Request $request)
-    {
-        // STEP 1: Get raw cart
-        if (Auth::check()) {
-            $cart = auth()->user()->cart->items->map(fn ($i) => [
-                'id'       => $i->product_id,
-                'quantity' => $i->quantity,
-            ]);
-        } else {
-            $cart = collect(json_decode($request->cookie('guest_cart', '[]'), true));
-        }
-
-        if ($cart->isEmpty()) {
-            return collect();
-        }
-
-        // STEP 2: Fetch products safely
-        $products = Product::whereIn('id', $cart->pluck('id'))
-            ->get()
-            ->keyBy('id');
-
-        // STEP 3: Normalize cart (🔥 IMPORTANT)
-        return $cart->map(function ($item) use ($products) {
-
-            $product = $products->get($item['id']);
-
-            if (!$product) return null;
-
-            $price = $product->sell_price ?? $product->price;
-
-            return [
-                'id'       => $product->id,
-                'name'     => $product->product_title,
-                'price'    => $price,
-                'quantity' => $item['quantity'],
-                'image'    => $product->product_image,
-            ];
-        })->filter()->values();
-    }
-
     public function applyCoupon(Request $request)
     {
         $request->validate([
-            'code'       => 'required|string',
-            'cart_total' => 'required|numeric|min:0',
+            'code' => 'required|string',
         ]);
 
-        $cartTotal = (float) $request->cart_total;
-        $coupon = Coupon::where('code', strtoupper($request->code))
-                        ->where('is_active', true)
-                        ->first();
+        // Calculate cart total server-side — never trust user POST
+        $cart      = $this->getCart($request);
+        $cartTotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
+
+        if ($cartTotal <= 0) {
+            return back()->with('error', 'Your cart is empty.');
+        }
+
+        $coupon = Coupon::where('code', strtoupper($request->code))->where('is_active', true)->first();
 
         if (!$coupon) {
-            return back()->with('coupon_error', 'Invalid coupon code.');
+            return back()->with('error', 'Invalid coupon code.');
         }
 
         $result = $coupon->isValid($cartTotal, auth()->id());
         if (!$result['valid']) {
-            return back()->with('coupon_error', $result['message']);
+            return back()->with('error', $result['message']);
         }
 
         $discount = $coupon->calculateDiscount($cartTotal);
@@ -183,16 +134,65 @@ class CheckoutController extends Controller
             'discount' => round($discount, 2),
         ]);
 
-        return back()->with('coupon_success', 'Coupon applied! You save ₹' . number_format($discount, 2));
+        return back()->with('success', 'Coupon applied! You save ₹' . number_format($discount, 2));
     }
     public function removeCoupon()
     {
         session()->forget('applied_coupon');
-        return back()->with('coupon_success', 'Coupon removed.');
+        return back()->with('success', 'Coupon removed.');
     }
 
     public function success()
     {
         return view('user.checkout.success');
+    }
+
+    // ─── Private Helpers ────────────────────────────────────────────────────────
+
+    private function calculateDiscount(array $coupon, float $subtotal): float
+    {
+        if ($coupon['type'] === 'percentage') {
+            $discount = ($subtotal * $coupon['amount']) / 100;
+        } else {
+            $discount = $coupon['amount'];
+        }
+
+        return min($discount, $subtotal); // never exceed subtotal
+    }
+
+    private function getCart(Request $request)
+    {
+        if (Auth::check()) {
+            $cart = auth()->user()->cart
+                ? auth()->user()->cart->items->map(fn ($i) => [
+                    'id'       => $i->product_id,
+                    'quantity' => $i->quantity,
+                ])
+                : collect();
+        } else {
+            $cart = collect(json_decode($request->cookie('guest_cart', '[]'), true));
+        }
+
+        if ($cart->isEmpty()) {
+            return collect();
+        }
+
+        $products = Product::whereIn('id', $cart->pluck('id'))
+            ->get()
+            ->keyBy('id');
+
+        return $cart->map(function ($item) use ($products) {
+            $product = $products->get($item['id']);
+
+            if (!$product) return null;
+
+            return [
+                'id'       => $product->id,
+                'name'     => $product->product_title,
+                'price'    => $product->sell_price ?? $product->price,
+                'quantity' => $item['quantity'],
+                'image'    => $product->product_image,
+            ];
+        })->filter()->values();
     }
 }

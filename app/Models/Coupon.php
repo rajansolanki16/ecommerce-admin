@@ -21,11 +21,9 @@ class Coupon extends Model
     ];
 
     // ─── Relationships ────────────────────────────────────────────
-    public function users()
+    public function orders()
     {
-        return $this->belongsToMany(User::class, 'coupon_user')
-                    ->withPivot('used_count')
-                    ->withTimestamps();
+        return $this->hasMany(Order::class);
     }
 
     // ─── Validation Logic ─────────────────────────────────────────
@@ -49,20 +47,21 @@ class Coupon extends Model
             return ['valid' => false, 'message' => 'This coupon has reached its usage limit.'];
         }
 
-        if ($cartTotal < $this->min_order_amount) {
+        if ($this->min_order_amount !== null && $cartTotal < $this->min_order_amount) {
             return [
                 'valid'   => false,
-                'message' => "Minimum order amount of {$this->min_order_amount} required.",
+                'message' => 'Minimum order of ₹' . number_format($this->min_order_amount, 2) . ' required.',
             ];
         }
 
-        if ($userId) {
-            $userUsage = $this->users()
-                              ->where('user_id', $userId)
-                              ->first()?->pivot->used_count ?? 0;
+        // Per-user limit — checked via orders table, no pivot needed
+        if ($this->max_usage_per_user !== null && $userId) {
+            $userUsageCount = Order::where('coupon_id', $this->id)
+                ->where('user_id', $userId)
+                ->count();
 
-            if ($userUsage >= $this->max_usage_per_user) {
-                return ['valid' => false, 'message' => 'You have already used this coupon.'];
+            if ($userUsageCount >= $this->max_usage_per_user) {
+                return ['valid' => false, 'message' => 'You have already used this coupon the maximum number of times.'];
             }
         }
 
@@ -74,30 +73,20 @@ class Coupon extends Model
     {
         $discount = $this->type === 'percentage'
             ? ($cartTotal * $this->amount / 100)
-            : $this->amount;
+            : (float) $this->amount;
 
-        // Cap percentage discounts if max_discount_amount is set
         if ($this->max_discount_amount !== null) {
             $discount = min($discount, $this->max_discount_amount);
         }
 
-        // Discount can't exceed cart total
         return min($discount, $cartTotal);
     }
 
     // ─── Usage Tracking ───────────────────────────────────────────
-    public function redeem(int $userId): void
+    // Called after order is placed — just increments the 'used' counter
+
+    public function redeem(): void
     {
         $this->increment('used');
-
-        $existing = $this->users()->where('user_id', $userId)->first();
-
-        if ($existing) {
-            $this->users()->updateExistingPivot($userId, [
-                'used_count' => $existing->pivot->used_count + 1,
-            ]);
-        } else {
-            $this->users()->attach($userId, ['used_count' => 1]);
-        }
     }
 }

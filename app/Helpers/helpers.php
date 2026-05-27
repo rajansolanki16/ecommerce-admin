@@ -44,4 +44,11 @@ if (!function_exists('publicPath')) {
     }
 }
 
+if (!function_exists('getPaymentSetting')) {
+    function getPaymentSetting(string $key, $default = null)
+    {
+        return \App\Models\PaymentSetting::get($key, $default);
+    }
+}
+
 

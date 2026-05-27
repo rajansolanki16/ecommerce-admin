@@ -78,6 +78,23 @@
                             </ul>
                         </div>
                     </li>
+                    <!-- Brands -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarBrands" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBrands">
+                            <i class="ri-bookmark-line"></i>
+                            <span data-key="t-brands">Brands</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarBrands">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('brands.create') }}" class="nav-link">Add Brand</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('brands.index') }}" class="nav-link">All Brands</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
                     <!-- Categories -->
                     <li class="nav-item">
@@ -192,21 +209,12 @@
                     <li class="menu-title"><span data-key="t-payments">Payments & Checkout</span></li>
 
                     <!-- Payment Options -->
+                   {{--  ADD THIS --}}
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarPayment" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPayment">
-                            <i class="ri-bank-card-line"></i>
-                            <span data-key="t-payment-options">Payment Methods</span>
+                        <a href="{{ route('view.settings.payment') }}" class="nav-link menu-link">
+                            <i class="ri-secure-payment-line"></i>
+                            <span data-key="t-payment-gateways">Payment Gateways</span>
                         </a>
-                        <div class="collapse menu-dropdown" id="sidebarPayment">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('paymentoptions.create') }}" class="nav-link">Add Method</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('paymentoptions.index') }}" class="nav-link">All Methods</a>
-                                </li>
-                            </ul>
-                        </div>
                     </li>
 
                     <!-- ADMINISTRATION -->
@@ -267,3 +275,46 @@
     </div>
 
     <div class="vertical-overlay"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+
+    document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+
+        // Convert full URL to just the path (handles both http://... and /admin/...)
+        let linkPath;
+        try {
+            linkPath = new URL(href, window.location.origin).pathname;
+        } catch(e) {
+            linkPath = href;
+        }
+
+        // Exact match only — prevents /admin matching /admin/users etc.
+        const isActive = currentPath === linkPath;
+
+        if (!isActive) return;
+
+        link.classList.add('active');
+        link.closest('.nav-item')?.classList.add('active');
+
+        // Open parent collapse if this link is inside one
+        const parentCollapse = link.closest('.collapse.menu-dropdown');
+        if (parentCollapse) {
+            parentCollapse.classList.add('show');
+
+            const toggleLink = document.querySelector(
+                `[data-bs-toggle="collapse"][aria-controls="${parentCollapse.id}"]`
+            );
+            if (toggleLink) {
+                toggleLink.classList.add('active');
+                toggleLink.setAttribute('aria-expanded', 'true');
+                toggleLink.closest('.nav-item')?.classList.add('active');
+            }
+        }
+    });
+});
+
+</script>

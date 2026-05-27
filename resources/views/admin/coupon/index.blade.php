@@ -14,61 +14,79 @@
             </a>
         </div>
         <div class="card-body">
-            <p class="text-muted"> {{ __('coupon.coupon_list_desc') }} </p>
+            <p class="text-muted">{{ __('coupon.coupon_list_desc') }}</p>
             <div class="table-responsive">
-                <table id="fixed-header" class="table align-middle table-bordered dt-responsive nowrap table-striped" style="width:100%">
+                <table id="fixed-header" class="table align-middle table-bordered dt-responsive nowrap table-striped"
+                    style="width:100%">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">Code</th>
                             <th scope="col">Type</th>
                             <th scope="col">Amount</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Discount Amount</th>
+                            <th scope="col">Min Order</th>
+                            <th scope="col">Max Discount</th>
+                            <th scope="col">Max Usage</th>
+                            <th scope="col">Per User</th>
                             <th scope="col">Start Date</th>
                             <th scope="col">End Date</th>
-                            <th scope="col">Maxium usage</th>
+                            <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-
                         @foreach ($coupons as $coupon)
-                        <tr>
-                            <td class="fw-medium">{{ $coupon->id }}</td>
-                            <td class="fw-medium">{{ $coupon->code }}</td>
-                            <td class="fw-medium">{{ $coupon->type }}</td>
-                            <td class="fw-medium">{{ $coupon->amount }}</td>
-                            <td class="fw-medium">{{ $coupon->description }}</td>
-                            <td class="fw-medium">{{ $coupon->discount_amount }}</td>
-                            <td class="fw-medium">{{ $coupon->start_date }}</td>
-                            <td class="fw-medium">{{ $coupon->expiry_date }}</td>
-                            <td class="fw-medium">{{ $coupon->max_usage }}</td>
-                            <td>
-                                <div class="dropdown position-static">
-                                    <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a href="{{ route('coupons.edit', $coupon->id) }}" class="dropdown-item edit-item-btn"><i class="align-middle ph-pencil me-1"></i>Edit</a></li>
-                                        <li>
-                                            <a class="dropdown-item remove-item-btn" href="javascript:void(0);"
-                                                data-delete-url="{{ route('coupons.destroy', $coupon->id) }}"
-                                                onclick="setDeleteFormAction(this)">
-                                                <i class="align-middle ph-trash me-1"></i> Remove
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-
+                            <tr>
+                                <td class="fw-medium">{{ $coupon->id }}</td>
+                                <td class="fw-medium">{{ $coupon->code }}</td>
+                                <td class="fw-medium">{{ ucfirst($coupon->type) }}</td>
+                                <td class="fw-medium">
+                                    {{ $coupon->type === 'percentage' ? $coupon->amount . '%' : '₹' . number_format($coupon->amount, 2) }}
+                                </td>
+                                <td class="fw-medium">
+                                    {{ $coupon->min_order_amount ? '₹' . number_format($coupon->min_order_amount, 2) : '—' }}
+                                </td>
+                                <td class="fw-medium">
+                                    {{ $coupon->max_discount_amount ? '₹' . number_format($coupon->max_discount_amount, 2) : '—' }}
+                                </td>
+                                <td class="fw-medium">{{ $coupon->max_usage ?? '—' }}</td>
+                                <td class="fw-medium">{{ $coupon->max_usage_per_user ?? '—' }}</td>
+                                <td class="fw-medium">{{ $coupon->start_date?->format('d M Y') ?? '—' }}</td>
+                                <td class="fw-medium">{{ $coupon->expiry_date?->format('d M Y') ?? '—' }}</td>
+                                <td>
+                                    @if ($coupon->is_active)
+                                        <span class="badge bg-success">Active</span>
+                                    @else
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="dropdown position-static">
+                                        <button class="btn btn-subtle-secondary btn-sm btn-icon" role="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a href="{{ route('coupons.edit', $coupon->id) }}"
+                                                    class="dropdown-item edit-item-btn">
+                                                    <i class="align-middle ph-pencil me-1"></i>Edit
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item remove-item-btn" href="javascript:void(0);"
+                                                    data-delete-url="{{ route('coupons.destroy', $coupon->id) }}"
+                                                    onclick="setDeleteFormAction(this)">
+                                                    <i class="align-middle ph-trash me-1"></i>Remove
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforeach
-
                     </tbody>
                 </table>
-
             </div>
         </div>
     </div>
@@ -88,7 +106,8 @@
                     </div>
                     <div class="mt-4">
                         <h3 class="mb-2">Are you sure?</h3>
-                        <p class="mx-3 mb-0 text-muted fs-lg">Are you sure you want to remove this Coupon <b>permanently</b>?</p>
+                        <p class="mx-3 mb-0 text-muted fs-lg">Are you sure you want to remove this Coupon
+                            <b>permanently</b>?</p>
                     </div>
                 </div>
                 <form id="deleteForm" method="POST" action="">
