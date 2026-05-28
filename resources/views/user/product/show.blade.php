@@ -213,7 +213,7 @@
                     </p>
                 </div>
 
-                {{-- ✅ REVIEWS CONTENT --}}
+                {{--  REVIEWS CONTENT --}}
                 <div class="tab-pane fade" id="reviews">
 
                     {{-- WRITE REVIEW --}}

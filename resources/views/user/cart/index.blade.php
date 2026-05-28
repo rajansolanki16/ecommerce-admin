@@ -53,7 +53,7 @@
                                         <td style="width:110px">
                                             <input
                                                 type="number"
-                                                name="quantity"
+                                                name="quantity" 
                                                 value="{{ $item['quantity'] }}"
                                                 min="1"
                                                 class="form-control form-control-sm update-quantity"

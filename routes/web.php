@@ -29,6 +29,7 @@ use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\User\ProductReviewController;
+use App\Http\Controllers\Webhooks\StripeWebhookController;
 
 //Auth
 Route::get('/login', [RedirectController::class, 'login'])->name('login');
@@ -44,6 +45,9 @@ Route::get('/new-password/{token}', [RedirectController::class, 'newPassword'])-
 Route::post('/new-password', [AuthController::class, 'new_password'])->name('auth.password');
 Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::post('/states', [AuthController::class, 'getStates'])->name("get.states");
+
+// Webhooks (no auth required)
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])->name('webhooks.stripe');
 
 //User
 Route::get('/', [HomeController::class, 'list'])->name('view.home');
@@ -67,11 +71,12 @@ Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
 Route::post('/checkout/payment/stripe-intent', [CheckoutController::class, 'createStripePaymentIntent'])->name('checkout.payment.stripe');
+Route::post('/checkout/payment/stripe-verify', [CheckoutController::class, 'verifyStripePayment'])->name('checkout.payment.stripe.verify');
 Route::post('/checkout/payment/razorpay-order', [CheckoutController::class, 'createRazorpayOrder'])->name('checkout.payment.razorpay');
 Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply.coupon');
 
 Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.remove.coupon');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/success/{order?}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 Route::post('/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');
@@ -100,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
         //order routes
         Route::get('/orders', [OrderController::class, 'indexshow'])->name('orders.show');
+        Route::get('/orders/{order}/view', [OrderController::class, 'adminShow'])->name('orders.view');
         Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 
         Route::prefix('settings')->group(function () {

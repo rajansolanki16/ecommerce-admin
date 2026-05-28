@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Coupon;
@@ -57,7 +58,9 @@ class CheckoutController extends Controller
             return back()->with('error', 'Your cart is empty');
         }
 
-        DB::transaction(function () use ($request, $cart) {
+        $order = null;
+
+        DB::transaction(function () use ($request, $cart, &$order) {
             $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
             $discount = 0;
             $couponId = null;
@@ -92,6 +95,26 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Create initial payment record
+            Payment::create([
+                'order_id'       => $order->id,
+                'user_id'        => Auth::id(),
+                'payment_method' => $request->input('payment_method', 'pending'),
+                'amount'         => $total,
+                'currency'       => getPaymentSetting('payment_currency', 'INR'),
+                'status'         => 'pending',
+                'transaction_id' => $request->input('transaction_id'),
+            ]);
+
+            // Log status change
+            $order->updateStatus(
+                'pending',
+                'order_created',
+                'system',
+                null,
+                ['payment_method' => $request->input('payment_method')]
+            );
+
             if (Auth::check() && auth()->user()->cart) {
                 auth()->user()->cart->items()->delete();
             }
@@ -100,7 +123,7 @@ class CheckoutController extends Controller
         });
 
         return redirect()
-            ->route('checkout.success')
+            ->route('checkout.success', $order->id)
             ->withCookie(cookie()->forget('guest_cart'));
     }
 
@@ -127,21 +150,154 @@ class CheckoutController extends Controller
 
         try {
             $stripe = new StripeClient($stripeSecret);
-            $intent = $stripe->paymentIntents->create([
-                'amount' => (int) round($totals['total'] * 100),
-                'currency' => strtolower(getPaymentSetting('payment_currency', 'INR')),
-                'payment_method_types' => ['card'],
-                'metadata' => [
-                    'user_id' => Auth::id(),
-                    'order_total' => $totals['total'],
+            $intent = $stripe->paymentIntents->create(
+                [
+                    'amount' => (int) round($totals['total'] * 100),
+                    'currency' => strtolower(getPaymentSetting('payment_currency', 'INR')),
+                    'payment_method_types' => ['card'],
+                    'metadata' => [
+                        'user_id' => Auth::id(),
+                        'order_total' => $totals['total'],
+                    ],
                 ],
-            ]);
+                ['idempotency_key' => Auth::id() . '-' . $request->session()->getId()] // Ensure idempotency
+            );
+
+            // Store payment intent ID in session for later verification
+            session()->put('stripe_payment_intent_id', $intent->id);
+            session()->put('stripe_client_secret', $intent->client_secret);
 
             return response()->json([
                 'client_secret' => $intent->client_secret,
+                'payment_intent_id' => $intent->id,
             ]);
         } catch (\Throwable $e) {
+            \Log::error('Stripe payment intent creation failed: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Verify Stripe payment and create order.
+     * This is called after client-side Stripe confirmation.
+     */
+    public function verifyStripePayment(Request $request)
+    {
+        $request->validate([
+            'payment_intent_id' => 'required|string',
+        ]);
+
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $paymentIntentId = $request->input('payment_intent_id');
+        $stripeSecret = getPaymentSetting('stripe_secret');
+
+        if (empty($stripeSecret)) {
+            return response()->json(['message' => 'Stripe is not configured'], 500);
+        }
+
+        try {
+            $stripe = new StripeClient($stripeSecret);
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId);
+
+            if ($paymentIntent->status === 'succeeded') {
+                // Create order if it doesn't exist
+                $cart = $this->getCart($request);
+                $order = null;
+
+                DB::transaction(function () use ($request, $cart, $paymentIntent, &$order) {
+                    // Check if order already exists for this payment intent
+                    $existingPayment = Payment::where('transaction_id', $paymentIntent->id)->first();
+                    if ($existingPayment) {
+                        $order = $existingPayment->order;
+                        return;
+                    }
+
+                    $subtotal = $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
+                    $discount = 0;
+                    $couponId = null;
+
+                    if ($coupon = session('applied_coupon')) {
+                        $couponId = $coupon['id'];
+                        $discount = $this->calculateDiscount($coupon, $subtotal);
+                        Coupon::where('id', $couponId)->increment('used');
+                    }
+
+                    $total = max(0, $subtotal - $discount);
+
+                    $order = Order::create([
+                        'user_id'   => Auth::id(),
+                        'name'      => $request->input('name', auth()->user()->name),
+                        'email'     => $request->input('email', auth()->user()->email),
+                        'phone'     => $request->input('phone'),
+                        'address'   => $request->input('address'),
+                        'subtotal'  => $subtotal,
+                        'discount'  => $discount,
+                        'total'     => $total,
+                        'coupon_id' => $couponId,
+                        'status'    => 'processing',
+                    ]);
+
+                    foreach ($cart as $item) {
+                        OrderItem::create([
+                            'order_id'   => $order->id,
+                            'product_id' => $item['id'],
+                            'price'      => $item['price'],
+                            'quantity'   => $item['quantity'],
+                        ]);
+                    }
+
+                    // Create payment record
+                    $payment = Payment::create([
+                        'order_id'       => $order->id,
+                        'user_id'        => Auth::id(),
+                        'payment_method' => 'stripe',
+                        'transaction_id' => $paymentIntent->id,
+                        'amount'         => $total,
+                        'currency'       => strtoupper($paymentIntent->currency),
+                        'status'         => 'succeeded',
+                        'paid_at'        => now(),
+                        'gateway_response' => [
+                            'payment_intent_id' => $paymentIntent->id,
+                            'charge_id' => $paymentIntent->charges->data[0]->id ?? null,
+                            'receipt_email' => $paymentIntent->receipt_email,
+                        ],
+                    ]);
+
+                    // Log status change
+                    $order->updateStatus(
+                        'processing',
+                        'payment_succeeded',
+                        'stripe_api',
+                        null,
+                        ['payment_intent_id' => $paymentIntent->id]
+                    );
+
+                    if (Auth::check() && auth()->user()->cart) {
+                        auth()->user()->cart->items()->delete();
+                    }
+
+                    session()->forget('applied_coupon');
+                    session()->forget('stripe_payment_intent_id');
+                    session()->forget('stripe_client_secret');
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'order_id' => $order->id,
+                    'redirect_url' => route('checkout.success', $order->id),
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment not completed. Status: ' . $paymentIntent->status,
+                ], 422);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Stripe payment verification failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Payment verification failed: ' . $e->getMessage()], 500);
         }
     }
 

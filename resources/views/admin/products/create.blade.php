@@ -121,66 +121,49 @@
                     </div>
 
                     <div class="card-body">
-
                         <div class="product-type-selector d-grid gap-3">
 
                             {{-- SIMPLE --}}
                             <label class="border rounded-3 p-3 cursor-pointer product-type-card">
-
                                 <div class="d-flex">
-
                                     <input type="radio"
                                            name="product_type"
                                            value="{{ \App\Enums\ProductType::SIMPLE->value }}"
                                            class="me-3 productTypeRadio">
-
                                     <div>
                                         <h6 class="mb-1 fw-semibold">
                                             Simple Product
                                         </h6>
-
                                         <p class="text-muted small mb-0">
                                             Single inventory and pricing.
                                         </p>
                                     </div>
-
                                 </div>
-
                             </label>
 
                             {{-- VARIANT --}}
                             <label class="border rounded-3 p-3 cursor-pointer product-type-card">
-
                                 <div class="d-flex">
-
                                     <input type="radio"
                                            name="product_type"
                                            value="{{ \App\Enums\ProductType::VARIANTS->value }}"
                                            class="me-3 productTypeRadio">
-
                                     <div>
                                         <h6 class="mb-1 fw-semibold">
                                             Variant Product
                                         </h6>
-
                                         <p class="text-muted small mb-0">
                                             Multiple combinations and pricing.
                                         </p>
                                     </div>
-
                                 </div>
-
                             </label>
-
                         </div>
-
                     </div>
-
                 </div>
 
                 {{-- ORGANIZATION --}}
                 <div class="card border-0 shadow-sm mb-4">
-
                     <div class="card-header bg-white border-0 pt-4">
                         <h5 class="fw-semibold mb-1">
                             Organization
@@ -191,7 +174,6 @@
 
                         {{-- Categories --}}
                         <div class="mb-4">
-
                             <label class="form-label fw-semibold">
                                 Categories
                             </label>
@@ -208,33 +190,25 @@
                                 @endforeach
 
                             </select>
-
                         </div>
 
                         {{-- Tags --}}
                         <div>
-
                             <label class="form-label fw-semibold">
                                 Tags
                             </label>
-
                             <select class="form-control"
                                     multiple
                                     name="tags[]"
                                     id="productTags">
-
                                 @foreach($allTags as $tag)
                                     <option value="{{ $tag->id }}">
                                         {{ $tag->name }}
                                     </option>
                                 @endforeach
-
                             </select>
-
                         </div>
-
                     </div>
-
                 </div>
 
                 {{-- MEDIA --}}
@@ -629,6 +603,5 @@
         });
     });
 </script>
-    <script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
-    
+<script src="{{ asset('admin/js/pages/ecommerce-create-product.init.js') }}"></script>
 <x-admin.footer />

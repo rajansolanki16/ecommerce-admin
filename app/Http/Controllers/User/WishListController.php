@@ -81,10 +81,7 @@ class WishListController extends Controller
     }
     public function showadmin()
     {
-        $wishlists = WishList::with(['user', 'product'])
-            ->latest()
-            ->get();
-
+        $wishlists = WishList::with(['user', 'product'])->latest()->get();
         return view('admin.wishlist.index', compact('wishlists'));
     }
     public function deleteById(Request $request, int $productId): JsonResponse
