@@ -10,7 +10,8 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Coupon;
-
+use Stripe\StripeClient;
+use Razorpay\Api\Api as RazorpayApi;
 
 class CheckoutController extends Controller
 {
@@ -41,10 +42,13 @@ class CheckoutController extends Controller
     public function placeOrder(Request $request)
     {
         $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email',
-            'phone'   => 'required|string|max:20',
-            'address' => 'required|string',
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email',
+            'phone'           => 'required|string|max:20',
+            'address'         => 'required|string',
+            'payment_method'  => 'nullable|string',
+            'payment_status'  => 'nullable|string',
+            'transaction_id'  => 'nullable|string',
         ]);
 
         $cart = $this->getCart($request);
@@ -100,6 +104,95 @@ class CheckoutController extends Controller
             ->withCookie(cookie()->forget('guest_cart'));
     }
 
+    public function createStripePaymentIntent(Request $request)
+    {
+        $totals = $this->calculateCartTotals($request);
+
+        if ($totals['cart']->isEmpty()) {
+            return response()->json(['message' => 'Your cart is empty.'], 422);
+        }
+
+        if ($totals['total'] <= 0) {
+            return response()->json(['message' => 'Invalid cart total.'], 422);
+        }
+
+        if (!getPaymentSetting('stripe_enabled', false)) {
+            return response()->json(['message' => 'Stripe is not enabled.'], 403);
+        }
+
+        $stripeSecret = getPaymentSetting('stripe_secret');
+        if (empty($stripeSecret)) {
+            return response()->json(['message' => 'Stripe secret key is not configured.'], 500);
+        }
+
+        try {
+            $stripe = new StripeClient($stripeSecret);
+            $intent = $stripe->paymentIntents->create([
+                'amount' => (int) round($totals['total'] * 100),
+                'currency' => strtolower(getPaymentSetting('payment_currency', 'INR')),
+                'payment_method_types' => ['card'],
+                'metadata' => [
+                    'user_id' => Auth::id(),
+                    'order_total' => $totals['total'],
+                ],
+            ]);
+
+            return response()->json([
+                'client_secret' => $intent->client_secret,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createRazorpayOrder(Request $request)
+    {
+        $totals = $this->calculateCartTotals($request);
+
+        if ($totals['cart']->isEmpty()) {
+            return response()->json(['message' => 'Your cart is empty.'], 422);
+        }
+
+        if ($totals['total'] <= 0) {
+            return response()->json(['message' => 'Invalid cart total.'], 422);
+        }
+
+        if (!getPaymentSetting('razorpay_enabled', false)) {
+            return response()->json(['message' => 'Razorpay is not enabled.'], 403);
+        }
+
+        $razorpayKey = getPaymentSetting('razorpay_key_id');
+        $razorpaySecret = getPaymentSetting('razorpay_key_secret');
+
+        if (empty($razorpayKey) || empty($razorpaySecret)) {
+            return response()->json(['message' => 'Razorpay keys are not configured.'], 500);
+        }
+
+        try {
+            $api = new RazorpayApi($razorpayKey, $razorpaySecret);
+            $orderData = [
+                'amount' => (int) round($totals['total'] * 100),
+                'currency' => strtoupper(getPaymentSetting('payment_currency', 'INR')),
+                'payment_capture' => 1,
+                'notes' => [
+                    'user_id' => Auth::id(),
+                    'source' => 'checkout',
+                ],
+            ];
+
+            $razorpayOrder = $api->order->create($orderData);
+
+            return response()->json([
+                'order_id' => $razorpayOrder['id'],
+                'amount' => $razorpayOrder['amount'],
+                'currency' => $razorpayOrder['currency'],
+                'key' => $razorpayKey,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function applyCoupon(Request $request)
     {
         $request->validate([
@@ -148,6 +241,24 @@ class CheckoutController extends Controller
     }
 
     // ─── Private Helpers ────────────────────────────────────────────────────────
+
+    private function calculateCartTotals(Request $request): array
+    {
+        $cart = $this->getCart($request);
+        $subtotal = $cart->isEmpty() ? 0 : $cart->sum(fn ($i) => $i['price'] * $i['quantity']);
+        $discount = 0;
+
+        if ($coupon = session('applied_coupon')) {
+            $discount = $this->calculateDiscount($coupon, $subtotal);
+        }
+
+        return [
+            'cart' => $cart,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'total' => max(0, $subtotal - $discount),
+        ];
+    }
 
     private function calculateDiscount(array $coupon, float $subtotal): float
     {

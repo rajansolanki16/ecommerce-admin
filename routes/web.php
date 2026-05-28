@@ -66,6 +66,8 @@ Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
+Route::post('/checkout/payment/stripe-intent', [CheckoutController::class, 'createStripePaymentIntent'])->name('checkout.payment.stripe');
+Route::post('/checkout/payment/razorpay-order', [CheckoutController::class, 'createRazorpayOrder'])->name('checkout.payment.razorpay');
 Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply.coupon');
 
 Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.remove.coupon');
